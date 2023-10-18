@@ -15,11 +15,12 @@ return new class extends Migration
     {
         Schema::create('sertifikasis', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('bidang_sertifikasi');
-            $table->string('level');
-            $table->string('nomor');
-            $table->string('lembaga_sertifikasi');
-            $table->string('judul_sertifikasi');
+            $table->string('title')->required();
+            $table->string('organisasi')->required();
+            $table->string('tanggal_terbit')->format('Y-m')->required();
+            $table->string('tanggal_berakhir')->nullable();
+            $table->string('id_sertifikat')->nullable();
+            $table->string('url_sertifikat')->nullable();
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

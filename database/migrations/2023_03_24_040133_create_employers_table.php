@@ -23,11 +23,16 @@ return new class extends Migration
             $table->string('kota')->require();
             $table->string('kode_pos')->require();
             $table->string('website')->require();
+            $table->string('bidang_perusahaan')->require();
+            $table->string('tahun_berdiri')->nullable();
+            $table->string('kantor_pusat')->nullable();
+            $table->longText('deskripsi_perusahaan')->nullable();
             $table->string('nama_lengkap')->require();
             $table->string('jabatan')->require();
             $table->string('nomor_telepon')->require();
             $table->string('alamat_email')->require();
             $table->string('logo_perusahaan')->nullable();
+            $table->timestamp('email_verification')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -12,10 +12,13 @@ class Pengalaman extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_perusahaan',
-        'jabatan',
-        'tahun_masuk',
-        'tahun_keluar',
+        'title',
+        'jenis_pekerjaan',
+        'organisasi',
+        'lokasi_pekerjaan',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'deskripsi',
         'user_id',
     ];
 }

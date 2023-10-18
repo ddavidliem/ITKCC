@@ -18,6 +18,7 @@ class Appointment extends Model
         'user_id',
         'topik',
         'jenis_konseling',
+        'tempat_konseling',
         'status',
     ];
 

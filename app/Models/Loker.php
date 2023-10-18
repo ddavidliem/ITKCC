@@ -27,6 +27,8 @@ class Loker extends Model
         'deadline' => 'datetime',
     ];
 
+
+
     public function applicants()
     {
         return $this->hasMany(Application::class);
@@ -35,5 +37,12 @@ class Loker extends Model
     public function employer()
     {
         return $this->belongsTo(Employer::class);
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($loker) {
+            $loker->applicants()->delete();
+        });
     }
 }

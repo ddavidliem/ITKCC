@@ -23,40 +23,35 @@ use App\Http\Middleware\Employer;
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/', 'index');
-    Route::get('/login/user', 'UserLoginForm');
-    Route::get('/refresh-captcha', 'refreshCaptcha');
-    Route::get('/carousel', 'Carousel');
-
     Route::get('/render-loker-list', 'lokerList');
     Route::get('/loker/{id}', 'lokerDetail');
     Route::get('/loker', 'lokerIndex');
-
-    Route::get('/consult', 'consultIndex');
+    Route::get('/konsultasi', 'konsultasiIndex');
+    Route::post('/loker/result', 'searchLoker');
 });
 
 Route::controller(AuthController::class)->middleware('guest')->group(function () {
     Route::post('/register-user', 'UserReg');
     Route::get('/register-user-form', 'UserRegForm');
     Route::post('/login-user', 'UserLogin');
-    Route::get('/forget-password', 'ForgetPasswordForm')->name('forget.password.get');
-    Route::post('/forget-password', 'submitForgetPassword')->name('forget.password.post');
-    Route::get('/reset-password/{token}', 'ResetPasswordForm')->name('reset.password.get');
-    Route::post('/submit-reset-password', 'submitResetPassword')->name('reset.password.post');
+    Route::get('/login/user', 'UserLoginForm');
 
+    Route::get('/email-verification', 'indexVerification');
+    Route::get('/verify-email/{token}', 'emailVerify');
+    Route::patch('/send/email-verification', 'resendVerificationMail');
+    Route::get('/refresh-captcha', 'refreshCaptcha');
 
-    Route::get('/register-employer', 'EmployerRegForm');
+    Route::get('/reset-password', 'resetPasswordIndex');
+    Route::post('/send/reset-password-link', 'resetPasswordMail');
+
+    Route::get('/register-employer-form', 'EmployerRegForm');
     Route::post('/employer-submit-approval', 'EmployerApproval');
-
-
     Route::post('/login-employer', 'EmployerLogin');
-    Route::get('/employer-login-form', 'EmployerLoginForm');
-    Route::get('/forget-password-employer');
-    Route::post('/forget-password-employer');
-    Route::get('/reset-password/{token}');
-    Route::post('/submit-reset-password-employer');
+    Route::get('/login/employer', 'EmployerLoginForm');
+    Route::get('/register-form-template', 'templateDownload');
 
-    Route::get('/login-admin', 'adminLoginForm');
-    Route::post('/admin-sign-in', 'adminLogin');
+    Route::get('/login/admin/form', 'adminLoginForm');
+    Route::post('/login/admin', 'adminLogin');
 });
 
 Route::controller(UserController::class)->middleware('user')->group(function () {
@@ -64,58 +59,74 @@ Route::controller(UserController::class)->middleware('user')->group(function () 
     Route::get('/logout-user', 'logout');
 
     Route::get('/Home/Pendidikan', 'pendidikan');
+    Route::post('/submit-pendidikan', 'addPendidikan');
     Route::get('/get-pendidikan/{id}');
 
     Route::get('/Home/User/Profile', 'indexProfile');
     Route::get('/render-profile', 'renderProfile');
-    Route::post('/update-user-data', 'updateProfile');
+    Route::put('/update-user-data', 'updateProfile');
 
-    Route::post('/submit-pendidikan', 'addPendidikan');
     Route::post('/submit-sertifikat', 'addSertifikat');
-    Route::post('/submit-pengalaman', 'addPengalaman');
+    Route::get('/Home/User/Sertifikat', 'indexSertifikat');
+    Route::put('/update-sertifikat/{id}', 'updateSertifikat');
+    Route::delete('/delete-sertifikat/{id}', 'deleteSertifikat');
 
-    Route::get('/Home/User/Application', 'indexApplication');
+    Route::post('/submit-pengalaman', 'addPengalaman');
+    Route::get('/Home/User/Pengalaman', 'indexPengalaman');
+    Route::put('/update-pengalaman/{id}', 'updatePengalaman');
+    Route::delete('/delete-pengalaman/{id}', 'deletePengalaman');
+
     Route::get('/Home/User/Resume', 'indexResume');
-    Route::POST('/update-resume', 'updateResume');
-    Route::POST('/update-profile-image', 'imgProfile');
+    Route::put('/update-resume', 'updateResume');
+    Route::put('/update-profile-image', 'imgProfile');
 
     Route::get('/Home/User/Appointment', 'indexAppointment');
-    Route::get('/appointment-form', 'AppointmentForm');
-    Route::post('/create-appointment', 'createAppointment');
+    Route::get('/konsultasi/formulir', 'AppointmentForm');
+    Route::post('/new-appointment', 'createAppointment');
+    Route::put('/edit-appointment/{id}', 'editAppointment');
+    Route::get('/Home/User/Appointment/{id}', 'detailAppointment');
 
-
-
-    Route::POST('/submit-application/{id}', 'submitApplication');
+    Route::get('/Home/User/Application', 'indexApplication');
+    Route::get('/Home/User/Application/{id}', 'detailApplication');
+    Route::post('/submit-application/{id}', 'submitApplication');
 });
 
 Route::controller(EmployerController::class)->middleware('employer')->group(function () {
-    Route::get('/employer/dashboard', 'index');
+    Route::get('/Employer/Dashboard', 'index');
 
-    Route::get('/render-loker', 'renderLoker');
-    Route::get('/new-loker-form', 'lokerForm');
-    Route::post('/tambah-loker', 'newLoker');
-    Route::get('/loker-detail/{id}', 'detailLoker');
+    Route::get('/Employer/Profile', 'employerProfile');
+    Route::put('/update-employer', 'updateEmployer');
+    Route::put('/update-company', 'updateCompany');
+    Route::put('/update-logo-company', 'updateLogo');
 
-    Route::get('/profile/{id}', 'employerProfile');
-    Route::post('/employer-update-logo', 'employerUpdateLogo');
+    Route::post('/new-loker', 'newLoker');
+    Route::get('/Employer/Loker/{id}', 'detailLoker');
+    Route::put('/update-loker/{id}', 'updateLoker');
+    Route::delete('/delete-loker/{id}', 'deleteLoker');
 
-    Route::get('/Applicant-list/{id}', 'listApplication');
-    Route::get('/pelamar/{id}', 'applicantDetail');
-    Route::patch('/Approve-application/{id}', 'approval');
+    Route::put('/Employer/{loker}/applicant/{applicant}', 'updateApplication');
 
     Route::get('/logout-employer', 'logout');
-});
-
-Route::controller(AuthController::class)->group(function () {
-    Route::get('/registration-form');
-    Route::post('/submit-form');
 });
 
 Route::controller(AdminController::class)->middleware('admin')->group(function () {
     Route::get('/dashboard', 'index');
 
+    Route::get('/contents/carousel', 'carouselPage');
+    Route::post('/contents/carousel/new', 'carouselNew');
+    Route::get('/contents/carousel/{id}', 'carouselDetail');
+    Route::put('/contents/carousel/{id}/update', 'carouselUpdate');
+    Route::delete('/contents/carousel/{id}/delete', 'carouselDelete');
+
+    Route::get('/contents', 'contentIndex');
+    Route::get('/contents/new/form', 'formContent');
+    Route::post('/contents/new', 'newContent');
+    Route::get('/contents/{id}', 'contentDetail');
+    Route::put('/contents/{id}/update', 'updateContent');
+    Route::delete('/contents/{id}/delete', 'deleteContent');
+
     Route::get('/approval', 'approvalPage');
-    Route::post('approval-approved/{id}', 'approvalEmployer');
+    Route::put('/update-approval/{id}', 'approvalUpdate');
 
     Route::get('/employer', 'employerIndex');
     Route::get('/render-appointments', 'renderAppointments');

@@ -30,8 +30,6 @@
 @endif
 @if ($message = Session::get('empty'))
     <div>
-        <h4>It Look Empty :D</h4>
-        <h4>
-            blanditiis!</h4>
+        <h4>Empty Notification</h4>
     </div>
 @endif

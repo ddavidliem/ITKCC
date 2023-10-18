@@ -11,9 +11,11 @@ class Pendidikan extends Model
     use UUID;
     use HasFactory;
     protected $fillable = [
-        'tingkat',
-        'nama_instansi',
-        'tahun_lulus',
+        'gelar_pendidikan',
+        'nama_organisasi',
+        'bidang_studi',
+        'tanggal_mulai',
+        'tanggal_lulus',
         'user_id',
     ];
 }

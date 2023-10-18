@@ -20,7 +20,7 @@ return new class extends Migration
             $table->uuid('loker_id');
             $table->foreign('loker_id')->references('id')->on('lokers');
             $table->string('status')->nullable();
-            $table->string('feedback')->nullable();
+            $table->longText('feedback')->nullable();
             $table->timestamps();
         });
     }

@@ -12,11 +12,12 @@ class Sertifikasi extends Model
     use HasFactory;
 
     protected $fillable = [
-        'bidang_sertifikasi',
-        'level',
-        'nomor',
-        'lembaga_sertifikasi',
-        'judul_sertifikasi',
+        'title',
+        'organisasi',
+        'tanggal_terbit',
+        'tanggal_berakhir',
+        'id_sertifikat',
+        'url_sertifikat',
         'user_id',
     ];
 }

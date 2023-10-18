@@ -44,6 +44,10 @@
     min-height: 75vh;
 }
 
+.min-vh-150 {
+    min-height: 150vh;
+}
+
 .max-vh-100 {
     max-height: 100vh;
 }
@@ -64,6 +68,10 @@
     max-height: 15vh;
 }
 
+.img-profile {
+    width: 210px;
+    height: 240px
+}
 
 .img-logo {
     width: 75px;

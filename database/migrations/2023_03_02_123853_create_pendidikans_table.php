@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('pendidikans', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('tingkat');
-            $table->string('nama_instansi');
-            $table->string('tahun_lulus');
+            $table->string('gelar_pendidikan')->required();
+            $table->string('nama_organisasi')->required();
+            $table->string('bidang_studi')->required();
+            $table->string('tanggal_mulai')->nullable();
+            $table->string('tanggal_selesai')->nullable();
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

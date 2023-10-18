@@ -23,16 +23,15 @@
                     <a href="/appointment" class="list-group-item text-decoration-none fs-6 fw-semibold">
                         Appointment
                     </a>
-                    <a href="/content" class="list-group-item text-decoration-none fs-6 fw-semibold">
+                    <a href="/contents" class="list-group-item text-decoration-none fs-6 fw-semibold">
                         Content
                     </a>
                 </div>
             </div>
 
+
             <div class="col-lg-10 px-4">
                 <div class="max-vh-100 overflow-auto p-2">
-
-
                     <div class="min-vh-15 p-4 bg-white rounded border-1">
                         <h3 class="">Approval</h3>
                         <div class="d-flex my-4 justify-content-center">

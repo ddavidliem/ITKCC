@@ -19,14 +19,15 @@ class UserSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            'id' => Str::uuid()->toString(),
+            'id' => '669e177b-a74c-42ef-9469-bd5f223ceeaa',
             'username' => 'ddavid',
             'password' => Hash::make('qwerty123'),
+            'profile' => '669e177b-a74c-42ef-9469-bd5f223ceeaa.png',
+            'resume' => '669e177b-a74c-42ef-9469-bd5f223ceeaa.pdf',
             'nama_lengkap' => 'David Liem',
             'alamat_email' => 'ddavidliem@gmail.com',
             'tempat_lahir' => 'Balikpapan',
             'tanggal_lahir' => Date::make('2023-04-18'),
-            'nomor_ktp' => '6471051511000001',
             'jenis_kelamin' => 'pria',
             'alamat' => 'Balikpapan',
             'kota' => 'Balikpapan',
@@ -37,7 +38,8 @@ class UserSeeder extends Seeder
             'agama' => 'Kristen Protestan',
             'pendidikan_tertinggi' => 'SMA',
             'nim' => '10181014',
-            'bidang' => 'Sistem Informasi',
+            'program_studi' => 'Sistem Informasi',
+            'email_verification' => null,
         ]);
     }
 }

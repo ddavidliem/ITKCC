@@ -3,22 +3,21 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Sertifikasi;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\UUID;
-use Conner\Tagging\Taggable;
-
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use function PHPSTORM_META\map;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use UUID;
     use HasApiTokens, HasFactory, Notifiable;
-    use Taggable;
     /**
      * The attributes that are mass assignable.
      *
@@ -32,7 +31,6 @@ class User extends Authenticatable
         'alamat_email',
         'tempat_lahir',
         'tanggal_lahir',
-        'nomor_ktp',
         'jenis_kelamin',
         'alamat',
         'kota',
@@ -44,12 +42,12 @@ class User extends Authenticatable
         'pendidikan_tertinggi',
         'nim',
         'ipk',
-        'bidang',
+        'program_studi',
         'disabilitas',
         'resume',
         'profile',
-        'skills' => 'array',
         'status',
+        'email_verification',
     ];
 
     /**
@@ -72,9 +70,9 @@ class User extends Authenticatable
         return $this->hasMany(pengalaman::class);
     }
 
-    public function sertifikasi(): HasMany
+    public function sertifikat(): HasMany
     {
-        return $this->hasMany(sertifikasi::class);
+        return $this->hasMany(Sertifikasi::class);
     }
 
     public function appointment(): HasMany
@@ -86,12 +84,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Application::class);
     }
-    // /**
-    //  * The attributes that should be cast.
-    //  *
-    //  * @var array<string, string>
-    //  */
-    // protected $casts = [
-    //     'email_verified_at' => 'datetime',
-    // ];
 }

@@ -76,6 +76,7 @@ return [
         public_path('profile') => storage_path('app/profile'),
         public_path('formulir') => storage_path('app/formulir'),
         public_path('logo') => storage_path('app/logo'),
+        public_path('content') => storage_path('app/content'),
     ],
 
 ];

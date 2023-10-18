@@ -1,63 +1,87 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 
 @section('content')
-    <div class="p-4">
-        <div class="d-flex justify-content-between">
-            <div class="p-2 col-lg-2">
-                <div class="min-vh-25 bg-white list-group list-group-flush p-4 rounded border-1">
-                    <a href="" class="fw-semibold list-group-item text-decoration-none text-black">Profile</a>
-                    <a href="" class="fw-semibold list-group-item text-decoration-none text-black">Resume</a>
-                    <a href="" class="fw-semibold list-group-item text-decoration-none text-black">Application</a>
-                </div>
-            </div>
-            <div class="p-2 col-lg-7">
-                <div class="min-vh-100 bg-white overflow-auto list-group list-group-flush p-4 rounded border-1">
-                    @if ($loker->isEmpty())
-                        @include('component.empty')
-                    @else
-                        @foreach ($loker as $item)
-                            <a href="/loker/{{ $item->id }}" class="list-group-item p-2 d-flex">
-                                <img src="{{ asset('logo/' . $item->employer->logo_perusahaan) }}" alt=""
-                                    class="img-logo">
-                                <div class="mx-3">
-
-                                    <div>
-                                        <span class="fs-4 text-capitalize">{{ $item->nama_pekerjaan }}</span>
-                                    </div>
-                                    <div>
-                                        <span
-                                            class="fs-6 text-capitalize fw-semibold">{{ $item->employer->nama_perusahaan }}</span>
-                                        <br>
-                                        <small class="text-capitalize">{{ $item->lokasi_pekerjaan }}</small>
-                                        <br>
-                                        <small
-                                            class="text-capitalize
-                                        ">{{ $item->jenis_pekerjaan }}</small>
-                                        <br>
-                                        <small>{{ $item->created_at->diffForHumans() }}</small>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    @endif
-
-                </div>
-            </div>
-
-            <div class="p-2 col-lg-3">
-                <div class="bg-white min-vh-25 overflow-auto p-3 rounded border-1">
-                    <small class="fs-5 fw-semibold ">Job Seeker Guidance</small>
-                    <br>
-                    <small>Tim Coaching Clinic ITK menyediakan layanan konsultasi untuk kamu yang pingin membuat resume
-                        maupun persiapan wawancara</small>
-                    <div class="my-4 d-flex justify-content-center">
-                        <a href="/appointment-form" class="fs-5 btn btn-primary">Buat Jadwal Konsultasi</a>
+    <div class="container p-4">
+        <div class="d-flex">
+            <div class="col-9">
+                <div class="p-4 bg-white rounded min-vh-150">
+                    <h4 class="fw-bold">Lowongan Kerja</h4>
+                    <div class="my-3">
+                        @if ($loker->isEmpty())
+                            @include('component.empty', ['message' => 'Belum Ada Lowongan Kerja'])
+                        @else
+                            <div class="list-group list-group-flush">
+                                @foreach ($loker as $item)
+                                    <a href="/loker/{{ $item->id }}" class="list-group-item p-2 d-flex">
+                                        <div class="col-lg-1 d-flex">
+                                            <img src="{{ asset('logo/' . $item->employer->logo_perusahaan) }}"
+                                                alt="" class="img-fluid px-1 align-self-center">
+                                        </div>
+                                        <div class="col-lg-11 px-4">
+                                            <h6 class="fw-semibold text-capitalize">{{ $item->nama_pekerjaan }}</h6>
+                                            <ul class="list-unstyled">
+                                                <li class="text-capitalize">{{ $item->employer->nama_perusahaan }}</li>
+                                                <li class="text-capitalize">{{ $item->lokasi_pekerjaan }} |
+                                                    {{ $item->jenis_pekerjaan }} | {{ $item->tipe_pekerjaan }}</li>
+                                                @if ($item->status === 'Open')
+                                                    <li class="text-capitalize text-success">Open For Recruitment</li>
+                                                @elseif($item->status === 'Closed')
+                                                    <li class="text-capitalize text-danger">Closed For Recruitment</li>
+                                                @endif
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
-
-
+            <div class="mx-3 col-3">
+                <div class="p-4 bg-white rounded min-vh-25">
+                    <div>
+                        <img src="{{ asset('component/coaching-clinic.png') }}" class="img-fluid" alt="">
+                    </div>
+                    <div class="my-3">
+                        <h6 class="fw-semibold text-center">
+                            Persiapkan Karir Kamu Bersama <br> Tim Pusat Karir ITK
+                        </h6>
+                    </div>
+                    <div class=" d-flex justify-content-center">
+                        <a href="/konsultasi" class="btn btn-outline-dark">Make Appointment</a>
+                    </div>
+                </div>
+                <div class="my-3">
+                    <div class="p-4 bg-white rounded min-vh-25">
+                        <h6 class="fw-semibold">Pencarian Lowongan Kerja</h6>
+                        <div class="my-4">
+                            <form action="/loker/result" method="post" role="search" class="">
+                                @csrf
+                                <div class="my-1">
+                                    <input class="form-control me-2" name="searchQuery" placeholder="Masukkan Kata Kunci">
+                                    <div class="form-text">
+                                        Pencarian Nama Pekerjaan, Jenis Pekerjaan, Nama Perusahaan, Lokasi
+                                    </div>
+                                </div>
+                                <div class="my-2">
+                                    <label for="" class="form-label fw-semibold">Jenis Pekerjaan</label>
+                                    <select name="selectQuery" class="form-select">
+                                        <option value="" disabled selected>Pilih Jenis Pekerjaan</option>
+                                        <option value="WFH">WFH</option>
+                                        <option value="WFO">WFO</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                </div>
+                                <div class="my-3 d-flex justify-content-end">
+                                    <button class="btn btn-outline-dark">Search</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

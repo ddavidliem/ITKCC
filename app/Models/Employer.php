@@ -30,11 +30,16 @@ class Employer extends Authenticatable
         'kota',
         'kode_pos',
         'website',
+        'logo_perusahaan',
+        'bidang_perusahaan',
+        'Tahun_berdiri',
+        'Kantor_pusat',
+        'deskripsi_perusahaan',
         'nama_lengkap',
         'jabatan',
         'nomor_telepon',
         'alamat_email',
-        'logo_perusahaan',
+        'email_verification'
     ];
 
     /**
@@ -49,6 +54,6 @@ class Employer extends Authenticatable
 
     public function loker(): HasMany
     {
-        return $this->hasMany(Loker::class);
+        return $this->hasMany(Loker::class)->with('applicants');
     }
 }

@@ -22,7 +22,7 @@ class Application extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->with('pengalaman', 'sertifikasi');
+        return $this->belongsTo(User::class)->with('pengalaman', 'sertifikat');
     }
 
     public function loker()

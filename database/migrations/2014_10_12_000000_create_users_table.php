@@ -21,9 +21,8 @@ return new class extends Migration
             $table->string('alamat_email')->unique()->require();
             $table->string('tempat_lahir')->require();
             $table->date('tanggal_lahir')->require();
-            $table->string('nomor_ktp')->unique()->require();
             $table->string('jenis_kelamin')->require();
-            $table->string('alamat')->require();
+            $table->longText('alamat')->require();
             $table->string('kota')->require();
             $table->string('kode_pos')->require();
             $table->string('nomor_telepon')->require();
@@ -33,12 +32,12 @@ return new class extends Migration
             $table->string('pendidikan_tertinggi')->require();
             $table->string('nim')->nullable();
             $table->string('ipk')->nullable();
-            $table->string('bidang')->require();
+            $table->string('program_studi')->require();
             $table->string('disabilitas')->nullable();
             $table->string('resume')->nullable();
             $table->string('profile')->nullable();
-            $table->string('skills')->nullable();
             $table->string('status')->nullable();
+            $table->timestamp('email_verification')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

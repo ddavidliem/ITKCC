@@ -1,87 +1,172 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('content')
-    <div class="p-4">
-        <div class="min-vh-25 col-10 offset-1 bg-white rounded p-4 mb-4">
-            <div class="mb-4">
-                <h1>Hi, {{ $user->nama_lengkap }}</h1>
-            </div>
-
-            @if (empty($user->resume && $user->profile))
-                <div class="mb-4 accordion accordion-flush shadow">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="flush-headingOne">
-                            <button class="accordion-button bg-warning rounded collapsed" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false"
-                                aria-controls="flush-collapseOne">
-                                <span class="fs-6 text-black">Yuk Lengkapi Profil Kamu Dulu</span>
-                            </button>
-                        </h2>
-                        <div id="flush-collapseOne" class="accordion-collapse collapse " aria-labelledby="flush-headingOne"
-                            data-bs-parent="#accordionFlushExample">
-                            <div class="accordion-body bg-warning rounded">
-                                <ul class=" list-unstyled text-bold">
-                                    @if (empty($user->resume))
-                                        <li>Upload Resume</li>
-                                    @endif
-                                    @if (empty($user->profile))
-                                        <li>Upload Foto Profile</li>
-                                    @endif
-                                </ul>
-
+    <div class="container p-4">
+        <div class="">
+            <div class="p-4 bg-white rounded min-vh-100">
+                <div class="min-vh-25 mb-4">
+                    <h5 class="fw-bold">Appointment Terbaru
+                        @if ($appointment->isEmpty())
+                            <span class="badge text-bg-warning">!</span>
+                        @endif
+                    </h5>
+                    @if ($appointment->isEmpty())
+                        <div class="d-flex justify-content-center">
+                            <div class="align-self-center">
+                                <h5 class="">Tidak Ada Appointment</h5>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="list-group list-group-flush px-4">
+                            @foreach ($appointment as $item)
+                                <a href="/Home/User/Appointment/{{ $item->id }}"
+                                    class="my-3 text-decoration-none text-dark list-group-item">
+                                    <h5 class="fw-bold">Appointment</h5>
+                                    <div class="my-2">
+                                        <h6 class="fw-semibold">{{ $item->topik }}</h6>
+                                        <h6 class="text-capitalize">{{ $item->date_time }} |
+                                            {{ $item->tempat_konseling }} |
+                                            {{ $item->jenis_konseling }}</h6>
+                                        <h6 class="fw-semibold">Status :
+                                            @if ($item->status === 'Pending')
+                                                <span class="fw-bold text-center py-1 px-2 ">
+                                                    {{ $item->status }}</span>
+                                            @elseif($item->status === 'Reschedule')
+                                                <span class="fw-bold text-center bg-warning py-1 px-2 ">
+                                                    {{ $item->status }}</span>
+                                            @elseif($item->status === 'Approved')
+                                                <span class="fw-bold text-center bg-primary py-1 px-2 ">
+                                                    {{ $item->status }}</span>
+                                            @endif
+                                        </h6>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
-            @endif
 
-            <div class="d-flex justify-content-evenly mb-4">
-                <div class="col-lg-5 shadow p-4 ">
-                    <h3>Appointment</h3>
-                    <span class="fs-4">{{ $appointment }}</span>
-                </div>
-                <div class="col-lg-5 shadow p-4 ">
-                    <h3>Application</h3>
-                    <span class="fs-4">{{ $application }}</span>
-                </div>
-            </div>
-
-        </div>
-        <div class="p-4 col-lg-10 offset-1 rounded bg-white min-vh-50 mb-4">
-            <h2>Lowongan Kerja Terbaru</h2>
-            <div class="d-flex justify-content-evenly my-4">
-                @if ($loker->isEmpty())
-                    @include('component.empty')
-                @else
-                    @foreach ($loker as $item)
-                        <a href="/loker/{{ $item->id }}"
-                            class="rounded shadow col-lg-3 p-3 text-decoration-none text-black d-flex">
-                            <div class="col-lg-4">
-                                <img src="{{ asset('logo/' . $item->employer->logo_perusahaan) }}" alt=""
-                                    style="width: 80px; height:60px">
+                <div class="min-vh-25 mb-4">
+                    <h5 class="fw-bold">Application Terbaru
+                        @if ($application->isEmpty())
+                            <span class="badge text-bg-warning">!</span>
+                        @endif
+                    </h5>
+                    @if ($application->isEmpty())
+                        <div class="d-flex justify-content-center">
+                            <div class="align-self-center">
+                                <h5 class="">Tidak Ada Application</h5>
                             </div>
-                            <div class="col-lg-8 px-4">
-                                <div class="">
-                                    <small class="fs-6 fw-semibold">{{ $item->nama_pekerjaan }}</small>
-                                </div>
-                                <div>
-                                    <small class="text-capitalize fw-semibold">
-                                        {{ $item->employer->nama_perusahaan }}
-                                    </small>
-                                    <ul class="list-unstyled">
-                                        <li>{{ $item->jenis_pekerjaan }}</li>
-                                        <li>{{ $item->lokasi_pekerjaan }}</li>
-                                    </ul>
-                                </div>
+                        </div>
+                    @else
+                        <div class="list-group list-group-flush px-4">
+                            @foreach ($application as $item)
+                                <a href="/Home/User/Application/{{ $item->id }}"
+                                    class="my-3 text-decoration-none text-dark list-group-item">
+                                    <div class="d-flex">
+                                        <div class="col-1">
+                                            <img src="{{ asset('logo/' . $item->loker->employer->logo_perusahaan) }}"
+                                                class="img-fluid" alt="">
+                                        </div>
+                                        <div class="col-11 mx-4">
+                                            <h5 class="fw-semibold text-capitalize">{{ $item->loker->nama_pekerjaan }}
+                                            </h5>
+                                            <h6 class="fw-semibold">{{ $item->loker->employer->nama_perusahaan }}</h6>
+                                            <h6 class="text-capitalize">{{ $item->loker->lokasi_pekerjaan }} |
+                                                {{ $item->loker->jenis_pekerjaan }} |
+                                                {{ $item->loker->tipe_pekerjaan }}</h6>
+                                            <h6>Submitted At : {{ $item->created_at }}</h6>
+                                            <h6 class="text-capitalize">
+                                                Status :
+                                                @if ($item->status === 'Pending')
+                                                    <span>Pending</span>
+                                                @elseif($item->status === 'Qualified')
+                                                    <span class="text-success">Qualified</span>
+                                                @elseif($item->status === 'Not Qualified')
+                                                    <span class="text-danger">Not Qualified</span>
+                                                @endif
+                                            </h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <div class="min-vh-25 mb-4">
+                    <h5 class="fw-bold">Pengalaman Kerja Terbaru
+                        @if ($pengalaman->isEmpty())
+                            <span class="badge text-bg-warning">!</span>
+                        @endif
+                    </h5>
+                    @if ($pengalaman->isEmpty())
+                        <div class="d-flex justify-content-center">
+                            <div class="align-self-center">
+                                <h5 class="">Tidak Ada Pengalaman Kerja</h5>
                             </div>
-                        </a>
-                    @endforeach
-                @endif
+                        </div>
+                    @else
+                        <div class="list-group list-group-flush px-4">
+                            @foreach ($pengalaman as $item)
+                                <div class="list-group-item">
+                                    <h5 class="fw-semibold">{{ $item->title }}</h5>
+                                    <div class="my-2">
+                                        <h6 class="fw-semibold">{{ $item->organisasi }}</h6>
+                                        <h6 class="text-capitalize">{{ $item->lokasi_pekerjaan }}</h6>
+                                        <h6 class="">
+                                            <span class="text-capitalize">
+                                                {{ $item->tanggal_mulai }}
+                                                @if ($item->tanggal_selesai)
+                                                    | {{ $item->tanggal_selesai }}
+                                                @endif
+                                            </span>
+
+                                        </h6>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <div class="min-vh-25 mb-4">
+                    <h5 class="fw-bold">Sertifikat Terbaru
+                        @if ($sertifikat->isEmpty())
+                            <span class="badge text-bg-warning">!</span>
+                        @endif
+                    </h5>
+                    @if ($sertifikat->isEmpty())
+                        <div class="d-flex justify-content-center">
+                            <div class="align-self-center">
+                                <h5 class="">Tidak Ada Sertifikat</h5>
+                            </div>
+                        </div>
+                    @else
+                        <div class="list-group list-group-flush px-4">
+                            @foreach ($sertifikat as $item)
+                                <div class="list-group-item">
+                                    <h5 class="fw-semibold">{{ $item->title }}</h5>
+                                    <div class="my-2">
+                                        <h6 class="fw-semibold">{{ $item->organisasi }}</h6>
+                                        <h6 class="">
+                                            <span class="text-capitalize">
+                                                {{ $item->tanggal_terbit }}
+                                                @if ($item->tanggal_berakhir)
+                                                    | {{ $item->tanggal_berakhir }}
+                                                @endif
+                                            </span>
+
+                                        </h6>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
 
             </div>
-            <div class="row">
-                <h6 class="text-center "><a href="/loker" class="text-decoration-none text-black">Lihat Semuanya</a></h6>
-            </div>
         </div>
-    </div>
-@endsection
+
+
+    @endsection

@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import path from 'path';
 
+
 export default defineConfig({
     plugins: [
         laravel([
@@ -26,7 +27,6 @@ export default defineConfig({
             '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
             'custom': path.resolve(__dirname, 'resources/css/app.css'),
             '$': 'jQuery',
-            'ckeditor': 'ckeditor',
         }
     },
     refresh: true,

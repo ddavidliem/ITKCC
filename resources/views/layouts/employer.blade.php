@@ -25,14 +25,16 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav nav-list me-auto mb-2 mb-lg-10">
                         <li class="nav-item">
-                            <a href="/" class="nav-link :hover">Home</a>
+                            <a href="/" class="fw-bold nav-link :hover">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/loker" class="nav-link :hover">Lowongan Kerja</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="" class="nav-link :hover">Tracer Study</a>
-                        </li>
+                        @auth('employer')
+                            <li class="nav-item">
+                                <a href="/Employer/Dashboard" class="fw-bold nav-link :hover">Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/Employer/Profile" class="fw-bold nav-link :hover">Profile</a>
+                            </li>
+                        @endauth
                     </ul>
                     <ul class="navbar-nav me-a mb-2 mb-lg-10">
 
@@ -41,10 +43,6 @@
                                 <a href="" class="nav-link dropdown-toggle" role="button"
                                     data-bs-toggle="dropdown">Sign Up</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="/register-user-form" class="dropdown-item">Register User</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
                                     <li><a href="/register-employer" class="dropdown-item">Register Employer</a></li>
                                 </ul>
                             </li>
@@ -53,32 +51,15 @@
                                 <a href="" class="nav-link dropdown-toggle" role="button"
                                     data-bs-toggle="dropdown">Login</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="/login/user" class="dropdown-item">Login User</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
                                     <li><a href="/employer-login-form" class="dropdown-item">Login Employer</a></li>
                                 </ul>
                             </li>
                         @endguest
 
                         @auth('employer')
-                            @if (Auth::guard('employer')->check())
-                                <li class="nav-item dropdown container">
-                                    <a href="" class="nav-link dropdown-toggle" role="button"
-                                        data-bs-toggle="dropdown">Menu</a>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="/profile/{{ Auth::guard('employer')->user()->id }}"
-                                                class="dropdown-item">Profile</a></li>
-                                        <li>
-                                        <li><a href="/employer/dashboard" class="dropdown-item">Dashboard</a></li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li><a href="/logout-employer" class="dropdown-item">Logout</a></li>
-                                    </ul>
-                                </li>
-                            @endif
+                            <li class="nav-item">
+                                <a href="/logout-employer" class="fw-bold nav-link :hover">Logout</a>
+                            </li>
                         @endauth
                     </ul>
                 </div>
@@ -114,7 +95,7 @@
                 <h5>External Link</h5>
                 <div class="my-2 p-1">
                     <ul class="list-unstyled">
-                        <li><a href="/login-admin" class=" text-decoration-none">Admin</a></li>
+                        {{-- <li><a href="/login-admin" class=" text-decoration-none">Admin</a></li> --}}
                     </ul>
                 </div>
             </div>

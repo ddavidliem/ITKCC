@@ -1,45 +1,52 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('content')
-    <div class="bg-white min-vh-100 ">
-        <div class="d-flex min-vh-50 align-items-center bg-primary">
-            <div class="col-lg-7 p-4 text-white d-flex align-items-center">
-                <img src="{{ asset('img/logo_itk.png') }}" class="" style="width: 140px" alt="">
-                <div class="p-4 col">
-                    <h1>Institut Teknologi Kalimantan</h1>
-                    <p class="fs-2">Pusat Pengembangan Karir</p>
+    <div class="container py-4">
+        <div class="min-vh-100 bg-white rounded p-4">
+            <img src="{{ asset('component/coaching-clinic.png') }}" class="img-fluid" alt="">
+            <div class="py-4 d-flex justify-content-center">
+                <div class="col-3 p-4 border border-dark">
+                    <h5 class="text-center fw-bold">Konsultasi Pribadi</h5>
+                    <div class="mt-4">
+                        <p>Konsultasi pribadi Contrary to popular belief, Lorem Ipsum is not simply random text. It has
+                            roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.
+                            Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia,</p>
+                    </div>
+
+                </div>
+                <div class="col-3 mx-2 p-4 border border-dark">
+                    <h5 class="text-center fw-bold">Konsultasi Kelompok</h5>
+                    <div class="mt-4">
+                        <p>Konsultasi kelompok/bersama Contrary to popular belief, Lorem Ipsum is not simply random text. It
+                            has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.
+                            Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia</p>
+                    </div>
+                </div>
+                <div class="col-3 p-4 border border-dark">
+                    <h5 class="text-center fw-bold">Konsultasi Karir</h5>
+                    <div class="mt-4">
+                        <p>Konsultasi Karir Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots
+                            in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard
+                            McClintock, a Latin professor at Hampden-Sydney College in Virginia</p>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-5 p-4 ">
-                <p class="fs-4 text-white">
-                    Pusat Pengembangan Karir Institut Teknologi Kalimantan membuka Coaching Clinic secara daring bagi para
-                    calon
-                    lulusan dan alumni ITK.
-                </p>
-                <ul class="fs-5 text-white">
-                    <li>Pembuatan CV & Cover Letter</li>
-                    <li>Menghadapi Psikotes, Wawancara Kerja, LGD</li>
-                    <li>Perencanaan Karir</li>
-                    <li>Pemahaman Minat dan Kemampuan dalam bekerja</li>
-                </ul>
+            <div class="py-4 d-flex justify-content-center ">
+                <div class="col-9 border border-dark p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="fw-bold ">Jam Layanan Coaching Clinic</h5>
+                            <h6>Senin - Jumat</h6>
+                            <h6>Jam 08.00 - 15.00 WITA</h6>
+                        </div>
+                        <div class="d-flex">
+                            <a href="/konsultasi/formulir" type="button"
+                                class="fs-5 btn btn-outline-dark align-self-center">Make Appointment</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-
-        <div class=" p-4 min-vh-50">
-            <div class=" col-lg-10 offset-1">
-                <a href="/appointment-form" class="btn btn-primary fs-3 col-lg-8 offset-2  rounded :hover">Make
-                    Appointment</a>
-            </div>
-            <div class="col-lg-10 offset-1 d-flex justify-content-center">
-                <div>
-                    <img src="" alt="">
-                </div>
-                <div>
-                    <h2></h2>
-                </div>
-            </div>
-        </div>
-
-
     </div>
 @endsection
