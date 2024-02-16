@@ -8,7 +8,11 @@
                 <div class="p-4 min-vh-100 max-vh-75 overflow-auto bg-white rounded border-1">
                     <h3 class="fw-semibold">Daftar Appointment</h3>
                     @if ($appointment->isEmpty())
-                        @include('component.empty')
+                        <div class="my-4 d-flex justify-content-center">
+                            <div class="align-self-center">
+                                <h5 class="">Tidak Ada Appointment</h5>
+                            </div>
+                        </div>
                     @else
                         <div class="my-4 list-group list-group-flush">
                             @foreach ($appointment as $item)

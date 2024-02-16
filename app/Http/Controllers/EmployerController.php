@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EmailVerification;
+use App\Mail\ApplicationNotification;
 
 
 
@@ -27,40 +32,71 @@ class EmployerController extends Controller
         return redirect('/');
     }
 
-    public function employerProfile()
-    {
-        $employer = Auth('employer')->user();
-        $loker = Employer::findOrFail($employer->id)->loadCount('loker');
-        return view('employer.profile.index', compact('employer', 'loker'));
-    }
-
     public function updateEmployer(Request $request)
     {
-        $employer_id = Auth('employer')->user()->id;
-        $employer = Employer::findOrfail($employer_id);
-        $validate = Validator::make($request->all(), [
+        $id = Auth('employer')->user()->id;
+        $employer = Employer::findOrfail($id);
+        $rules = [
             'nama_lengkap' => 'required',
             'jabatan' => 'required',
             'nomor_telepon' => 'required',
             'alamat_email' => 'required',
-        ]);
+        ];
+        if ($request->input('alamat_email') !== $employer->alamat_email) {
+            $rules['alamat_email'] = 'required|unique:employers,alamat_email';
+        }
+        $validate = Validator::make($request->all(), $rules);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Pribadi');
+            return back()->with('warning', 'Mohon Mengisi Ulang Form Untuk Mengubah Data Employer');
         }
         $employer->nama_lengkap = $request->input('nama_lengkap');
         $employer->jabatan = $request->input('jabatan');
         $employer->nomor_telepon = $request->input('nomor_telepon');
-        $employer->alamat_email = $request->input('alamat_email');
+
+        if ($request->input('alamat_email') !== $employer->alamat_email) {
+            $newEmail = $request->input('alamat_email');
+            $employer->email_verification = null;
+            $employer->alamat_email = $newEmail;
+
+            $tokenRecord = DB::table('tokens')
+                ->where('user_id', $employer->id)
+                ->where('category', 'user')
+                ->where('type', 'email_verification')->first();
+
+            if ($tokenRecord) {
+                $token = $tokenRecord->token;
+            } else {
+                $tokenExists  = true;
+                $token = null;
+                while ($tokenExists) {
+                    $token = Str::random(64);
+                    $existingToken = DB::table('tokens')->where('token', $token)->first();
+                    if (!$existingToken) {
+                        $tokenExists = false;
+                    }
+                }
+
+                DB::table('tokens')->insert([
+                    'user_id' => $employer->id,
+                    'category' => 'employer',
+                    'token' => $token,
+                    'type' => 'email_verification',
+                    'expires_at' => now()->addMinutes(15),
+                ]);
+            }
+            Mail::to($newEmail)->send(new EmailVerification($employer, $token));
+        }
         $employer->update();
-        return back()->with('success', 'Berhasil Mengubah Data Pribadi');
+        return back()->with('success', 'Berhasil Mengubah Data Profile Employer');
     }
 
     public function updateCompany(Request $request)
     {
-        $employer_id = Auth('employer')->user();
-        $employer = Employer::findOrfail($employer_id);
+        $id = Auth('employer')->user()->id;
+        $employer = Employer::findOrfail($id);
         $validate = Validator::make($request->all(), [
             'nama_perusahaan' => 'required',
+            'bidang_perusahaan' => 'required',
             'website' => 'required',
             'tahun_berdiri' => 'required',
             'kantor_pusat' => 'required',
@@ -73,6 +109,7 @@ class EmployerController extends Controller
             return back()->with('warning', 'Gagal Mengubah Profile Perusahaan');
         }
         $employer->nama_perusahaan = $request->input('nama_perusahaan');
+        $employer->bidang_perusahaan = $request->input('bidang_perusahaan');
         $employer->website = $request->input('website');
         $employer->tahun_berdiri = $request->input('tahun_berdiri');
         $employer->kantor_pusat = $request->input('kantor_pusat');
@@ -86,20 +123,18 @@ class EmployerController extends Controller
 
     public function updateLogo(Request $request)
     {
-        $employer_id = Auth('employer')->user()->id;
-        $employer = Employer::findOrfail($employer_id);
+        $id = Auth('employer')->user()->id;
+        $employer = Employer::findOrfail($id);
         $validate = Validator::make($request->all(), [
-            'logo_perusahaan' => 'required|mimes:png',
+            'logo_perusahaan' => 'required|mimes:png|max:2048|dimensions:max_width=500,max_height=500',
         ]);
-
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengupload Gambar');
+            return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar dan Gambar Yang Sesuai');
         }
         if ($employer->logo_perusahaan) {
-            Storage::delete('/public/logo/' . $employer->logo_perusahaan);
+            Storage::delete('/public/logo' . $employer->logo_perusahaan);
         }
-
-        $newLogo = $employer_id . '.png';
+        $newLogo = $id . '.png';
         $request->file('logo_perusahaan')->storeAs('logo', $newLogo);
         $employer->logo_perusahaan = $newLogo;
         $employer->update();
@@ -108,13 +143,19 @@ class EmployerController extends Controller
 
     public function index()
     {
-        $employer = Auth('employer')->user();
-        $loker = Loker::where('employer_id', '=', $employer->id)->orderBy('created_at', 'DESC')->withCount('applicants')->get();
-        return view('employer.index', compact('loker', 'employer'));
+        $id = Auth('employer')->user()->id;
+        $employer = Employer::findOrfail($id);
+        $employer->load('loker.applicants');
+        return view('employer.index', compact('employer'));
     }
 
     public function newLoker(Request $request)
     {
+        $id = Auth('employer')->user()->id;
+        $employer = Employer::findOrfail($id);
+        if (!$employer->logo_perusahaan) {
+            return back()->with('warning', 'Tolong Lengkapi Logo Perusahaan');
+        }
         $validate = Validator::make($request->all(), [
             'nama_pekerjaan' => 'required',
             'jenis_pekerjaan' => 'required',
@@ -125,7 +166,7 @@ class EmployerController extends Controller
             'deadline' => 'required',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Menambah Loker');
+            return back()->with('warning', 'Mohon Mengisi Ulang Form Menambah Loker Dengan Benar');
         }
 
         $loker = new Loker;
@@ -136,7 +177,7 @@ class EmployerController extends Controller
         $loker->lokasi_pekerjaan = $request->input('lokasi_pekerjaan');
         $loker->status = 'Open';
         $loker->deadline = $request->input('deadline');
-        $loker->employer_id = Auth('employer')->user()->id;
+        $loker->employer_id = $id;
         $loker->save();
         if ($request->hasFile('poster')) {
             $posterLoker = $request->file('poster');
@@ -145,7 +186,7 @@ class EmployerController extends Controller
             $loker->poster = $posterName;
             $loker->save();
         }
-        return redirect('/Employer/Dashboard')->with('success', 'Berhasil Menambah Lowongan Kerja');
+        return redirect(route('employer.index'))->with('success', 'Berhasil Menambah Lowongan Kerja');
     }
 
     public function detailLoker($id)
@@ -156,7 +197,18 @@ class EmployerController extends Controller
             return back()->with('warning', 'Loker Tidak Ditemukan');
         }
         $applications = $loker->applicants()->orderBy('created_at', 'DESC')->with('user')->get();
-        return view('employer.detail-loker', compact('applications', 'employer', 'loker'));
+
+        $status = [
+            'labels' => $applications->pluck('status')->toArray(),
+            'data' => $applications->groupBy('status')->map->count()->values()->toArray(),
+        ];
+
+        $category = [
+            'itk' => $applications->where('user.nim', '!=', null)->count(),
+            'not_itk' => $applications->where('user.nim', '=', null)->count(),
+        ];
+
+        return view('employer.detail-loker', compact('applications', 'employer', 'loker', 'status', 'category'));
     }
 
     public function updateLoker(Request $request, $id)
@@ -175,7 +227,7 @@ class EmployerController extends Controller
             'status_pekerjaan' => 'nullable',
             'deskripsi_pekerjaan' => 'required',
             'lokasi_pekerjaan' => 'required',
-            'poster' => 'nullable|mimes:png',
+            'poster' => 'nullable|mimes:png|image',
             'deadline' => 'required',
         ]);
         if ($validate->fails()) {
@@ -193,8 +245,9 @@ class EmployerController extends Controller
         }
         if ($request->hasFile('poster')) {
             Storage::delete('/public/poster/' . $loker->poster);
-            $posterName = $loker->id . 'png';
-            $request->input('poster')->storeAs('poster' . $posterName);
+            $posterName = $loker->id . '.png';
+            $request->file('poster')->storeAs('poster', $posterName);
+            $loker->poster = $posterName;
         }
         $loker->update();
         return back()->with('success', 'Berhasil Mengubah Data Loker');
@@ -222,8 +275,8 @@ class EmployerController extends Controller
         if (!$loker) {
             return back()->with('warning', 'Loker Tidak Ditemukan');
         }
-        $applications = $loker->applicants()->find($applicantId);
-        if (!$applications) {
+        $application = $loker->applicants()->find($applicantId);
+        if (!$application) {
             return back()->with('warning', 'Lamaran Tidak Ditemukan');
         }
         $validation = Validator::make($request->all(), [
@@ -233,11 +286,12 @@ class EmployerController extends Controller
         if ($validation->fails()) {
             return back()->with('warning', 'Gagal Mengubah Status Lamaran');
         }
-        $applications->status = $request->input('application_status');
-        if ($request->input('application_feedback')) {
-            $applications->feedback = $request->input('application_feedback');
-        }
-        $applications->update();
-        return back()->with('success', 'Berhasil Mengubah Status Lamaran ' . $applications->user->nama_lengkap);
+        $application->status = $request->input('application_status');
+        $application->feedback = $request->input('application_feedback');
+        $application->save();
+
+        $template = ($application->status === 'accepted') ? 'employer.mail.accepted' : 'employer.mail.declined';
+        Mail::to($application->user->alamat_email)->send(new ApplicationNotification($application, $template));
+        return back()->with('success', 'Berhasil Mengubah Status Lamaran ' . $application->nama_lengkap);
     }
 }

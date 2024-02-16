@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('profile')->nullable();
             $table->string('status')->nullable();
             $table->timestamp('email_verification')->nullable();
+            $table->string('google_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

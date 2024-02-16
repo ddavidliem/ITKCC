@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Sertifikasi;
+use App\Models\Application;
+use App\Models\Appointment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\UUID;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use function PHPSTORM_META\map;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -48,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile',
         'status',
         'email_verification',
+        'google_id',
     ];
 
     /**
@@ -60,10 +62,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    public function pendidikans(): HasMany
-    {
-        return $this->hasMany(Pendidikan::class);
-    }
 
     public function pengalaman(): HasMany
     {
@@ -72,7 +70,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sertifikat(): HasMany
     {
-        return $this->hasMany(Sertifikasi::class);
+        return $this->hasMany(sertifikasi::class);
+    }
+
+    public function pendidikan(): HasMany
+    {
+        return $this->hasMany(pendidikan::class);
     }
 
     public function appointment(): HasMany
@@ -82,6 +85,16 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function applications(): HasMany
     {
-        return $this->hasMany(Application::class);
+        return $this->hasMany(application::class);
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($user) {
+            $user->applications()->delete();
+            $user->appointment()->delete();
+            $user->sertifikat()->delete();
+            $user->pengalaman()->delete();
+        });
     }
 }

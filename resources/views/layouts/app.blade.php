@@ -36,7 +36,7 @@
                     </ul>
                     <ul class="navbar-nav me-a mb-2 mb-lg-10">
 
-                        @guest('user')
+                        @guest
                             <li class="nav-item dropdown container">
                                 <a href="" class="nav-link dropdown-toggle fw-semibold" role="button"
                                     data-bs-toggle="dropdown">Sign Up</a>

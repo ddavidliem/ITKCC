@@ -2,18 +2,21 @@
 
 @section('content')
     <div class="container p-4">
-        <div class="p-4 rounded min-vh-50">
-            <form action="/reset-password" method="post" class="needs-validation" novalidate>
+        <div class="p-4 bg-white rounded min-vh-50">
+            <form action="{{ Route('auth.reset.password') }}" method="post" class="needs-validation" novalidate>
                 @csrf
-                <input type="hidden" value="{{ $token }}" class="hidden form-control" readonly>
                 <div class="my-2">
                     <label for="" class="fw-semibold form-label">Password Baru</label>
-                    <input type="password" name="" class="form-control" required>
+                    <input type="password" name="new_password" class="form-control" required>
                 </div>
                 <div class="my-2">
                     <label for="" class="fw-semibold form-label">Konfirmasi Password</label>
-                    <input type="password" class="form-control" required>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                    <div class="form-text">
+                        Mohon Memasukkan Password Yang Sama Dengan Benar
+                    </div>
                 </div>
+                <input type="hidden" name="token" value="{{ $token }}" readonly>
                 <div class="my-3 d-flex justify-content-end">
                     <button class="btn btn-outline-dark">Reset Password</button>
                 </div>

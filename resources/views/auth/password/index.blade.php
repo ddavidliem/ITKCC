@@ -5,7 +5,7 @@
         <div class="p-4 bg-white rounded min-vh-50">
             <h4 class="fw-semibold">Reset Password Form</h4>
             <div class="my-4">
-                <form action="/send/reset-password-link" method="POST" class="needs-validation" novalidate>
+                <form action="{{ Route('auth.reset.password.link') }}" method="POST" class="needs-validation" novalidate>
                     @csrf
                     <div class="my-2">
                         <label for="" class="form-label fw-semibold">Kategori</label>

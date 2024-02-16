@@ -1,260 +1,306 @@
 @extends('layouts.employer')
 
 @section('content')
-    <div class="p-4 d-flex">
-        <div class="col-3">
-            <div class="rounded bg-white p-4 min-vh-15 d-flex">
-                <div class="col-2">
+    <div class="p-4">
+        <div class="p-4 min-vh-50 bg-white rounded">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5 class="fw-semibold">Detail Lowongan Pekerjaan</h5>
+                </div>
+                <div>
+                    <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editLoker">Edit Loker</button>
+                    <button class="btn btn-outline-danger mx-2" data-bs-toggle="modal" data-bs-target="#deleteLoker">Delete
+                        Loker</button>
+                </div>
+            </div>
+            <div class="my-4 d-flex">
+                <div class="col-1 p-2">
                     <img src="{{ asset('logo/' . $loker->employer->logo_perusahaan) }}" class="img-fluid" alt="">
                 </div>
-                <div class="col-7 mx-3">
-                    <h6 class="fw-semibold text-capitalize">{{ $loker->nama_pekerjaan }}</h6>
+                <div class="col-7 px-4">
+                    <h4 class="fw-semibold text-capialitze">{{ $loker->nama_pekerjaan }}</h4>
                     <ul class="list-unstyled">
                         <li class="fw-semibold text-capitalize">{{ $loker->employer->nama_perusahaan }}</li>
-                        <li class="text-capitalize">{{ $loker->lokasi_pekerjaan }}</li>
-                        <li class="text-capitalize">{{ $loker->jenis_pekerjaan }}</li>
-                        <li class="text-capitalize">
-
-                        </li>
+                        <li>{{ $loker->jenis_pekerjaan }} | {{ $loker->tipe_pekerjaan }}</li>
+                        <li>{{ $loker->lokasi_pekerjaan }}</li>
+                        <li>Status: {{ $loker->status }}</li>
+                        <li>Deadline: {{ $loker->deadline->format('d-m-Y') }}</li>
+                        @if (!empty($loker->deskripsi_pekerjaan))
+                            <li><a href="" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#loker-description"aria-expanded="false"
+                                    class="text-decoration-none text-muted">Deskripsi Pekerjaan</a>
+                            </li>
+                            <li>
+                                <div class="collapse" id="loker-description">
+                                    <p>{!! nl2br($loker->deskripsi_pekerjaan) !!}</p>
+                                </div>
+                            </li>
+                        @endif
                     </ul>
-                    <div class="d-flex">
-                        <button class="btn btn-outline-danger" data-bs-target="#deleteLokerModal"
-                            data-bs-toggle="modal">Delete</button>
-                        <button class="btn btn-outline-dark mx-1" data-bs-target="#editLokerModal"
-                            data-bs-toggle="modal">Edit</button>
-                    </div>
                 </div>
-                <div class="col-3">
-                    <h6 class="fw-semibold">Status</h6>
-                    @if ($loker->status == 'Open')
-                        <h5 class="my-4 align-self-center text-success">{{ $loker->status }}</h5>
-                    @elseif($loker->status == 'Closed')
-                        <h5 class="my-4 align-self-center text-danger">{{ $loker->status }}</h5>
-                    @endif
-
-                </div>
-            </div>
-
-            <div class="my-4 min-vh-10 bg-white rounded p-3">
-                <form class="" role="search" method="GET">
-                    <div class="d-flex">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-dark" type="submit">Search</button>
+                @if ($loker->poster)
+                    <div class="col-4 p-2">
+                        <h6 class="fw-semibold">Poster Lowongan Kerja</h6>
+                        <img src="{{ asset('poster/' . $loker->poster) }}" class="img-fluid" alt="">
                     </div>
-                    <div class="d-flex justify-content-evenly my-2">
-                        <div>
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                            <label class="form-check-label" for="flexCheckDefault">
-                                Qualified
-                            </label>
-                        </div>
-                        <div class="mx-2">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                            <label class="form-check-label" for="flexCheckDefault">
-                                Not Qualified
-                            </label>
-                        </div>
-                        <div class="mx-2">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                            <label class="form-check-label" for="flexCheckDefault">
-                                Pending
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div class="my-4 rounded bg-white p-3 min-vh-75 max-vh-100 overflow-auto">
-                <div class=" list-group list-group-flush" role="tablist" id="tablist">
-                    @if ($applications->isEmpty())
-                        @include('component.empty', ['message' => 'Belum Ada Pelamar'])
-                    @else
-                        @foreach ($applications as $item => $applicant)
-                            <a href="" type="button" role="tab" data-bs-toggle="tab"
-                                data-bs-target="#tab-{{ $applicant->id }}" aria-controls="{{ $applicant->id }}"
-                                class="list-group-item p-2 d-flex rounded" data-toggle="tab">
-                                <div class="col-2">
-                                    <img src="{{ asset('profile/' . $applicant->user->profile) }}" class="img-fluid"
-                                        alt="">
-                                </div>
-                                <div class="col-7 mx-2">
-                                    <h6 class="fw-semibold my-2">{{ $applicant->user->nama_lengkap }}</h6>
-                                    <ul class="list-unstyled">
-                                        <li>{{ $applicant->user->nim }}</li>
-                                        <li>{{ $applicant->user->kota }}</li>
-                                        <li>{{ $applicant->created_at }}</li>
-                                    </ul>
-                                </div>
-                                <div class="col-3">
-                                    <h6 class="">{{ $applicant->status }}</h6>
-                                </div>
-                            </a>
-                        @endforeach
-                    @endif
-
-                </div>
+                @endif
             </div>
         </div>
-
-        <div class="col-9 mx-3">
-            <div class="rounded bg-white min-vh-150 p-4">
-                <div class="tab-content" id="tab-content">
-                    @foreach ($applications as $item => $applicant)
-                        <div id="tab-{{ $applicant->id }}" class="p-2 tab-pane" role="tabpanel">
-                            <div class="bg-white p-4 min-vh-10 mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <div class="d-flex">
-                                        <h3 class="fw-bold">Biodata Pelamar</h3>
-                                        @if ($applicant->status === 'Qualified')
-                                            <h5 class="mx-4" class="text-success fw-semibold">Application Qualified</h5>
-                                        @elseif($applicant->status === 'Not Qualified')
-                                            <h5 class="mx-4" class="text-danger fw-semibold">Application Qualified</h5>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <button class="btn btn-outline-dark status-button" data-bs-toggle="modal"
-                                            data-bs-target="#applicationModal"
-                                            data-url="/Employer/{{ $loker->id }}/applicant/{{ $applicant->id }}"
-                                            data-content="{{ $applicant->user->nama_lengkap }}">Status</button>
-                                    </div>
-                                </div>
-                                <div class="my-4 d-flex">
-                                    <div class="col-2">
-                                        <img src="{{ asset('profile/' . $applicant->user->profile) }}" class="img-fluid"
-                                            alt="">
-                                    </div>
-                                    <div class="col-10 mx-4 d-flex">
-                                        <div class="col-4">
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Nama Lengkap</label>
-                                                <h6 class="fw-semibold">{{ $applicant->user->nama_lengkap }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Email</label>
-                                                <h6 class="fw-semibold">{{ $applicant->user->alamat_email }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Nomor Telepon</label>
-                                                <h6 class="fw-semibold">{{ $applicant->user->nomor_telepon }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Kota</label>
-                                                <h6 class="fw-semibold text-capitalize">{{ $applicant->user->kota }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Alamat</label>
-                                                <h6 class="fw-semibold">{{ $applicant->user->alamat }}</h6>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Tempat Kelahiran</label>
-                                                <h6 class="fw-semibold text-capitalize">
-                                                    {{ $applicant->user->tempat_lahir }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Tanggal Lahir</label>
-                                                <h6 class="fw-semibold">{{ $applicant->user->tanggal_lahir }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Jenis Kelamin</label>
-                                                <h6 class="fw-semibold text-capitalize">
-                                                    {{ $applicant->user->jenis_kelamin }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Kewarganegaraan</label>
-                                                <h6 class="fw-semibold text-capitalize">
-                                                    {{ $applicant->user->kewarganegaraan }}</h6>
-                                            </div>
-                                            <div class="my-1">
-                                                <label for="" class="form-label">Agama</label>
-                                                <h6 class="fw-semibold text-capitalize">{{ $applicant->user->agama }}</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @if ($applicant->user->sertifikat)
-                                <div class="px-4">
-                                    <h3 class="fw-bold">Sertifikat</h3>
-                                    <div class="list-group list-group-flush">
-                                        @foreach ($applicant->user->sertifikat as $item)
-                                            <div class="list-group-item p-2">
-                                                <div class="d-flex justify-content-between">
-                                                    <h5 class="text-capitalize fw-semibold">{{ $item->title }}</h5>
-                                                </div>
-                                                <ul class="list-unstyled">
-                                                    <li class="text-capitalize">{{ $item->organisasi }}</li>
-                                                    <li class="text-capitalize">{{ $item->tanggal_terbit }} @if (!empty($item->tanggal_berakhir))
-                                                            - {{ $item->tanggal_berakhir }}
-                                                        @endif
-                                                    </li>
-                                                    @if (!empty($item->id_sertifikat))
-                                                        <li>{{ $item->id_sertifikat }}</li>
-                                                    @endif
-                                                    @if (!empty($item->url_sertifikat))
-                                                        <li>{{ $item->url_sertifikat }}</li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-
-                            @if ($applicant->user->pengalaman)
-                                <div class="px-4">
-                                    <h3 class="fw-bold">Pengalaman</h3>
-                                    <div class="list-group list-group-flush">
-                                        @foreach ($applicant->user->pengalaman as $item)
-                                            <div class="list-group-item p-2">
-                                                <h5 class="text-capitalize fw-semibold">{{ $item->title }}</h5>
-                                                <ul class="list-unstyled">
-                                                    <li class="text-capitalize">{{ $item->organisasi }} |
-                                                        {{ $item->jenis_pekerjaan }}</li>
-                                                    <li class="text-capitalize">{{ $item->tanggal_mulai }} -
-                                                        {{ $item->tanggal_selesai }}
-                                                    </li>
-                                                    @if (!empty($item->deskripsi))
-                                                        <li><a href="" type="button" data-bs-toggle="collapse"
-                                                                data-bs-target="#description-{{ $item->id }}"aria-expanded="false"
-                                                                class="text-decoration-none text-muted">Deskripsi
-                                                                Pekerjaan</a></li>
-                                                        <li>
-                                                            <div class="collapse" id="description-{{ $item->id }}">
-                                                                <p>{!! nl2br($item->deskripsi) !!}</p>
-                                                            </div>
-                                                        </li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-
-                            <div class="px-4 my-4">
-                                <h3 class="fw-bold">Resume</h3>
-                                <div class="my-2">
-                                    <iframe src="{{ asset('resume/' . $applicant->user->resume) }}" frameborder="0"
-                                        class="my-4 w-100 min-vh-100"></iframe>
-                                </div>
-                            </div>
+        <div class="my-4 bg-white rounded min-vh-50 p-4 d-flex justify-content-evenly">
+            <div class="col-4">
+                <h6 class="fw-semibold">Statistik Status Pelamar</h6>
+                <canvas id="status-applicant"></canvas>
+            </div>
+            <div class="col-4 offset-1">
+                <h6 class="fw-semibold">Statistik Pelamar</h6>
+                <canvas id="category-applicant"></canvas>
+            </div>
+        </div>
+        <div class="my-4 d-flex">
+            <div class="col-4 px-2">
+                <div class="bg-white rounded min-vh-100 max-vh-100 overflow-auto p-4">
+                    <div class="mb-4">
+                        <h5 class="fw-semibold">Daftar Pelamar</h5>
+                        <div class="my-4">
+                            <input type="text" role="search" id="search" class="form-control"
+                                placeholder="Search Loker">
                         </div>
-                    @endforeach
+                    </div>
+                    <table class="table table-hover table-borderless" role="tablist">
+                        <thead class="table-light">
+                            <tr class="position-0 sticky-top">
+                                <td class="fw-semibold">Daftar Pelamar</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($loker->applicants()->with('user')->orderBy('created_at', 'DESC')->get() as $item)
+                                <tr>
+                                    <td>
+                                        <a href="javascript:void(0)" type="button" role="tab"
+                                            class="text-decoration-none text-dark d-flex justify-content-between p-1"
+                                            data-bs-target="#tab-{{ $item->id }}" data-bs-toggle="tab">
+                                            <div class="col-8">
+                                                <h6 class="fw-semibold my-2 text-capitalize">
+                                                    {{ $item->nama_lengkap }}</h6>
+                                                <ul class="list-unstyled">
+                                                    <li class="">{{ $item->user->alamat_email }}</li>
+                                                    <li class="text-capitalize">{{ $item->user->nomor_telepon }}</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-4 justify-content-end">
+                                                <h6 class="text-capitalize fw-semibold">{{ $item->status }}</h6>
+                                            </div>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-8 px-2">
+                <div class="bg-white rounded min-vh-100 max-vh-100 overflow-auto p-4">
+                    <div class="tab-content" id="tab-content">
+                        @foreach ($loker->applicants as $item)
+                            <div id="tab-{{ $item->id }}" class="p-2 tab-pane" role="tabpanel">
+                                <div class="bg-white p-44 min-vh-10 mb-3">
+                                    <div class="d-flex mb-4">
+                                        <h3 class="fw-bold col-10">Informasi Pelamar</h3>
+                                        <div class="col-2 d-flex justify-content-end">
+                                            {{-- <a href="{{ Route('admin.user.detail', ['id' => $item->id]) }}"
+                                                class="btn btn-outline-dark">Detail</a> --}}
+                                            <button class="btn btn-outline-dark status-button mx-2" data-bs-toggle="modal"
+                                                data-bs-target="#statusApplication"
+                                                data-url="{{ Route('employer.loker.application.respond', ['loker' => $loker->id, 'application' => $item->id]) }}">Status</button>
+                                            {{-- <button class="btn btn-outline-danger delete-button mx-2" data-bs-toggle="modal"
+                                                data-bs-target="#deleteApprovalModal"
+                                                data-url="{{ Route('admin.application.delete', ['id' => $item->id]) }}">Delete</button> --}}
+                                        </div>
+                                    </div>
+                                    <div class="my-2 d-flex">
+                                        <div class="col-2">
+                                            <img src="{{ asset('profile/' . $item->user->profile) }}" class="img-fluid"
+                                                alt="">
+                                        </div>
+                                        <div class="col-10 px-4">
+                                            <h5 class="text-capitalize fw-semibold mb-2">{{ $item->nama_lengkap }}</h5>
+                                            <div class="d-flex">
+                                                <div class="col-6">
+                                                    <div class="my-1">
+                                                        <label for="" class="form-label fw-semibold">Alamat
+                                                            Email</label>
+                                                        <h6 class="">{{ $item->user->alamat_email }}</h6>
+                                                    </div>
+                                                    <div class="my-1">
+                                                        <label for="" class="form-label fw-semibold">Nomor
+                                                            Telepon</label>
+                                                        <h6 class="">{{ $item->user->nomor_telepon }}</h6>
+                                                    </div>
+                                                    @if ($item->nim)
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="form-label fw-semibold">NIM</label>
+                                                            <h6 class="">{{ $item->nim }}</h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for="" class="form-label fw-semibold">Program
+                                                                Studi</label>
+                                                            <h6 class="">{{ $item->program_studi }}</h6>
+                                                        </div>
+                                                    @endif
+                                                    <div class="my-1">
+                                                        <label for="" class="form-label fw-semibold">Agama</label>
+                                                        <h6 class="">{{ $item->agama }}</h6>
+                                                    </div>
+                                                    <div class="my-1">
+                                                        <label for="" class="form-label fw-semibold">Pendidikan
+                                                            Tertinggi</label>
+                                                        <h6 class="">{{ $item->pendidikan_tertinggi }}</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="my-1">
+                                                        <label for="" class="form-label fw-semibold">Tempat dan
+                                                            Tanggal Lahir</label>
+                                                        <h6>{{ $item->tempat_lahir }},{{ $item->tanggal_lahir }}
+                                                        </h6>
+                                                    </div>
+                                                    <div class="my-1">
+                                                        <label for=""
+                                                            class="form-label fw-semibold">Kewarganegaraan</label>
+                                                        <h6>{{ $item->kewarganegaraan }}</h6>
+                                                    </div>
+                                                    <div class="my-1">
+                                                        <label for=""
+                                                            class="fw-semibold form-label">Status</label>
+                                                        <h6>{{ $item->status_perkawinan }}</h6>
+                                                    </div>
+                                                    <div class="my-1">
+                                                        <label for=""
+                                                            class="form-label fw-semibold">Alamat</label>
+                                                        <h6>{{ $item->alamat }}</h6>
+                                                    </div>
+                                                    <div class="my-1">
+                                                        <label for="" class="form-label fw-semibold">Kota</label>
+                                                        <h6>{{ $item->kota }}</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="my-4">
+                                        <h5 class="fw-semibold">Sertifikat Pelamar</h5>
+                                        <div class="my-2 min-vh-25 max-vh-50 overflow-auto">
+                                            <table class="table table-hover table-borderless">
+                                                <thead class="table-light">
+                                                    <tr class="position-sticky top-0">
+                                                        <th class="fw-semibold">Daftar Sertifikat Pelamar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($item->user->sertifikat as $sertifikat)
+                                                        <tr>
+                                                            <td>
+                                                                <h6 class="fw-semibold">{{ $sertifikat->title }}</h6>
+                                                                <ul class="list-unstyled">
+                                                                    <li class="fw-semibold">{{ $sertifikat->organisasi }}
+                                                                    </li>
+                                                                    <li class="fw-semibold">
+                                                                        {{ $sertifikat->tanggal_terbit }} @if ($sertifikat->tanggal_berakhir)
+                                                                            | {{ $sertifikat->tanggal_berakhir }}
+                                                                        @endif
+                                                                    </li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="my-4">
+                                        <h5 class="fw-semibold">Pengalaman Kerja Pelamar</h5>
+                                        <div class="my-2 min-vh-25 max-vh-50 overflow-auto">
+                                            <table class="table table-hover table-borderless">
+                                                <thead class="table-light">
+                                                    <tr class="position-sticky top-0">
+                                                        <th class="fw-semibold">Daftar Sertifikat Pelamar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($item->user->pengalaman as $pengalaman)
+                                                        <tr>
+                                                            <td>
+                                                                <h6 class="fw-semibold">{{ $pengalaman->title }}</h6>
+                                                                <ul class="list-unstyled">
+                                                                    <li class="fw-semibold">{{ $pengalaman->organisasi }}
+                                                                    </li>
+                                                                    <li>{{ $pengalaman->lokasi_pekerjaan }}</li>
+                                                                    <li class="fw-semibold">
+                                                                        {{ $pengalaman->tanggal_mulai }} @if ($pengalaman->tanggal_selesai)
+                                                                            | {{ $pengalaman->tanggal_selesai }}
+                                                                        @endif
+                                                                    </li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="my-4">
+                                        <h5 class="fw-semibold">Resume Pelamar</h5>
+                                        <div class="">
+                                            <iframe src="{{ asset('resume/' . $item->user->resume) }}" frameborder="0"
+                                                class="my-2 w-100 min-vh-100"></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    @if ($applications)
-        @include('employer.modal.application')
-    @endif
-    @include('employer.modal.loker-edit-form')
-    @include('employer.modal.loker-delete-form')
+
+    @include('employer.modal.edit-loker')
+    @include('employer.modal.delete-loker')
+    @include('employer.modal.application')
 @endsection
 
 @push('script')
     <script type="module">
+        document.addEventListener('DOMContentLoaded', function() {
+            const status = @json($status);
+            const category = @json($category);
+
+            const statusDataConfig = {
+                labels: status.labels,
+                datasets: [{
+                    data: status.data,
+                }],
+            };
+
+            const categoryDataConfig = {
+                labels: ['User ITK', 'User'],
+                datasets: [{
+                    data: [category.itk, category.not_itk],
+                }],
+            };
+
+            const categoryChart = new Chart(document.getElementById('category-applicant'), {
+                type: 'doughnut',
+                data: categoryDataConfig,
+            });
+
+            const statusChart = new Chart(document.getElementById('status-applicant'), {
+                type: 'doughnut',
+                data: statusDataConfig,
+            });
+        });
+
         (() => {
             'use strict';
             const modals = document.querySelectorAll('.modal');
@@ -282,6 +328,24 @@
                     application.innerHTML = statusBtn.getAttribute('data-content');
                 });
             });
+        });
+
+        $(document).ready(function() {
+            $('#search').on('input', function() {
+                searchTable();
+            });
+
+            function searchTable() {
+                const searchQuery = $('#search').val().toLowerCase();
+                const $rows = $('tbody tr');
+                $rows.show();
+                $rows.each(function() {
+                    const text = $(this).text().toLowerCase();
+                    if (text.indexOf(searchQuery) === -1) {
+                        $(this).hide();
+                    }
+                });
+            }
         });
     </script>
 @endpush

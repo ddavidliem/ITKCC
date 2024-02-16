@@ -24,15 +24,9 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav nav-list me-auto mb-2 mb-lg-10">
-                        <li class="nav-item">
-                            <a href="/" class="fw-bold nav-link :hover">Home</a>
-                        </li>
                         @auth('employer')
                             <li class="nav-item">
-                                <a href="/Employer/Dashboard" class="fw-bold nav-link :hover">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/Employer/Profile" class="fw-bold nav-link :hover">Profile</a>
+                                <a href="{{ Route('employer.index') }}" class="fw-bold nav-link :hover">Dashboard</a>
                             </li>
                         @endauth
                     </ul>
@@ -58,7 +52,7 @@
 
                         @auth('employer')
                             <li class="nav-item">
-                                <a href="/logout-employer" class="fw-bold nav-link :hover">Logout</a>
+                                <a href="{{ Route('employer.logout') }}" class="fw-bold nav-link :hover">Logout</a>
                             </li>
                         @endauth
                     </ul>

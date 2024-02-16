@@ -26,26 +26,16 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav nav-list me-auto mb-2 mb-lg-10">
                             <li class="nav-item">
-                                <a href="/" class="fw-semibold nav-link :hover">Home</a>
+                                <a href="{{ Route('admin') }}" class="fw-semibold nav-link :hover">Dashboard</a>
                             </li>
                             <li class="nav-item">
-                                <a href="/dashboard" class="fw-semibold nav-link :hover">Dashboard</a>
-                            </li>
-                            <li class="nav-item dropdown container">
-                                <a href="" class="nav-link dropdown-toggle fw-semibold" role="button"
-                                    data-bs-toggle="dropdown">Menu</a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="/approval" class="dropdown-item">Approval</a></li>
-                                    <li><a href="/appointment" class="dropdown-item">Appointment</a></li>
-                                    <li><a href="/employer" class="dropdown-item">Perusahaan</a></li>
-                                    <li><a href="/contents" class="dropdown-item">Content</a></li>
-                                </ul>
+                                <a href="{{ Route('admin.contents') }}" class="fw-semibold nav-link :hover">Konten</a>
                             </li>
                         </ul>
 
                         <ul class="navbar-nav me-a mb-2 mb-lg-10">
                             @if (Auth::guard('admin')->check())
-                                <a href="/logout-admin" class="dropdown-item">Logout</a>
+                                <a href="{{ Route('admin.logout') }}" class="dropdown-item">Logout</a>
                             @endif
                         </ul>
                     </div>

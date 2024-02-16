@@ -14,14 +14,16 @@ class ApprovalNotification extends Mailable
     use Queueable, SerializesModels;
 
     public $approval;
+    public $template;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($approval)
+    public function __construct($approval, $template)
     {
         $this->approval = $approval;
+        $this->template = $template;
     }
 
     /**
@@ -44,7 +46,7 @@ class ApprovalNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'auth.notification.approval',
+            view: 'admin.approval.update-mail' . $this->template,
             with: [
                 'approval' => $this->approval,
             ],

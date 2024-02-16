@@ -66,5 +66,7 @@ class Kernel extends HttpKernel
         'user' => \App\Http\Middleware\User::class,
         'employer' => \App\Http\Middleware\Employer::class,
         'admin' => \App\Http\Middleware\Admin::class,
+        'verifytoken' => \App\Http\Middleware\VerifyToken::class,
+        'apiadminauth' => \App\Http\Middleware\AdminApiMiddleware::class,
     ];
 }

@@ -34,8 +34,9 @@ class EmployerSeeder extends Seeder
             'nama_lengkap' => 'David',
             'jabatan' => 'Human Resources',
             'nomor_telepon' => '0812257447874',
-            'alamat_email' => 'ddavid@gmail.com',
+            'alamat_email' => 'bdavidliem@gmail.com',
             'email_verification' => null,
+            'created_at' => now(),
         ]);
     }
 }

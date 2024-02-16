@@ -1,20 +1,15 @@
-@extends('layouts.mail')
-
-@section('content')
-    <div class="p-4 container">
-        <div class="bg-white rounded p-4 min-vh-50">
-            <h1 class="fw-semibold">Approval Notification</h1>
-            <div class="my-4">
-                <h6>Terimakasih Telah Mendaftar</h6>
-                <div class="my-2">
-                    <p>Permohonan Pendaftaran Telah Diterima Oleh Tim Pusat Karir ITK</p>
-                    <h6 class="">Nomor Permohonan <span class="fw-semibold">{{ $approval->id }}</span></h6>
-                    <ul class="list-unstyled">
-                        <li>{{ $approval->nama_perusahaan }}</li>
-                        <li>{{ $approval->nama_lengkap }}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+<h2>Halo {{ $approval->nama_lengkap }}</h2>
+<br>
+<p>Terima kasih telah mengajukan permohonan untuk membuat akun perusahaan di Pusat Karir ITK. Kami senang dapat
+    memberitahu Anda bahwa permohonan Anda telah diterima.</p>
+<p>Berikut adalah langkah-langkah selanjutnya</p>
+<ul>
+    <li>Admin akan melakukan verifikasi terhadap informasi yang Anda berikan</li>
+    <li>Setelah verifikasi berhasil, Anda akan menerima konfirmasi lebih lanjut melalui email</li>
+</ul>
+<p>Jika Anda memiliki pertanyaan atau memerlukan bantuan lebih lanjut, jangan ragu untuk menghubungi tim dukungan kami
+</p>
+<p>Terima kasih atas partisipasi Anda dalam bergabung dengan Pusat Karir ITK</p>
+<br>
+<h3>Salam,</h3>
+<h3>Tim Pusat Karir ITK</h3>

@@ -14,4 +14,9 @@ class Topic extends Model
     protected $fillable = [
         'topik',
     ];
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'topik', 'topik');
+    }
 }

@@ -33,6 +33,11 @@
                         <li class="nav-item">
                             <a href="/konsultasi" class="fw-semibold nav-link :hover">Konsultasi</a>
                         </li>
+                        @auth('user')
+                            <li class="nav-item">
+                                <a href="{{ Route('user.index') }}" class="fw-semibold nav-link :hover">Dashboard User</a>
+                            </li>
+                        @endauth
                     </ul>
                     <ul class="navbar-nav me-a mb-2 mb-lg-10">
 
@@ -42,15 +47,7 @@
                                     <a href="" class="nav-link dropdown-toggle fw-semibold" role="button"
                                         data-bs-toggle="dropdown">Menu</a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="/Home/User/Profile" class="dropdown-item">Profile</a></li>
-                                        <li><a href="/Home/User" class="dropdown-item">Home</a></li>
-                                        <li><a href="/Home/User/Resume" class="dropdown-item">Resume</a></li>
-                                        <li><a href="/Home/User/Application" class="dropdown-item">Application</a></li>
-                                        <li><a href="/Home/User/Appointment" class="dropdown-item">Appointment</a></li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li><a href="/logout-user" class="dropdown-item">Logout</a></li>
+                                        <li><a href="{{ Route('user.logout') }}" class="dropdown-item">Logout</a></li>
                                     </ul>
                                 </li>
                             @endif
@@ -70,7 +67,7 @@
             <div class="mx-5 p-2 text-capitalize">
                 <h5>contact information</h5>
                 <div class="my-2 p-1">
-                    <ul>
+                    <ul class="list-unstyled">
                         <li><span class="text-bold">Address</span> : </li>
                         <li><span class="text-bold">Phone</span>: </li>
                         <li><span class="text-bold">Email</span> : </li>

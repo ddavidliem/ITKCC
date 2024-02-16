@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('tokens', function (Blueprint $table) {
             $table->foreignUuid('user_id')->onDelete('cascade');
+            $table->string('alamat_email');
             $table->string('category');
             $table->string('token');
             $table->string('type');

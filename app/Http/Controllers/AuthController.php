@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Employer;
 use App\Models\Approval;
+use App\Models\Topic;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -22,11 +23,58 @@ use App\Models\Prodi;
 use App\Mail\EmailVerification;
 use App\Mail\ResetPassword;
 use App\Mail\ApprovalNotification;
-
-
+use Illuminate\Support\Carbon;
+use Laravel\Socialite\Facades\Socialite;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
+    public function redirectGoogle($type)
+    {
+        session(['google_login_type' => $type]);
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function callback()
+    {
+        try {
+            $user = Socialite::driver('google')->stateless()->user();
+            $type = session('google_login_type');
+            switch ($type) {
+                case 'user':
+                    $loginUser = User::where('alamat_email', $user->email)->first();
+                    if (!$loginUser) {
+                        return redirect('/login/user')->with('warning', 'Gagal Melakukan Login');
+                    }
+                    if ($loginUser->email_verification === null) {
+                        return redirect('/login/user')->with('warning', 'Email Belum Terverifikasi');
+                    }
+                    Auth::guard('user')->login($loginUser);
+                    $loginUser->google_id = $user->getId();
+                    $loginUser->save();
+                    return redirect()->intended(route('user.index'));
+                    break;
+                case 'employer':
+                    $loginEmployer = Employer::where('alamat_email', $user->email)->first();
+                    if (!$loginEmployer) {
+                        return redirect('/login/employer')->with('warning', 'Gagal Melakukan Login');
+                    }
+                    if ($loginEmployer->email_verification === null) {
+                        return redirect('/login/employer')->with('warning', 'Email Belum Terverifikasi');
+                    }
+                    Auth::guard('employer')->login($loginEmployer);
+                    $loginEmployer->google_id = $user->getId();
+                    $loginEmployer->save();
+                    return redirect()->intended(route('employer.index'));
+                    break;
+            }
+        } catch (Exception $e) {
+            Log::error('Google callback error: ' . $e->getMessage());
+            return redirect('/')->withErrors(['warning' => 'Terjadi kesalahan Saat Terhubung Google']);
+        }
+    }
+
     public function refreshCaptcha()
     {
         return response()->json(['captcha' => captcha_img()]);
@@ -129,21 +177,21 @@ class AuthController extends Controller
         $tokenRecord = DB::table('tokens')->where('token', $token)
             ->where('type', 'email_verification')
             ->where('expires_at', '>', now())->first();
-
         if (!$tokenRecord) {
-            return redirect('/')->with('warning', 'Link Verifikasi telah Expired atau Invalid');
+            return redirect('/')->with('warning', 'Link Verifikasi Email Telah Expired atau Invalid');
         }
 
-        $user = User::find($tokenRecord->user_id);
+        $model = $tokenRecord->category === 'user' ? User::class : Employer::class;
+        $user = $model::find($tokenRecord->user_id);
         $user->email_verification = now();
         $user->save();
-        $tokenRecord = DB::table('tokens')->where('token', $token)->delete();
-        return redirect('/')->with('success', 'Email Telah Diverifkasi Silahkan Melakukan Login');
+        DB::table('tokens')->where('token', $token)->delete();
+        return redirect('/')->with('success', 'Email Telah Terverifikasi Silahkan Melakukan Login');
     }
 
     public function resendVerificationMail(Request $request)
     {
-        $validate = Validator::make($request->all, [
+        $validate = Validator::make($request->all(), [
             'kategori' => 'required|in:user,employer',
             'alamat_email' => 'required|email',
         ]);
@@ -151,27 +199,42 @@ class AuthController extends Controller
         if ($validate->fails()) {
             return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar');
         }
+
         $model = $request->input('kategori') === 'user' ? User::class : Employer::class;
         $user = $model::where('alamat_email', $request->input('alamat_email'))->first();
+
         if (!$user || $user->email_verification !== null) {
-            return back()->with('warning', 'Email Sudah Terverifikasi');
+            return back()->with('warning', 'Email Tidak Terdaftar Atau Sudah Terverifikasi');
         }
-        $tokenExists = true;
-        $token = null;
-        while ($tokenExists) {
-            $token = Str::random(64);
-            $existingToken = DB::table('tokens')->where('token', $token)->first();
-            if (!$existingToken) {
-                $tokenExists = false;
-            }
-        }
-        DB::table('tokens')->where('user_id', '=', $user->id)
+
+        $tokenRecord = DB::table('tokens')->where('user_id', $user->id)
             ->where('category', $request->input('kategori'))
-            ->where('type', $request->input('alamat_email'))
-            ->update([
+            ->where('type', 'email_verification')
+            ->first();
+
+        if ($tokenRecord) {
+            $token = $tokenRecord->token;
+        } else {
+            $tokenExists = true;
+            $token = null;
+            while ($tokenExists) {
+                $token = Str::random(64);
+                $existingToken = DB::table('tokens')->where('token', $token)->first();
+                if (!$existingToken) {
+                    $tokenExists = false;
+                }
+            }
+
+            DB::table('tokens')->insert([
+                'user_id' => $user->id,
+                'alamat_email' => $user->alamat_email,
+                'category' => $request->input('kategori'),
                 'token' => $token,
-                'expires_at' => now()->addMinutes(10),
+                'type' => 'email_verification',
+                'expires_at' => now()->addMinutes(15),
             ]);
+        }
+
         Mail::to($user->alamat_email)->send(new EmailVerification($user, $token));
         return back()->with('success', 'Link Verifikasi Telah Dikirim');
     }
@@ -189,8 +252,15 @@ class AuthController extends Controller
         ]);
 
         $logintype = filter_var($request->username, FILTER_VALIDATE_EMAIL) ? 'alamat_email' : 'username';
+        $user = User::where($logintype, $request->username)->first();
+        if (!$user) {
+            return back()->with('warning', 'username dan password salah');
+        }
+        if ($user->email_verification === null) {
+            return back()->with('warning', 'Email Belum Terverifikasi');
+        }
         if (Auth::guard('user')->attempt([$logintype => $request->username, 'password' => $request->password])) {
-            return redirect()->intended('/Home/User');
+            return redirect()->intended(route('user.index'));
         } else {
             return back()->with('error', 'username atau password salah/tidak terdaftar');
         }
@@ -207,9 +277,16 @@ class AuthController extends Controller
             'username' => 'required',
             'password' => 'required',
         ]);
-
-        if (Auth::guard('employer')->attempt(['username' => $request->username, 'password' => $request->password])) {
-            return redirect()->intended('/Employer/Dashboard');
+        $logintype = filter_var($request->username, FILTER_VALIDATE_EMAIL) ? 'alamat_email' : 'username';
+        $employer = Employer::where($logintype, $request->username)->first();
+        if (!$employer) {
+            return back()->with('username dan password salah');
+        }
+        if ($employer->email_verification === null) {
+            return back()->with('warning', 'Email Belum Terverifikasi');
+        }
+        if (Auth::guard('employer')->attempt([$logintype => $request->username, 'password' => $request->password])) {
+            return redirect()->intended(route('employer.index'));
         } else {
             return back()->with('error', 'username atau password salah / tidak terdaftar');
         }
@@ -235,13 +312,13 @@ class AuthController extends Controller
             'nama_lengkap' => 'required',
             'jabatan' => 'required',
             'nomor_telepon' => [
-                'required|unique:employers,nomor_telepon',
+                'required',
                 Rule::unique('approvals', 'nomor_telepon')->where(function ($query) {
                     $query->where('status', 'approved');
                 }),
             ],
             'alamat_email' => [
-                'required|unique:employers,alamat_email',
+                'required',
                 Rule::unique('approvals', 'alamat_email')->where(function ($query) {
                     $query->where('status', 'approved');
                 }),
@@ -251,6 +328,7 @@ class AuthController extends Controller
         ]);
 
         if ($validate->fails()) {
+            dd($validate);
             return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar')->withErrors($validate)->withInput();
         }
 
@@ -275,10 +353,10 @@ class AuthController extends Controller
         $approval->save();
         $request->file('formulir')->storeAs('formulir', $formulir_name);
 
-        Mail::to($approval->alamat_email)->send(new ApprovalNotification($approval));
+        $template = 'approval';
+        Mail::to($approval->alamat_email)->send(new ApprovalNotification($approval, $template));
         return redirect('/')->with('success', 'Permohonan Telah Dibuat, Periksa Kotak Email Untuk Melihat Detail Permohonan');
     }
-
 
     public function templateDownload()
     {
@@ -286,7 +364,7 @@ class AuthController extends Controller
         return response()->download($template, 'Formulir-Pendaftaran');
     }
 
-    public function resetPasswordIndex()
+    public function forgotPasswordIndex()
     {
         return view('auth.password.index');
     }
@@ -301,38 +379,70 @@ class AuthController extends Controller
             return back()->with('warning', 'Masukkan Ulang Form');
         }
         $model = $request->input('kategori') === 'user' ? User::class : Employer::class;
-        $user = $model::where('alamat_email', $request->input('alamat_email'))->where('email_verification', true)->first();
+        $user = $model::where('alamat_email', $request->input('alamat_email'))->whereNotNull('email_verification')->first();
         if (!$user) {
             return back()->with('warning', 'Email Tidak Ditemukan Atau Belum Terverifikasi');
         }
-        $tokenExists = true;
-        $token = null;
-        while ($tokenExists) {
-            $token = Str::random(64);
-            $existingToken = DB::table('tokens')->where('token', $token)->first();
-            if (!$existingToken) {
-                $tokenExists = false;
-            }
+        $token = Str::uuid()->toString();
+        while (DB::table('tokens')->where('token', $token)->exists()) {
+            $token = Str::uuid()->toString();
         }
-        $record = DB::table('tokens')->where('user_id', $user->id)->where('type', 'reset_password')->first();
+        $record =  DB::table('tokens')->where('user_id', $user->id)->where('type', 'reset_password')->first();
+        $tokenData = [
+            'user_id' => $user->id,
+            'alamat_email' => $user->alamat_email,
+            'category' => $request->input('kategori'),
+            'token' => $token,
+            'type' => 'reset_password',
+            'expires_at' => now()->addMinutes(15),
+        ];
         if ($record) {
             DB::table('tokens')->where('user_id', $user->id)
                 ->where('type', 'reset_password')
-                ->update([
-                    'token' => $token,
-                    'expires_at' => now()->addMinutes(15),
-                ]);
+                ->update($tokenData);
         } else {
-            DB::table('tokens')->insert([
-                'user_id' => $user->id,
-                'category' => 'user',
-                'token' => $token,
-                'type' => 'reset_password',
-                'expires_at' => now()->addMinutes(15),
-            ]);
+            DB::table('tokens')->insert($tokenData);
         }
-        Mail::to($user->alamat_email)->send(new ResetPassword($user, $token));
-        return back()->with('success', 'Link Reset Password Telah Dikirim');
+
+        try {
+            Mail::to($user->alamat_email)->send(new ResetPassword($user, $token));
+            return back()->with('success', 'Link Reset Password Telah Dikirim');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengirim email reset password');
+        }
+    }
+
+    public function resetPasswordForm()
+    {
+        $token = request()->route('token');
+        return view('auth.password.reset-password', ['token' => $token]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $token = $request->input('token');
+        $checkToken = DB::table('tokens')->where('token', $token)->where('type', 'reset_password')->exists();
+        if (!$checkToken) {
+            return back()->with('warning', 'Token Tidak Valid');
+        }
+        $token = DB::table('tokens')->where('token', $token)->where('type', 'reset_password')->first();
+        $expire = Carbon::parse($token->expires_at);
+        if ($expire->isPast()) {
+            return back()->with('warning', 'Token Sudah Tidak Berlaku');
+        }
+        $validate = Validator::make($request->all(), [
+            'new_password' => 'required',
+            'confirm_password' => 'required|same:new_password',
+        ]);
+        if ($validate->fails()) {
+            return back()->with('warning', 'Mohon Memasukkan Ulang Password Dengan Benar');
+        }
+        $user = User::findOrfail($token->user_id);
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        DB::table('tokens')->where('token', $token->token)->delete();
+        return redirect('/')->with('success', 'Password Berhasi Direset. Silahkan melakukan login dengan password baru');
     }
 
     public function adminLoginForm()
@@ -348,7 +458,7 @@ class AuthController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt(['username' => $request->username, 'password' => $request->password])) {
-            return redirect()->intended('/dashboard');
+            return redirect()->intended(route('admin'));
         } else {
             return back()->with('error', 'username atau password salah / tidak terdaftar');
         }

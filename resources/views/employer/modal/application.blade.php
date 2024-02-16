@@ -1,4 +1,4 @@
-<div class="modal fade" id="applicationModal" tabindex="-1" aria-labelledby="applicationModal" aria-hidden="true">
+<div class="modal fade" id="statusApplication" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,8 +6,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-labelledby="close"> </button>
             </div>
             <div class="modal-body p-4">
-                <h5 class="fw-bold">Pelamar</h5>
-                <h6 id="applicationName" class="fw-semibold"></h6>
                 <form method="POST" id="statusForm" class="form-validate" novalidate>
                     @csrf
                     @method('put')
@@ -16,10 +14,9 @@
                         <select name="application_status" id="" class="form-select" required>
                             <option value="" disabled selected>Select Status
                             </option>
-                            <option value="Qualified">Qualified
+                            <option value="accepted">Accepted
                             </option>
-                            <option value="Not Qualified">Not
-                                Qualified</option>
+                            <option value="declined">Declined</option>
                         </select>
                     </div>
                     <div class="my-2">

@@ -6,19 +6,16 @@
             <div class="bg-white rounded min-vh-50 p-4">
                 <h3 class="text-center fw-semibold">Form Coaching Clinic ITK</h3>
                 <div class=" my-4">
-                    <form action="/new-appointment" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ Route('user.appointment.create') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
                         <div class="my-3 p-4 col-10 offset-1">
                             <div class="my-4">
                                 <label for="topik" class=" form-label fw-semibold">Topik Konseling</label>
                                 <select class="form-select" name="topik" id="" required>
                                     <option value="" disabled selected>Pilih Topik Konseling</option>
-                                    <option value="Menulis CV dan Surat Lamaran">Menulis CV dan Surat Lamaran</option>
-                                    <option value="Menghadapi Psikotes">Menghadapi Psikotes</option>
-                                    <option value="Menghadapi LGD">Menghadapi LGD</option>
-                                    <option value="Menghadapi Wawancara Kerja">Menghadapi Wawancara Kerja</option>
-                                    <option value="Menghadapi Kehidupan Kerja">Menghadapi Kehidupan Kerja</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                    @foreach ($topik as $item)
+                                        <option value="{{ $item->topik }}">{{ $item->topik }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="my-4">

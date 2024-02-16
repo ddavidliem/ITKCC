@@ -5,7 +5,7 @@
                 <h1 class="modal-title fs-5 fw-semibold" id="rescheduleModal">Formulir Perubahan Jadwal Konseling</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="/edit-appointment/{{ $appointment->id }}" method="POST" novalidate>
+            <form action="/edit-appointment/{{ $appointment->id }}" class="form-validate" method="POST" novalidate>
                 @csrf
                 @method('PUT')
                 <div class="my-3 col-10 offset-1">

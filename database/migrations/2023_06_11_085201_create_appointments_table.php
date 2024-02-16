@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('jenis_konseling');
             $table->string('tempat_konseling');
             $table->string('status');
-            $table->string('color');
+            $table->longText('feedback')->nullable();
             $table->timestamps();
         });
     }

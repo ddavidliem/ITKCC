@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('alamat_email')->require();
             $table->string('logo_perusahaan')->nullable();
             $table->timestamp('email_verification')->nullable();
+            $table->string('google_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

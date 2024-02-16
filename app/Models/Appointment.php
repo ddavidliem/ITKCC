@@ -20,10 +20,11 @@ class Appointment extends Model
         'jenis_konseling',
         'tempat_konseling',
         'status',
+        'feedback',
     ];
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->with('pengalaman', 'sertifikasi');
+        return $this->belongsTo(User::class)->with('pengalaman', 'sertifikat');
     }
 }

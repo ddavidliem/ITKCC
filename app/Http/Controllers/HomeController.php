@@ -53,29 +53,4 @@ class HomeController extends Controller
     {
         return view('admin.consult.index');
     }
-
-    public function searchLoker(Request $request)
-    {
-        if (!$request->input('searchQuery') && !$request->input('selectQuery')) {
-            return back();
-        }
-
-        $loker = Loker::query();
-        if ($request->input('searchQuery')) {
-            $query = $request->input('searchQuery');
-            $loker = Loker::where('nama_pekerjaan', 'like', '%' . $query . '%')
-                ->orWhere('lokasi_pekerjaan', 'like', '%' . $query . '%')
-                ->orWhereHas('employer', function ($q) use ($query) {
-                    $q->where('nama_perusahaan', 'like', '%' . $query . '%');
-                });
-        }
-
-        if ($request->input('selectQuery')) {
-            $select = $request->input('selectQuery');
-            $loker->where('tipe_pekerjaan', '=', $select);
-        }
-
-        $results = $loker->get();
-        return view('user.loker.loker-result', compact('results'));
-    }
 }

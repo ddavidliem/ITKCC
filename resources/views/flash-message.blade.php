@@ -22,12 +22,12 @@
         <strong>{{ $message }}</strong>
     </div>
 @endif
-@if ($errors->any())
+{{-- @if ($errors->any())
     <div class="alert alert-danger alert-dismissible" role="alert">
         <button type="button" class="close" data-bs-dismiss="alert">×</button>
         Check the following errors :(
     </div>
-@endif
+@endif --}}
 @if ($message = Session::get('empty'))
     <div>
         <h4>Empty Notification</h4>
