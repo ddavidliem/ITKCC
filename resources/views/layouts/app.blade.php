@@ -33,6 +33,9 @@
                         <li class="nav-item">
                             <a href="/konsultasi" class="fw-semibold nav-link :hover">Konsultasi</a>
                         </li>
+                        <li class="nav-item">
+                            <a href="/berita" class="fw-semibold nav-link :hover">Berita</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav me-a mb-2 mb-lg-10">
 
@@ -71,34 +74,9 @@
             @yield('content')
         </main>
 
-        <footer class="container p-2 d-flex justify-content-between align-content-center">
-            <div class="mx-5 p-2 text-capitalize">
-                <h5>contact information</h5>
-                <div class="my-2 p-1">
-                    <ul>
-                        <li><span class="text-bold">Address</span> : </li>
-                        <li><span class="text-bold">Phone</span>: </li>
-                        <li><span class="text-bold">Email</span> : </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="mx-5 p-2">
-                <h5>About Us</h5>
-                <div class="my-2 p-1">
-                    <p>ITK Career Center merupakan pusat layanan dan Karir bagi Alumni Institut Teknologi Kalimantan,
-                        kami menyediakan <br>
-                        informasi karir, pemagangan dan lowongan kerja diberbagai bidang dan lintas perusahaan industri
-                    </p>
-                </div>
-            </div>
-            <div class="mx-5 p-2">
-                <h5>External Link</h5>
-                <div class="my-2 p-1">
-                    <ul class="list-unstyled">
-                        {{-- <li><a href="/login-admin" class=" text-decoration-none">Admin</a></li> --}}
-                    </ul>
-                </div>
-            </div>
+
+        <footer class="container p-2 d-flex justify-content-between">
+            @include('component.footer')
         </footer>
     </div>
     @stack('script')

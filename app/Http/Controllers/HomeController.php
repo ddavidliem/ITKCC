@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use App\Models\User;
 use App\Models\Loker;
-use App\Models\Employer;
 use App\Models\Application;
 use App\Models\Content;
 use Illuminate\Support\Carbon;
@@ -17,7 +16,13 @@ class HomeController extends Controller
     public function index()
     {
         $carousel = Content::where('category', '=', 'Carousel')->get();
-        return view('welcome', compact('carousel'));
+        $lokers = Loker::where('status', 'Open')
+            ->where('Deadline', '<=', now())
+            ->latest()
+            ->take(9)
+            ->get();
+        $chunkLokers = $lokers->chunk(3);
+        return view('welcome', compact('carousel', 'chunkLokers'));
     }
 
     public function UserRegForm()
@@ -51,6 +56,21 @@ class HomeController extends Controller
 
     public function konsultasiIndex()
     {
-        return view('admin.consult.index');
+        return view('consult.index');
+    }
+
+    public function beritaIndex()
+    {
+        $content = Content::where('category', 'berita')->get();
+        return view('content.index', compact('content'));
+    }
+
+    public function beritaDetail($id)
+    {
+        $content = Content::findOrfail($id);
+        if (!$content) {
+            return back()->with('warning', 'Berita Tidak Ditemukan');
+        }
+        return view('content.detail', compact('content'));
     }
 }

@@ -19,6 +19,7 @@ class Appointment extends Model
         'topik',
         'jenis_konseling',
         'tempat_konseling',
+        'google_meet',
         'status',
         'feedback',
     ];

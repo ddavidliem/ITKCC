@@ -144,6 +144,53 @@
             </div>
         </div>
 
+        <div class="bg-white rounded min-vh-50 max-vh-50 overflow-auto p-4 my-4">
+            <div class="d-flex justify-content-between">
+                <h5 class="fw-semibold">Pendidikan</h5>
+                <div>
+                    <button class="btn btn-outline-dark" data-bs-target="#newPendidikan" data-bs-toggle="modal">Tambah
+                        Pendidikan</button>
+                </div>
+            </div>
+
+            <div class="min-vh-25 max-vh-75 overflow-auto my-4">
+                <table class="table table-hover p-4">
+                    <thead class="table-light">
+                        <tr class="position-sticky top-0">
+                            <th>Nama Sekolah</th>
+                            <th>Bidang Studi</th>
+                            <th>Tingkat Pendidikan</th>
+                            <th>Tahun Lulus</th>
+                            <th>Alamat Sekolah</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($user->pendidikan as $item)
+                            <tr>
+                                <td class="text-capitalize">{{ $item->nama_sekolah }}</td>
+                                <td class="text-capitalize">{{ $item->bidang_studi }}</td>
+                                <td class="text-capitalize">{{ $item->tingkat_pendidikan }}</td>
+                                <td>{{ $item->tahun_lulus }}</td>
+                                <td>{{ $item->alamat_sekolah }}</td>
+                                <td>{{ $item->keterangan }}</td>
+                                <td class="d-flex">
+                                    <button class="btn btn-outline-dark" id="editPendidikanBtn"
+                                        data-url="{{ Route('user.pendidikan.update', ['id' => $item->id]) }}"
+                                        data-id="{{ Route('user.pendidikan.detail', ['id' => $item->id]) }}"
+                                        data-bs-target="#editPendidikan" data-bs-toggle="modal">Edit</button>
+                                    <button class="btn btn-outline-danger mx-2" id="deletePendidikanBtn"
+                                        data-url="{{ Route('user.pendidikan.delete', ['id' => $item->id]) }}"
+                                        data-bs-toggle="modal" data-bs-target="#deletePendidikan">Delete</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
         <div class="bg-white rounded min-vh-50 max-vh-75 overflow-auto p-4 my-4">
             <div class="d-flex justify-content-between">
                 <h5 class="fw-semibold">Pengalaman</h5>
@@ -309,6 +356,9 @@
     @include('user.modal.new-pengalaman')
     @include('user.modal.edit-pengalaman')
     @include('user.modal.delete-pengalaman')
+    @include('user.modal.new-pendidikan')
+    @include('user.modal.edit-pendidikan')
+    @include('user.modal.delete-pendidikan')
     @include('user.modal.new-appointment')
     @include('user.modal.edit-appointment')
     @include('user.modal.profile-image')
@@ -340,6 +390,25 @@
                                 selectInput.setAttribute('required', 'required');
                                 selectInput.disabled = false;
                             })
+                        }
+                    }
+                });
+            });
+
+            const newAppointment = document.querySelectorAll('.appointment');
+            newAppointment.forEach(function(modal) {
+                modal.addEventListener('change', function() {
+                    const select = event.target;
+
+                    if (select.classList.contains('tempat_konseling')) {
+                        const input = modal.querySelector('#google_meet');
+
+                        if (select.value === 'Online') {
+                            input.setAttribute('required', true);
+                            input.disabled = false;
+                        } else {
+                            input.removeAttribute('required');
+                            input.disabled = true;
                         }
                     }
                 });
@@ -391,13 +460,44 @@
                 });
             });
 
+            const editPendidikanBtn = document.querySelectorAll('#editPendidikanBtn');
+            const editPendidikanForm = document.getElementById('editPendidikanForm');
+            Array.from(editPendidikanBtn).forEach(btn => {
+                btn.addEventListener('click', function() {
+                    editPendidikanForm.setAttribute('action', btn.getAttribute('data-url'));
+                    $.ajax({
+                        type: "GET",
+                        url: this.getAttribute('data-id'),
+                        success: function(response) {
+                            $('#nama_sekolah').val(response.nama_sekolah);
+                            $('#bidang_studi').val(response.bidang_studi);
+                            $('#alamat_sekolah').val(response.alamat_sekolah);
+                            $('#keterangan').val(response.keterangan);
+                            $('#tahun_lulus').val(response.tahun_lulus);
+                            $('#tingkat_pendidikan option').each(function() {
+                                $(this).prop('selected', $(this).val() ===
+                                    response.tingkat_pendidikan);
+                            });
+                        }
+                    });
+                });
+            });
+
+            const deletePendidikanBtn = document.querySelectorAll('#deletePendidikanBtn');
+            const deletePendidikanForm = document.getElementById('deletePendidikanForm');
+            Array.from(deletePendidikanBtn).forEach(btn => {
+                btn.addEventListener('click', function() {
+                    deletePendidikanForm.setAttribute('action', btn.getAttribute('data-url'));
+                });
+            })
+
             const editPengalamanBtn = document.querySelectorAll('#editPengalamanBtn');
             const editPengalamanForm = document.getElementById('editPengalamanForm');
             Array.from(editPengalamanBtn).forEach(btn => {
                 btn.addEventListener('click', function() {
                     editPengalamanForm.setAttribute('action', btn.getAttribute('data-url'));
                     $.ajax({
-                        type: "Get",
+                        type: "GET",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
                             $('#title_pengalaman').val(response.title);

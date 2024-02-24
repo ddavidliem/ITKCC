@@ -1,4 +1,4 @@
-<div class="modal fade" id="updateAppointment" tabindex="-1" aria-hidden="true">
+<div class="modal fade appointment" id="updateAppointment" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,6 +17,10 @@
                             <option value="Online">Online, Google Meet, Zoom</option>
                             <option value="Offline">Offline, LPPM ITK</option>
                         </select>
+                    </div>
+                    <div class="my-2">
+                        <label for="" class="form-label fw-semibold">Link Google Meet</label>
+                        <input type="text" class="form-control" id="google_meet" name="google_meet" required>
                     </div>
                     <div class="my-2">
                         <label for="tanggal_konseling" class="form-label fw-semibold">Tanggal Konsultasi</label>

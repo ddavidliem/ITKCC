@@ -142,6 +142,49 @@
             </div>
         </div>
 
+        <div class="bg-white rounded min-vh-50 max-vh-50 overflow-auto p-4 my-4">
+            <div class="d-flex justify-content-between">
+                <h4 class="fw-semibold">Pendidikan</h4>
+            </div>
+
+            <div class="min-vh-25 max-vh-75 overflow-auto my-4">
+                <table class="table table-hover p-4">
+                    <thead class="table-light">
+                        <tr class="position-sticky top-0">
+                            <th>Nama Sekolah</th>
+                            <th>Bidang Studi</th>
+                            <th>Tingkat Pendidikan</th>
+                            <th>Tahun Lulus</th>
+                            <th>Alamat Sekolah</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($user->pendidikan as $item)
+                            <tr>
+                                <td>{{ $item->nama_sekolah }}</td>
+                                <td>{{ $item->bidang_studi }}</td>
+                                <td>{{ $item->tingkat_pendidikan }}</td>
+                                <td>{{ $item->tahun_lulus }}</td>
+                                <td>{{ $item->alamat_sekolah }}</td>
+                                <td>{{ $item->keterangan }}</td>
+                                <td class="d-flex">
+                                    <button class="btn btn-outline-dark" id="editPendidikanBtn"
+                                        data-url="{{ Route('admin.user.pendidikan.update', ['id' => $item->id, 'user' => $item->user_id]) }}"
+                                        data-id="{{ Route('admin.user.pendidikan.detail', ['id' => $item->id, 'user' => $item->user_id]) }}"
+                                        data-bs-target="#editPendidikan" data-bs-toggle="modal">Edit</button>
+                                    <button class="btn btn-outline-danger mx-2" id="deletePendidikanBtn"
+                                        data-url="{{ Route('admin.user.pendidikan.delete', ['id' => $item->id, 'user' => $item->user_id]) }}"
+                                        data-bs-toggle="modal" data-bs-target="#deletePendidikan">Delete</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
         <div class="min-vh-50 my-4 bg-white rounded p-4">
             <h4 class="fw-semibold">Pengalaman Kerja</h4>
             <div class="min-vh-25 max-vh-50 overflow-auto">
@@ -169,11 +212,11 @@
                                 <td class="d-flex">
                                     <button class="btn btn-outline-dark" id="editPengalamanBtn" data-bs-toggle="modal"
                                         data-bs-target="#editPengalaman"
-                                        data-url="{{ Route('admin.user.pengalaman.edit', ['user' => $user->id, 'id' => $item->id]) }}"
-                                        data-id="{{ Route('admin.user.pengalaman.detail', ['user' => $user->id, 'id' => $item->id]) }}">Edit</button>
+                                        data-url="{{ Route('admin.user.pengalaman.edit', ['id' => $item->id, 'user' => $user->id]) }}"
+                                        data-id="{{ Route('admin.user.pengalaman.detail', ['id' => $item->id, 'user' => $user->id]) }}">Edit</button>
                                     <button class="btn btn-outline-danger mx-2" id="deletePengalamanBtn"
                                         data-bs-toggle="modal" data-bs-target="#deletePengalaman"
-                                        data-url="{{ Route('admin.user.pengalaman.delete', ['user' => $user->id, 'id' => $item->id]) }}">
+                                        data-url="{{ Route('admin.user.pengalaman.delete', ['id' => $item->id, 'user' => $user->id]) }}">
                                         Delete
                                     </button>
                                 </td>
@@ -269,6 +312,9 @@
     @include('admin.user.modal.edit-sertifikat')
     @include('admin.user.modal.edit-pengalaman')
     @include('admin.user.modal.delete-pengalaman')
+    @include('admin.user.modal.new-pendidikan')
+    @include('admin.user.modal.edit-pendidikan')
+    @include('admin.user.modal.delete-pendidikan')
 @endsection
 
 @push('script')
@@ -324,6 +370,7 @@
                                 $(this).prop('selected', $(this).val() ===
                                     response.tempat_konseling);
                             });
+                            $('#google_meet').val(response.google_meet);
                             var appointmentTime = new Date(response.date_time);
                             $('#tanggal_konseling').val(appointmentTime.toISOString()
                                 .split('T')[0]);
@@ -335,6 +382,25 @@
 
                         }
                     });
+                });
+            });
+
+            const newAppointment = document.querySelectorAll('.appointment');
+            newAppointment.forEach(function(modal) {
+                modal.addEventListener('change', function() {
+                    const select = event.target;
+
+                    if (select.classList.contains('tempat_konseling')) {
+                        const input = modal.querySelector('#google_meet');
+
+                        if (select.value === 'Online') {
+                            input.setAttribute('required', true);
+                            input.disabled = false;
+                        } else {
+                            input.removeAttribute('required');
+                            input.disabled = true;
+                        }
+                    }
                 });
             });
 
@@ -391,8 +457,15 @@
                         type: "GET",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
+                            console.log(response);
                             $('#title_pengalaman').val(response.title);
                             $('#organisasi_pengalaman').val(response.organisasi);
+                            $('#lokasi_pengalaman').val(response.lokasi_pekerjaan);
+                            $('#deskripsi_pengalaman').val(response.deskripsi);
+                            $('#jenis_pekerjaan option').each(function() {
+                                $(this.prop('selected', $(this).val() ===
+                                    response.jenis_pekerjaan));
+                            });
                             var tanggal_mulai = response.tanggal_mulai.split(' ');
                             $('#bulan_mulai option').each(function() {
                                 $(this).prop('selected', $(this).val() ===
@@ -411,8 +484,7 @@
                                 $(this).prop('selected', $(this).val() ===
                                     tanggal_selesai[1]);
                             });
-                            $('#id_sertifikat').val(response.id_sertifikat);
-                            $('#url_sertifikat').val(response.url_sertifikat);
+
                         }
                     });
                 });
@@ -426,6 +498,37 @@
                 });
             });
 
+            const editPendidikanBtn = document.querySelectorAll('#editPendidikanBtn');
+            const editPendidikanForm = document.getElementById('editPendidikanForm');
+            Array.from(editPendidikanBtn).forEach(btn => {
+                btn.addEventListener('click', function() {
+                    editPendidikanForm.setAttribute('action', btn.getAttribute('data-url'));
+
+                    $.ajax({
+                        type: "GET",
+                        url: this.getAttribute('data-id'),
+                        success: function(response) {
+                            $('#nama_sekolah').val(response.nama_sekolah);
+                            $('#bidang_studi').val(response.bidang_studi);
+                            $('#alamat_sekolah').val(response.alamat_sekolah);
+                            $('#keterangan').val(response.keterangan);
+                            $('#tahun_lulus').val(response.tahun_lulus);
+                            $('#tingkat_pendidikan option').each(function() {
+                                $(this).prop('selected', $(this).val() ===
+                                    response.tingkat_pendidikan);
+                            });
+                        }
+                    });
+                });
+            });
+
+            const deletePendidikanBtn = document.querySelectorAll('#deletePendidikanBtn');
+            const deletePendidikanForm = document.getElementById('deletePendidikanForm');
+            Array.from(deletePendidikanBtn).forEach(btn => {
+                btn.addEventListener('click', function() {
+                    deletePendidikanForm.setAttribute('action', btn.getAttribute('data-url'));
+                });
+            })
 
         });
     </script>

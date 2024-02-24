@@ -14,7 +14,7 @@
                         <label for="profile_img" class="form-label fw-semibold">Logo Perusahaan</label>
                         <input type="file" class="form-control" name="logo_perusahaan" required>
                         <div class="form-text">
-                            Gambar Logo Perusahaan Maks. 2MB, Rekomendasi Ukuran : 500x500. Format PNG.
+                            Gambar Logo Perusahaan Maks. 2MB, Format PNG.
                         </div>
                     </div>
                     <div class="my-3 d-flex justify-content-end">

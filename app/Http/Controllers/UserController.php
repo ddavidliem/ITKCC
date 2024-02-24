@@ -55,6 +55,9 @@ class UserController extends Controller
             },
             'appointment' => function ($query) {
                 $query->orderBy('created_at', 'desc');
+            },
+            'pendidikan' => function ($query) {
+                $query->orderBy('created_at', 'desc');
             }
         ]);
         $year = date('Y');
@@ -75,24 +78,24 @@ class UserController extends Controller
         }
 
         $rule = [
-            'nama_lengkap' => 'required',
-            'nomor_telepon' => 'required',
-            'tempat_lahir' => 'required',
-            'tanggal_lahir' => 'required',
-            'kewarganegaraan' => 'required',
-            'jenis_kelamin' => 'required',
-            'agama' => 'required',
-            'alamat' => 'required',
-            'kota' => 'required',
-            'kode_pos' => 'required',
-            'program_studi' => 'nullable',
+            'nama_lengkap' => 'required|string|min:4|max:100',
+            'nomor_telepon' => 'required|numeric|digits:14',
+            'tempat_lahir' => 'required|string|min:5|max:100',
+            'tanggal_lahir' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
+            'kewarganegaraan' => 'required|string',
+            'jenis_kelamin' => 'required|string|in:pria,wanita',
+            'agama' => 'required|string',
+            'alamat' => 'required|string|min:10|max:255',
+            'kota' => 'required|string|min:4|max:100',
+            'kode_pos' => 'required|numeric',
+            'program_studi' => 'nullable|string',
             'nim' => 'nullable',
-            'ipk' => 'nullable',
-            'pendidikan_tertinggi' => 'required',
-            'status_perkawinan' => 'required'
+            'ipk' => 'nullable|numeric|between:0,4',
+            'pendidikan_tertinggi' => 'required|string',
+            'status_perkawinan' => 'required|string'
         ];
         if ($request->input('alamat_email') != $user->alamat_email) {
-            $rule['alamat_email'] = 'required|unique:users,alamat_email';
+            $rule['alamat_email'] = 'required|email|unique:users,alamat_email';
         }
         $validate = Validator::make($request->all(), $rule);
         if ($validate->fails()) {
@@ -152,13 +155,14 @@ class UserController extends Controller
 
     public function imgProfile(Request $request)
     {
-        $user = Auth::user();
-        $user_id = $user->id;
+        $auth = Auth::user();
+        $user_id = $auth->id;
+        $user = User::findOrfail($user_id);
         $profileImg = data_get($user, 'profile');
         $user_img = $request->file('profile_img');
 
         $validate = $request->validate([
-            'profile_img' => 'required|mimes:png|max:10000'
+            'profile_img' => 'required|ffile|mimes:png,jpeg|max:2048'
         ]);
 
         if ($validate) {
@@ -178,12 +182,12 @@ class UserController extends Controller
     public function addSertifikat(Request $request)
     {
         $rule = [
-            'title' => 'required',
-            'organisasi' => 'required',
+            'title' => 'required|string|min:3|max:100',
+            'organisasi' => 'required|string|min:4|max:100',
             'bulan_terbit' => 'required',
             'tahun_terbit' => 'required',
-            'id_sertifikat' => 'nullable',
-            'url_sertifikat' => 'nullable',
+            'id_sertifikat' => 'nullable|string',
+            'url_sertifikat' => 'nullable|url',
         ];
 
         if ($request->filled('bulan_berakhir') || $request->filled('tahun_berakhir')) {
@@ -229,14 +233,14 @@ class UserController extends Controller
             return back()->with('warning', 'Gagal Mengubah Data Sertifikat');
         }
         $validation = Validator::make($request->all(), [
-            'title_sertifikat' => 'required',
-            'organisasi' => 'required',
+            'title_sertifikat' => 'required|string|min:4|max:100',
+            'organisasi' => 'required|string|min:4|max:100',
             'bulan_terbit' => 'required',
             'tahun_terbit' => 'required',
             'bulan_berakhir' => 'required_with_all:tahun_berakhir',
             'tahun_berakhir' => 'required_with_all:bulan_berakhir',
-            'id_sertifikat' => 'nullable',
-            'url_sertifikat' => 'nullable',
+            'id_sertifikat' => 'nullable|string',
+            'url_sertifikat' => 'nullable|url',
         ]);
 
         if ($validation->fails()) {
@@ -271,16 +275,95 @@ class UserController extends Controller
         return back()->with('success', 'Berhasil Menghapus Sertifikat');
     }
 
+    public function addPendidikan(Request $request)
+    {
+        $rules = [
+            'nama_sekolah' => 'required|string|max:255',
+            'tingkat_pendidikan' => 'required|string|max:50',
+            'bidang_studi' => 'required|string|max:255',
+            'alamat_sekolah' => 'required|string|max:500',
+            'tahun_lulus' => 'required|integer|min:1990|max:' . date('Y'),
+            'keterangan' => 'nullable|string|max:500'
+        ];
+
+        $validate = Validator::make($request->all(), $rules);
+        if ($validate->fails()) {
+            dd($validate->errors());
+            return back()->with('warning', 'Mohon Mengisi Ulang Form Menambah Pendidikan');
+        }
+
+        $pendidikan = new Pendidikan;
+        $pendidikan->nama_sekolah = $request->input('nama_sekolah');
+        $pendidikan->tingkat_pendidikan = $request->input('tingkat_pendidikan');
+        $pendidikan->bidang_studi = $request->input('bidang_studi');
+        $pendidikan->tahun_lulus = $request->input('tahun_lulus');
+        $pendidikan->alamat_sekolah = $request->input('alamat_sekolah');
+        $pendidikan->keterangan = $request->input('keterangan');
+        $pendidikan->user_id = Auth::user()->id;
+        $pendidikan->save();
+        return back()->with('success', 'Berhasil Menambah Data Pendidikan');
+    }
+
+    public function detailPendidikan($id)
+    {
+        $pendidikan = Auth::user()->pendidikan->find($id);
+        if (!$pendidikan) {
+            return response()->json(['error' => 'Data Pendidikan Tidak Ditemukan'], 404);
+        }
+        return response()->json($pendidikan);
+    }
+
+
+    public function updatePendidikan(Request $request, $id)
+    {
+        $pendidikan = Auth::user()->pendidikan->find($id);
+        if (!$pendidikan) {
+            return back()->with('warning', 'Data Pendidikan Tidak Ditemukan');
+        }
+        $rules = [
+            'nama_sekolah' => 'required|string|max:255',
+            'tingkat_pendidikan' => 'required|string|max:50',
+            'bidang_studi' => 'required|string|max:255',
+            'alamat_sekolah' => 'required|string|max:500',
+            'tahun_lulus' => 'required|integer|min:1990|max:' . date('Y'),
+            'keterangan' => 'nullable|string|max:500'
+        ];
+        $validate = Validator::make($request->all(), $rules);
+        if ($validate->fails()) {
+            return back()->with('warning', 'Mohon Mengisi Ulang Form Mengubah Data Pendidikan');
+        }
+
+        $pendidikan->nama_sekolah = $request->input('nama_sekolah');
+        $pendidikan->tingkat_pendidikan = $request->input('tingkat_pendidikan');
+        $pendidikan->bidang_studi = $request->input('bidang_studi');
+        $pendidikan->alamat_sekolah = $request->input('alamat_sekolah');
+        $pendidikan->tahun_lulus = $request->input('tahun_lulus');
+        $pendidikan->keterangan = $request->input('keterangan');
+        $pendidikan->update();
+
+        return back()->with('success', 'Berhasil Mengubah Data Pendidikan');
+    }
+
+    public function deletePendidikan($id)
+    {
+        $pendidikan = Auth::user()->pendidikan->find($id);
+        if (!$pendidikan) {
+            return back()->with('warning', 'Data Pendidikan Tidak Ditemukan');
+        }
+        $pendidikan->delete();
+        return back()->with('success', 'Berhasil Menghapus Data Pendidikan');
+    }
+
     public function addPengalaman(Request $request)
     {
         $rules = [
-            'title' => 'required',
-            'jenis_pekerjaan' => 'required',
-            'organisasi' => 'required',
-            'lokasi_pekerjaan' => 'required',
+            'title' => 'required|string|min:4|max:100',
+            'jenis_pekerjaan' => 'required|string',
+            'organisasi' => 'required|string|min:4|max:100',
+            'lokasi_pekerjaan' => 'required|string|min:4|max:255',
             'bulan_mulai' => 'required',
             'tahun_mulai' => 'required',
-            'deskripsi_pengalaman' => 'nullable',
+            'deskripsi_pengalaman' => 'nullable|min:50|max:1000',
         ];
 
         if ($request->has('present_box')) {
@@ -294,6 +377,7 @@ class UserController extends Controller
 
         $validate = Validator::make($request->all(), $rules);
         if ($validate->fails()) {
+            dd($validate->errors());
             return back()->with('warning', 'Mohon Mengisi Ulang Form Menambah Pengalaman Dengan Benar');
         }
 
@@ -335,13 +419,13 @@ class UserController extends Controller
             return back()->with('warning', 'Data Pengalaman Tidak Ditemukan');
         }
         $rules = [
-            'title' => 'required',
-            'jenis_pekerjaan' => 'required',
-            'organisasi' => 'required',
-            'lokasi_pekerjaan' => 'required',
+            'title' => 'required|string|min:4|max:100',
+            'jenis_pekerjaan' => 'required|string',
+            'organisasi' => 'required|string|min:4|max:100',
+            'lokasi_pekerjaan' => 'required|string|min:10|max:100',
             'bulan_mulai' => 'required',
             'tahun_mulai' => 'required',
-            'deskripsi_pengalaman' => 'nullable',
+            'deskripsi_pengalaman' => 'nullable|string|min:50|max:1000',
         ];
         if ($request->has('present_box')) {
             $rules['bulan_selesai'] = 'nullable';
@@ -389,13 +473,14 @@ class UserController extends Controller
 
     public function updateResume(Request $request)
     {
-        $user = Auth::user();
-        $user_id = $user->id;
+        $auth = Auth::user();
+        $user_id = $auth->id;
+        $user = User::findOrfail($user_id);
         $resume = data_get($user, 'resume');
         $user_resume = $request->file('resume');
 
         $request->validate([
-            'resume' => 'required|mimes:pdf|max:10000',
+            'resume' => 'required|file|mimes:pdf|max:2048',
         ]);
 
         if (Storage::exists('/public/resume/' . $resume)) {
@@ -445,6 +530,10 @@ class UserController extends Controller
         if ($pending > 5) {
             return back()->with('warning', 'Telah Mencapai Batas Untuk Melakukan Pelamaran');
         }
+        if ($loker->status == "Closed" && $loker->deadline >= now()) {
+            return back()->with('warning', 'Lowongan Kerja Sudah Tidak Menerima Lamaran Kerja');
+        }
+
         $application = new Application;
         $application->user_id = $user_id;
         $application->loker_id = $id;
@@ -481,33 +570,42 @@ class UserController extends Controller
         if (Auth::user()->alamat_email === null) {
             return back()->with('warning', 'Mohon Melakukan Verifikasi Email Terlebih Dahulu');
         }
-        $validate = Validator::make($request->all(), [
-            'topik' => 'required',
-            'jenis_konseling' => 'required',
-            'tanggal_konseling' => 'required',
+        $rule = [
+            'topik' => 'required|string',
+            'jenis_konseling' => 'required|string',
+            'tanggal_konseling' => 'required|date|after_or_equal:today',
             'jam_konseling' => 'required',
-            'tempat_konseling' => 'required',
-        ]);
+            'tempat_konseling' => 'required|string',
+        ];
+        if ($request->input('google_meet') === 'Online') {
+            $rule['google_meet'] = 'required|url|min:10|max:100';
+        }
 
-        if ($validate) {
-            $date = $request->input('tanggal_konseling');
-            $jam = $request->input('jam_konseling');
-            $merge = new DateTime($date . ' ' . $jam);
-            $appointment = new Appointment;
-            $appointment->user_id = $user_id;
-            $appointment->date_time = $merge;
-            $appointment->topik = $request->input('topik');
-            $appointment->jenis_konseling = $request->input('jenis_konseling');
-            $appointment->tempat_konseling = $request->input('tempat_konseling');
-            $appointment->status = 'on process';
-            if (Appointment::where('date_time', '=', $merge)->exists()) {
-                return back()->with('warning', 'Tanggal dan Jam Sudah Terisi Mohon Mengganti Jadwal');
-            } else {
-                $appointment->save();
-                return redirect(route('user.index'))->with('success', 'Jadwal konseling berhasil dibuat, mohon menunggu konfirmasi email dari pusat karir ITK, Terimakasih');
-            }
+        $validate = Validator::make($request->all(), $rule);
+
+        if ($validate->fails()) {
+            return back()->with('warning', 'Mohon Memasukkan Ulang Form');
+        }
+
+        $date = $request->input('tanggal_konseling');
+        $jam = $request->input('jam_konseling');
+        $merge = new DateTime($date . ' ' . $jam);
+        $appointment = new Appointment;
+        $appointment->user_id = $user_id;
+        $appointment->date_time = $merge;
+        $appointment->topik = $request->input('topik');
+        $appointment->jenis_konseling = $request->input('jenis_konseling');
+        $appointment->tempat_konseling = $request->input('tempat_konseling');
+        if ($request->filled('google_meet')) {
+            $appointment->google_meet = $request->input('google_meet');
+        }
+        $appointment->status = 'on process';
+        $appointment->google_meet = "-";
+        if (Appointment::where('date_time', '=', $merge)->exists()) {
+            return back()->with('warning', 'Tanggal dan Jam Sudah Terisi Mohon Mengganti Jadwal');
         } else {
-            return back()->with('warning', 'Mohon memasukkan ulang form');
+            $appointment->save();
+            return redirect(route('user.index'))->with('success', 'Jadwal konseling berhasil dibuat, mohon menunggu konfirmasi email dari pusat karir ITK, Terimakasih');
         }
     }
 
@@ -526,29 +624,38 @@ class UserController extends Controller
         $appointments = $user->appointment;
         $appointment = $appointments->firstWhere('id', $id);
         if ($appointment) {
-            $validate = Validator::make($request->all(), [
-                'tempat_konseling' => 'required',
+            $rule = [
+                'tempat_konseling' => 'required|string',
                 'jam_konseling' => 'required',
                 'tanggal_konseling' => 'required',
-            ]);
-            if ($validate) {
-                $appointment->tempat_konseling = $request->input('tempat_konseling');
-                $date = $request->input('tanggal_konseling');
-                $jam = $request->input('jam_konseling');
-                $merge = new DateTime($date . ' ' . $jam);
-                $appointment->date_time = $merge;
-                $appointment->status = 'on process';
-                if ($appointment->status === 'reschedule') {
-                    $appointment->update();
-                } else {
-                    return back()->with('warning', 'Appointment Sedang Dalam Status Pending, Mohon Menunggu Respon Admin');
-                }
-                return back()->with('success', 'Berhasil Mengubah Waktu dan Tanggal Appointment');
-            } else {
-                return back()->with('warning', 'Mohon Mengisi Ulang Form');
+            ];
+
+            if ($request->input('tempat_konseling') === 'Online') {
+                $rule['google_meet'] = 'required|url|min:10|max:100';
             }
+
+            $validate = Validator::make($request->all(), $rule);
+
+            if ($validate->fails()) {
+                return back()->with('warning', 'Gagal Mengubah Data Appointment, Masukkan Ulang Data Dengan Benar');
+            }
+            $appointment->tempat_konseling = $request->input('tempat_konseling');
+            if ($request->filled('google_meet')) {
+                $appointment->google_meet = $request->input('google_meet');
+            }
+            $date = $request->input('tanggal_konseling');
+            $jam = $request->input('jam_konseling');
+            $merge = new DateTime($date . ' ' . $jam);
+            $appointment->date_time = $merge;
+            $appointment->status = 'on process';
+            if ($appointment->status === 'reschedule') {
+                $appointment->update();
+            } else {
+                return back()->with('warning', 'Appointment Sedang Dalam Status Pending, Mohon Menunggu Respon Admin');
+            }
+            return back()->with('success', 'Berhasil Mengubah Waktu dan Tanggal Appointment');
         } else {
-            return redirect('/Home/User/Appointment')->with('warning', 'Appointment Tidak Ditemukan');
+            return back()->with('warning', 'Gagal Menemukan Appointment');
         }
     }
 }

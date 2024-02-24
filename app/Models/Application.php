@@ -16,6 +16,23 @@ class Application extends Model
     protected $fillable = [
         'user_id',
         'loker_id',
+        'nama_lengkap',
+        'alamat_email',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'jenis_kelamin',
+        'alamat',
+        'kota',
+        'kode_pos',
+        'nomor_telepon',
+        'kewarganegaraan',
+        'status_perkawinan',
+        'agama',
+        'pendidikan_tertinggi',
+        'nim',
+        'ipk',
+        'program_studi',
+        'disabilitas',
         'status',
         'feedback'
     ];

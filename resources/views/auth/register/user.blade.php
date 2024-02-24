@@ -4,7 +4,7 @@
     <div class="col-8 offset-2 p-4">
         <div class="bg-white p-4 rounded">
             <h5 class="fw-bold">Form Pendaftaran User</h5>
-            <div class="my-2 p-4">
+            <div class="my-2 p-4 max-vh-100 overflow-auto">
                 <form action="/register-user" method="post" class="needs-validation" novalidate>
                     @csrf
                     <div class="">

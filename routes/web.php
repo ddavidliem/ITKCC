@@ -26,6 +26,8 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/loker/{id}', 'lokerDetail');
     Route::get('/loker', 'lokerIndex');
     Route::get('/konsultasi', 'konsultasiIndex');
+    Route::get('/berita', 'beritaIndex');
+    Route::get('/berita/{id}', 'beritaDetail');
 });
 
 Route::controller(AuthController::class)->middleware('guest')->group(function () {
@@ -72,6 +74,13 @@ Route::controller(UserController::class)->middleware('user')->group(function () 
             Route::get('/{id}/detail', 'detailSertifikat')->name('user.sertifikat.detail');
             Route::put('/{id}/update', 'updateSertifikat')->name('user.sertifikat.update');
             Route::delete('/{id}/delete', 'deleteSertifikat')->name('user.sertifikat.delete');
+        });
+
+        Route::prefix('pendidikan')->group(function () {
+            Route::post('/new', 'addPendidikan')->name('user.pendidikan.new');
+            Route::get('/{id}/detail', 'detailPendidikan')->name('user.pendidikan.detail');
+            Route::put('/{id}/update', 'updatePendidikan')->name('user.pendidikan.update');
+            Route::delete('/{id}/delete', 'deletePendidikan')->name('user.pendidikan.delete');
         });
 
         Route::prefix('pengalaman')->group(function () {
@@ -122,6 +131,7 @@ Route::controller(EmployerController::class)->middleware('employer')->group(func
 Route::controller(AdminController::class)->middleware('admin')->prefix('admin')->group(function () {
     Route::get('/', 'index')->name('admin');
     Route::get('/logout-admin', 'logout')->name('admin.logout');
+    Route::post('/reset-password', 'resetPassword')->name('admin.reset-password');
 
     Route::prefix('contents')->group(function () {
         Route::get('/', 'contentIndex')->name('admin.contents');
@@ -187,6 +197,12 @@ Route::controller(AdminController::class)->middleware('admin')->prefix('admin')-
             Route::get('/{user}/detail/{id}', 'detailPengalaman')->name('admin.user.pengalaman.detail');
             Route::put('/{user}/update/{id}', 'updatePengalaman')->name('admin.user.pengalaman.edit');
             Route::delete('/{user}/delete/{id}', 'deletePengalaman')->name('admin.user.pengalaman.delete');
+        });
+
+        Route::prefix('pendidikan')->group(function () {
+            Route::get('/{user}/detail/{id}', 'detailPendidikan')->name('admin.user.pendidikan.detail');
+            Route::put('/{user}/update/{id}', 'updatePendidikan')->name('admin.user.pendidikan.update');
+            Route::delete('/{user}/delete/{id}', 'deletePendidikan')->name('admin.user.pendidikan.delete');
         });
     });
 

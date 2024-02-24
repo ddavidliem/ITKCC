@@ -95,26 +95,26 @@ class AuthController extends Controller
     {
 
         $validate = Validator::make($request->all(), [
-            'username' => 'required|unique:users,username',
-            'password' => 'required',
+            'username' => 'required|string|min:5|max:14|unique:users,username',
+            'password' => 'required|confirmed:password_confirmation|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]+$/',
             'password_confirmation' => 'required|same:password',
-            'nama_lengkap' => 'required',
+            'nama_lengkap' => 'required|string|min:3|max:100',
             'alamat_email' => 'required|unique:users,alamat_email|email',
-            'tempat_lahir' => 'required',
-            'tanggal_lahir' => 'required|date|',
-            'jenis_kelamin' => 'required',
-            'alamat' => 'required',
-            'kota' => 'required',
-            'kode_pos' => 'required',
-            'nomor_telepon' => 'required|unique:users,nomor_telepon',
-            'kewarganegaraan' => 'required',
-            'status_perkawinan' => 'required',
-            'agama' => 'required',
-            'pendidikan' => 'required',
-            'nim' => 'nullable',
-            'ipk' => 'nullable',
-            'program_studi' => 'required',
-            'disabilitas' => 'nullable',
+            'tempat_lahir' => 'required|string|min:4|max:100',
+            'tanggal_lahir' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
+            'jenis_kelamin' => 'required|string',
+            'alamat' => 'required|string|min:8|max:255',
+            'kota' => 'required|string|min:4|max:100',
+            'kode_pos' => 'required|numeric',
+            'nomor_telepon' => 'required|numeric|digits:14|unique:users,nomor_telepon',
+            'kewarganegaraan' => 'required|string',
+            'status_perkawinan' => 'required|string',
+            'agama' => 'required|string',
+            'pendidikan' => 'required|string',
+            'nim' => 'nullable|numeric',
+            'ipk' => 'nullable|numeric|between:0,4',
+            'program_studi' => 'required|string',
+            'disabilitas' => 'nullable|string',
             'captcha' => 'required|captcha',
         ]);
 
@@ -194,6 +194,7 @@ class AuthController extends Controller
         $validate = Validator::make($request->all(), [
             'kategori' => 'required|in:user,employer',
             'alamat_email' => 'required|email',
+            'captcha' => 'required|captcha',
         ]);
 
         if ($validate->fails()) {
@@ -300,17 +301,17 @@ class AuthController extends Controller
     public function EmployerApproval(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'username' => 'required|unique:employers,username',
-            'password' => 'required|min:8',
+            'username' => 'required|string|min:4|max:14|unique:employers,username',
+            'password' => 'required|min:8|',
             'password_confirmation' => 'required|same:password',
             'nama_perusahaan' => 'required|unique:employers,nama_perusahaan',
-            'alamat' => 'required',
-            'provinsi' => 'required',
-            'kota' => 'required',
-            'kode_pos' => 'required',
-            'website' => 'nullable',
-            'nama_lengkap' => 'required',
-            'jabatan' => 'required',
+            'alamat' => 'required|string|min:10|max:255',
+            'provinsi' => 'required|string|min:10|max:100',
+            'kota' => 'required|string|min:10|max:100',
+            'kode_pos' => 'required|numeric',
+            'website' => 'nullable|url',
+            'nama_lengkap' => 'required|string|min:4|max:100',
+            'jabatan' => 'required|string',
             'nomor_telepon' => [
                 'required',
                 Rule::unique('approvals', 'nomor_telepon')->where(function ($query) {
@@ -323,7 +324,7 @@ class AuthController extends Controller
                     $query->where('status', 'approved');
                 }),
             ],
-            'formulir' => 'required|mimes:pdf|max:10000',
+            'formulir' => 'required|file|mimes:pdf|max:1024',
             'captcha' => 'required|captcha',
         ]);
 
@@ -374,6 +375,7 @@ class AuthController extends Controller
         $validate = Validator::make($request->all(), [
             'kategori' => 'required|in:user,employer',
             'alamat_email' => 'required|email',
+            'captcha' => 'required|captcha',
         ]);
         if ($validate->fails()) {
             return back()->with('warning', 'Masukkan Ulang Form');

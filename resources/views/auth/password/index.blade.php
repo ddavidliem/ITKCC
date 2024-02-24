@@ -19,6 +19,18 @@
                         <label for="" class="fw-semibold form-label">Email</label>
                         <input type="email" class="form-control" name="alamat_email" required>
                     </div>
+                    <div class="my-3">
+                        <div class="captcha">
+                            <span class="">{!! captcha_img() !!}</span>
+                            <button type="button" class="btn btn-danger" class="reload" id="reload">
+                                &#x21bb;
+                            </button>
+                        </div>
+                    </div>
+                    <div class="my-3">
+                        <input id="captcha" type="text" class="form-control" placeholder="Enter Captcha" name="captcha"
+                            required>
+                    </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button class="btn btn-outline-dark">Submit</button>
                     </div>
@@ -30,6 +42,15 @@
 
 @push('script')
     <script type="module">
+        $('#reload').click(function() {
+            $.ajax({
+                type: 'GET',
+                url: '/refresh-captcha',
+                success: function(data) {
+                    $(".captcha span").html(data.captcha);
+                }
+            });
+        });
         (() => {
             'use strict'
             const forms = document.querySelectorAll('.needs-validation')

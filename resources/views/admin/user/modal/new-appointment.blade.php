@@ -1,4 +1,4 @@
-<div class="modal fade" id="newAppointment" tabindex="-1" aria-hidden="true">
+<div class="modal fade appointment" id="newAppointment" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -20,7 +20,7 @@
                     </div>
                     <div class="my-2">
                         <label for="jenis_konsultasi" class="form-label fw-semibold">Jenis Konseling</label>
-                        <select name="jenis_konseling" class="form-select" id="" required>
+                        <select name="jenis_konseling" class="form-select " id="" required>
                             <option value="" disabled selected>Jenis Konseling</option>
                             <option value="individu">Individu (Pribadi)</option>
                             <option value="kelompok">Kelompok</option>
@@ -31,11 +31,15 @@
                     </div>
                     <div class="my-2">
                         <label for="tempat_konseling" class="form-label fw-semibold">Tempat Konseling</label>
-                        <select id="" class="form-select" name="tempat_konseling" required>
+                        <select id="" class="form-select tempat_konseling" name="tempat_konseling" required>
                             <option value="" selected disabled>Pilih Tempat Konseling</option>
                             <option value="Online">Online, Google Meet, Zoom</option>
                             <option value="Offline">Offline, LPPM ITK</option>
                         </select>
+                    </div>
+                    <div class="my-2">
+                        <label for="" class="form-label fw-semibold">Link Google Meet</label>
+                        <input type="text" class="form-control" id="google_meet" name="google_meet" required>
                     </div>
                     <div class="my-2">
                         <label for="tanggal_konseling" class="form-label fw-semibold">Tanggal Konsultasi</label>

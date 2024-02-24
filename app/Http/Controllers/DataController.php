@@ -24,24 +24,7 @@ class DataController extends Controller
     public function getEmployerData()
     {
         $employers = Employer::whereNotNull('email_verification')->get();
-    }
-
-    public function findUser($id)
-    {
-        $user = User::findOrfail($id);
-        if (!$user) {
-            return response()->json('User Not Found');
-        }
-        return response()->json(['user' => $user]);
-    }
-
-    public function findEmployer($id)
-    {
-        $employer = Employer::findOrfail($id);
-        if (!$employer) {
-            return response()->json('Employer Not Found');
-        }
-        return response()->json(['employer' => $employer]);
+        return EmployerResource::collection($employers);
     }
 
     public function importUser(Request $request)

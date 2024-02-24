@@ -12,12 +12,15 @@
             @foreach ($carousel as $item)
                 <div class="carousel-item active">
                     <img src="{{ asset('content/' . $item->image) }}" class="img-fluid w-100" alt="...">
-                    @if ($item->body)
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>First slide label</h5>
-                            <p>Some representative placeholder content for the first slide.</p>
+                    {{-- @if (isset($item->body))
+                        <div class="carousel-caption d-none d-md-block text-black">
+                            <h5>{{ $item->title }}</h5>
+                            <p class="text-wrap">{{ $item->body }}</p>
                         </div>
-                    @endif
+                    @endif --}}
+                    <div class="carousel-caption d-none d-md-block text-black">
+                        <h5>{{ $item->title }}</h5>
+                    </div>
                 </div>
             @endforeach
         </div>
@@ -30,16 +33,89 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-
-
-
-    <div class="my-5">
-        <h4 class="text-center">Follow Our Instagram Page</h4>
-        <div class="d-flex justify-content-center my-2">
-            <div class="align-content-center border-2 rounded shadow-sm p-2 mx-2">
-                <div class="text-center">
-                    <img src="{{ asset('img/instagram-page.png') }}" alt="" width="700" height="271">
+    <div class="bg-white p-4">
+        <h4 class="text-center fw-semibold">Lowongan Kerja Terbaru Minggu Ini</h4>
+        <div class="my-4 d-flex justify-content-center">
+            <a href="/loker" class="text-decoration-none text-black fw-semibold text-center">Lihat Selengkapnya</a>
+        </div>
+        <div class="my-4">
+            <div class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner min-vh-50 p-4">
+                    @foreach ($chunkLokers as $key => $chunk)
+                        <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                            <div class=" d-flex justify-content-between">
+                                @foreach ($chunk as $loker)
+                                    <div class="p-4 mx-3 row align-items-center shadow-lg rounded ">
+                                        <div class="col-4 px-2">
+                                            <img src="{{ asset('logo/' . $loker->employer->logo_perusahaan) }}"
+                                                class="img-fluid" alt="">
+                                        </div>
+                                        <div class="col-8">
+                                            <h5 class="fw-semibold text-capitalize text-wrap">
+                                                {{ $loker->nama_pekerjaan }}
+                                            </h5>
+                                            <div>
+                                                <ul class="list-unstyled text-mute text-capitalize">
+                                                    <li>{{ $loker->employer->nama_perusahaan }}</li>
+                                                    <li>{{ $loker->tipe_pekerjaan }} | {{ $loker->jenis_pekerjaan }}</li>
+                                                </ul>
+                                                <div>
+                                                    <a href="/loker/{{ $loker->id }}"
+                                                        class="btn btn-outline-dark">Selengkapnya</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white p-4">
+        <h4 class="fw-semibold text-center">Bimbingan Karir</h4>
+        <div class="my-3 d-flex justify-content-center">
+            <div class="col-10">
+                <p class="text-wrap">Dalam rangka membantu mahasiswa mempersiapkan diri untuk memasuki dunia kerja yang
+                    kompetitif, Institut
+                    Teknologi Kalimantan membuka Layanan Konsultasi Karir. Layanan Konsultasi Karir ITK terbuka untuk
+                    seluruh mahasiswa, alumni, serta non-alumni yang telah bekerja. Layanan ini akan membantu para mahasiswa
+                    dan fresh graduate dalam mempersiapkan karir sedini mungkin. Sementara untuk alumni maupun non-alumni
+                    yang telah bekerja, layanan ini dapat membantu mengembangkan karir selanjutnya.</p>
+                </p>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            <div class="col-10 d-flex">
+                <div class="col-2 p-4 rounded">
+                    <img src="{{ asset('logo/staff-itk.jpeg') }}" class="img-fluid" alt="">
+                </div>
+                <div class="col-10 p-4">
+                    <ul class="list-unstyled">
+                        <li class="">
+                            <h5 class="fw-semibold">Annisa Dwi Juliastuti, S.Psi</h5>
+                            <div>
+                                <ul class="list-unstyled text-mute ">
+                                    <li>Staff Bimbingan Karir ITK</li>
+                                    <li> <span>&#x1F4F1;</span> 081395357867 | <span>&#x1F4E7;</span>
+                                        annisa.dwi@staff.itk.ac.id</li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="my-4 d-flex justify-content-center">
+            <div>
+                <h5 class="fw-bold text-center">
+                    Jadwal Konsultasi
+                </h5>
+                <h6 class="fw-semibold">
+                    Setiap Hari Kerja | Gedung A ITK | Pukul : 07.30-15.30 WITA
+                </h6>
             </div>
         </div>
     </div>

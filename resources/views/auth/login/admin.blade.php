@@ -24,9 +24,6 @@
                         <div class="mt-2">
                             <button type="submit"
                                 class="btn btn-light btn-outline-dark col-6 offset-3 my-2 fw-semibold">Masuk</button>
-                            <a href="/forgot-password"
-                                class="btn btn-light btn-outline-dark my-2 col-6 offset-3 fw-semibold">Lupa
-                                Password</a>
                         </div>
                     </form>
                 </div>

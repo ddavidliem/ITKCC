@@ -60,6 +60,9 @@
                     </div>
                     <div class="my-2">
                         <label for="deskripsi_pekerjaan" class="form-label fw-semibold">Deskripsi Pekerjaan</label>
+                        <div class="form-text">
+                            Minimal 50 Kata
+                        </div>
                         <textarea id="deskripsi_pekerjaan" name="deskripsi_pekerjaan" cols="30" rows="10" class="form-control"
                             required>{{ $loker->deskripsi_pekerjaan }}</textarea>
                     </div>

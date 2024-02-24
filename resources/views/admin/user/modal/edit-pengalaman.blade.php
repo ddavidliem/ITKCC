@@ -11,7 +11,7 @@
                 <div class="modal-body min-vh-50 scroll-modal p-4">
                     <div class="">
                         <label for="title" class="form-label fw-semibold">Title</label>
-                        <input type="text" class="form-control" id="title" name="title"
+                        <input type="text" class="form-control" id="title_pengalaman" name="title"
                             placeholder="Title Pekerjaan" required autofocus>
                     </div>
                     <div class="my-3">
@@ -30,13 +30,13 @@
 
                     <div class="my-3">
                         <label for="organisasi" class="form-label fw-semibold">Organisasi</label>
-                        <input type="text" class="form-control" id="organisasi" name="organisasi"
+                        <input type="text" class="form-control" id="organisasi_pengalaman" name="organisasi"
                             placeholder="organisasi" required>
                     </div>
 
                     <div class="my-3">
                         <label for="lokasi_pekerjaan" class="form-label fw-semibold">Lokasi Pekerjaan</label>
-                        <input type="text" class="form-control" id="lokasi_pekerjaan" name="lokasi_pekerjaan"
+                        <input type="text" class="form-control" id="lokasi_pengalaman" name="lokasi_pekerjaan"
                             placeholder="Balikpapan Selatan, Kalimantan Timur, Indonesia" required>
                     </div>
 
@@ -45,7 +45,7 @@
                         <div class="col-lg-6 my-2">
                             <label for="bulan_mulai" class="form-label fw-semibold">Bulan</label>
                             <div class="col-10">
-                                <select name="bulan_mulai" id="" class="form-select" required>
+                                <select name="bulan_mulai" id="bulan_mulai" class="form-select" required>
                                     <option value="" selected disabled>Bulan Mulai</option>
                                     <option value="1">Januari</option>
                                     <option value="2">Februari</option>
@@ -65,7 +65,7 @@
                         <div class="col-lg-6 my-2">
                             <label for="tahun_mulai" class="form-label fw-semibold">Tahun Mulai</label>
                             <div class="col-10">
-                                <select name="tahun_mulai" class="form-select" required>
+                                <select name="tahun_mulai" id="tahun_mulai" class="form-select" required>
                                     <option value="" selected disabled>Tahun Mulai</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}
@@ -88,7 +88,7 @@
                         <div class="col-lg-6 my-2">
                             <label for="bulan" class="form-label fw-semibold">Bulan</label>
                             <div class="col-10">
-                                <select name="bulan_selesai" id="" class="form-select end-date">
+                                <select name="bulan_selesai" id="bulan_selesai" class="form-select end-date">
                                     <option value="" selected disabled>Bulan Selesai</option>
                                     <option value="1">Januari</option>
                                     <option value="2">Februari</option>
@@ -108,7 +108,7 @@
                         <div class="col-lg-6 my-2">
                             <label for="tahun_selesai" class="form-label fw-semibold">Tahun</label>
                             <div class="col-10">
-                                <select name="tahun_selesai" class="form-select end-date">
+                                <select name="tahun_selesai" id="tahun_selesai" class="form-select end-date">
                                     <option value="" selected disabled>Tahun Selesai</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}

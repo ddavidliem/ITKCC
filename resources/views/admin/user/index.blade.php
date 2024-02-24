@@ -100,7 +100,7 @@
                     <input type="text" role="search" id="search" class="form-control" placeholder="Search User">
                 </div>
             </div>
-            <div class="my-4">
+            <div class="my-4 min-vh-75 max-vh-100 overflow-auto">
                 <table class="table table-hover" id="user-table">
                     <thead class="table-light">
                         <tr class="position-sticky top-0">
@@ -111,7 +111,7 @@
                             <th>Option</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="max-vh-100 overflow-auto">
                         @foreach ($user['all'] as $item)
                             <tr>
                                 <td>{{ $item->nama_lengkap }}</td>

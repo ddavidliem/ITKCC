@@ -35,6 +35,8 @@
 
                         <ul class="navbar-nav me-a mb-2 mb-lg-10">
                             @if (Auth::guard('admin')->check())
+                                <a href="" role="button" class="dropdown-item mx-4" data-bs-toggle="modal"
+                                    data-bs-target="#resetPassword">Reset Password</a>
                                 <a href="{{ Route('admin.logout') }}" class="dropdown-item">Logout</a>
                             @endif
                         </ul>

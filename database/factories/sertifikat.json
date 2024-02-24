@@ -1,0 +1,28 @@
+{
+    "sertifikat": [
+        {
+            "title": "sertifikat 1",
+            "organisasi": "organisasi 1",
+            "tanggal_terbit": "January 2020",
+            "tanggal_berakhir": "January 2021",
+            "id_sertifikat": "id_sertifikat 1",
+            "url_sertifikat": "url_sertifikat 1"
+        },
+        {
+            "title": "sertifikat 2",
+            "organisasi": "organisasi 2",
+            "tanggal_terbit": "January 2021",
+            "tanggal_berakhir": "January 2022",
+            "id_sertifikat": "id_sertifikat 2",
+            "url_sertifikat": "url_sertifikat 2"
+        },
+        {
+            "title": "sertifikat 3",
+            "organisasi": "organisasi 3",
+            "tanggal_terbit": "January 2022",
+            "tanggal_berakhir": "January 2023",
+            "id_sertifikat": "id_sertifikat 3",
+            "url_sertifikat": "url_sertifikat 3"
+        }
+    ]
+}

@@ -4,7 +4,7 @@
     <div class="container p-4">
         <div class="p-4 bg-white rounded min-vh-100">
             <h5 class="fw-bold">Form Pendaftaran Perusahaan (Peneydia Kerja)</h5>
-            <div class="my-2 p-4">
+            <div class="my-2 p-4 max-vh-100 overflow-auto">
                 <form action="/employer-submit-approval" method="post" class="needs-validation" enctype="multipart/form-data"
                     novalidate>
                     @csrf

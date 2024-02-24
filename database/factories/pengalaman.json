@@ -1,0 +1,28 @@
+{
+    "pengalaman": [
+        {
+            "title": "Nama Pekerjaan 1",
+            "organisasi": "organisasi 1",
+            "lokasi_pekerjaan": "lokasi pekerjaan 1",
+            "tanggal_mulai": "January 2020",
+            "tanggal_selesai": "January 2021",
+            "deskripsi": "It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        },
+        {
+            "title": "Nama Pekerjaan 2",
+            "organisasi": "organisasi 2",
+            "lokasi_pekerjaan": "lokasi pekerjaan 2",
+            "tanggal_mulai": "January 2021",
+            "tanggal_selesai": "January 2022",
+            "deskripsi": "It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        },
+        {
+            "title": "Nama Pekerjaan 3",
+            "organisasi": "organisasi 3",
+            "lokasi_pekerjaan": "lokasi pekerjaan 3",
+            "tanggal_mulai": "January 2022",
+            "tanggal_selesai": "January 2023",
+            "deskripsi": "It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        }
+    ]
+}

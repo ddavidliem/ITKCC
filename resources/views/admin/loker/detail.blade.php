@@ -116,66 +116,83 @@
                                         </div>
                                     </div>
                                     <div class="my-2">
-                                        <h5 class="text-capitalize fw-semibold mb-2">{{ $item->nama_lengkap }}</h5>
                                         <div class="d-flex">
-                                            <div class="col-6">
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Alamat
-                                                        Email</label>
-                                                    <h6 class="">{{ $item->user->alamat_email }}</h6>
-                                                </div>
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Nomor
-                                                        Telepon</label>
-                                                    <h6 class="">{{ $item->user->nomor_telepon }}</h6>
-                                                </div>
-                                                @if ($item->nim)
-                                                    <div class="my-1">
-                                                        <label for="" class="form-label fw-semibold">NIM</label>
-                                                        <h6 class="">{{ $item->nim }}</h6>
-                                                    </div>
-                                                    <div class="my-1">
-                                                        <label for="" class="form-label fw-semibold">Program
-                                                            Studi</label>
-                                                        <h6 class="">{{ $item->program_studi }}</h6>
-                                                    </div>
-                                                @endif
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Agama</label>
-                                                    <h6 class="">{{ $item->agama }}</h6>
-                                                </div>
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Pendidikan
-                                                        Tertinggi</label>
-                                                    <h6 class="">{{ $item->pendidikan_tertinggi }}</h6>
-                                                </div>
+                                            <div class="col-2">
+                                                <img src="{{ asset('profile/' . $item->user->profile) }}" class="img-fluid"
+                                                    alt="">
                                             </div>
-                                            <div class="col-6">
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Tempat dan
-                                                        Tanggal Lahir</label>
-                                                    <h6>{{ $item->tempat_lahir }},{{ $item->tanggal_lahir }}
-                                                    </h6>
-                                                </div>
-                                                <div class="my-1">
-                                                    <label for=""
-                                                        class="form-label fw-semibold">Kewarganegaraan</label>
-                                                    <h6>{{ $item->kewarganegaraan }}</h6>
-                                                </div>
-                                                <div class="my-1">
-                                                    <label for="" class="fw-semibold form-label">Status</label>
-                                                    <h6>{{ $item->status_perkawinan }}</h6>
-                                                </div>
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Alamat</label>
-                                                    <h6>{{ $item->alamat }}</h6>
-                                                </div>
-                                                <div class="my-1">
-                                                    <label for="" class="form-label fw-semibold">Kota</label>
-                                                    <h6>{{ $item->kota }}</h6>
+                                            <div class="px-3">
+                                                <h5 class="text-capitalize fw-semibold mb-2">{{ $item->nama_lengkap }}</h5>
+                                                <div class="d-flex">
+                                                    <div class="col-6">
+                                                        <div class="my-1">
+                                                            <label for="" class="form-label fw-semibold">Alamat
+                                                                Email</label>
+                                                            <h6 class="">{{ $item->user->alamat_email }}</h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for="" class="form-label fw-semibold">Nomor
+                                                                Telepon</label>
+                                                            <h6 class="">{{ $item->user->nomor_telepon }}</h6>
+                                                        </div>
+                                                        @if ($item->nim)
+                                                            <div class="my-1">
+                                                                <label for=""
+                                                                    class="form-label fw-semibold">NIM</label>
+                                                                <h6 class="">{{ $item->nim }}</h6>
+                                                            </div>
+                                                            <div class="my-1">
+                                                                <label for=""
+                                                                    class="form-label fw-semibold">Program
+                                                                    Studi</label>
+                                                                <h6 class="">{{ $item->program_studi }}</h6>
+                                                            </div>
+                                                        @endif
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="form-label fw-semibold">Agama</label>
+                                                            <h6 class="">{{ $item->agama }}</h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="form-label fw-semibold">Pendidikan
+                                                                Tertinggi</label>
+                                                            <h6 class="">{{ $item->pendidikan_tertinggi }}</h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="my-1">
+                                                            <label for="" class="form-label fw-semibold">Tempat
+                                                                dan
+                                                                Tanggal Lahir</label>
+                                                            <h6>{{ $item->tempat_lahir }},{{ $item->tanggal_lahir }}
+                                                            </h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="form-label fw-semibold">Kewarganegaraan</label>
+                                                            <h6>{{ $item->kewarganegaraan }}</h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="fw-semibold form-label">Status</label>
+                                                            <h6>{{ $item->status_perkawinan }}</h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="form-label fw-semibold">Alamat</label>
+                                                            <h6>{{ $item->alamat }}</h6>
+                                                        </div>
+                                                        <div class="my-1">
+                                                            <label for=""
+                                                                class="form-label fw-semibold">Kota</label>
+                                                            <h6>{{ $item->kota }}</h6>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                     <div class="my-4">
                                         <h5 class="fw-semibold">Sertifikat Pelamar</h5>
@@ -208,12 +225,41 @@
                                         </div>
                                     </div>
                                     <div class="my-4">
+                                        <h5 class="fw-semibold">Pendidikan Pelamar</h5>
+                                        <div class="my-2 min-vh-25 max-vh-50 overflow-auto">
+                                            <table class="table table-hover table-borderless">
+                                                <thead class="table-light">
+                                                    <tr class="position-sticky top-0">
+                                                        <th class="fw-semibold">Daftar Pendidikan Pelamar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($item->user->pendidikan as $pendidikan)
+                                                        <tr>
+                                                            <td>
+                                                                <h6 class="fw-semibold">{{ $pendidikan->nama_sekolah }}
+                                                                </h6>
+                                                                <ul class="list-unstyled">
+                                                                    <li class="fw-semibold">
+                                                                        {{ $pendidikan->tingkat_pendidikan }} |
+                                                                        {{ $pendidikan->bidang_studi }} |
+                                                                        {{ $pendidikan->tahun_lulus }}
+                                                                    </li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="my-4">
                                         <h5 class="fw-semibold">Pengalaman Kerja Pelamar</h5>
                                         <div class="my-2 min-vh-25 max-vh-50 overflow-auto">
                                             <table class="table table-hover table-borderless">
                                                 <thead class="table-light">
                                                     <tr class="position-sticky top-0">
-                                                        <th class="fw-semibold">Daftar Sertifikat Pelamar</th>
+                                                        <th class="fw-semibold">Daftar Pengalaman Kerja Pelamar</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>

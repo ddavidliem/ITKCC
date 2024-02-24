@@ -219,6 +219,35 @@
                                         </div>
                                     </div>
                                     <div class="my-4">
+                                        <h5 class="fw-semibold">Pendidikan Pelamar</h5>
+                                        <div class="my-2 min-vh-25 max-vh-50 overflow-auto">
+                                            <table class="table table-hover table-borderless">
+                                                <thead class="table-light">
+                                                    <tr class="position-sticky top-0">
+                                                        <th class="fw-semibold">Daftar Pendidikan Pelamar</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($item->user->pendidikan as $pendidikan)
+                                                        <tr>
+                                                            <td>
+                                                                <h6 class="fw-semibold">{{ $pendidikan->nama_sekolah }}
+                                                                </h6>
+                                                                <ul class="list-unstyled">
+                                                                    <li class="fw-semibold">
+                                                                        {{ $pendidikan->tingkat_pendidikan }} @if ($pendidikan->bidang_studi)
+                                                                            | {{ $pendidikan->tahun_lulus }}
+                                                                        @endif
+                                                                    </li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="my-4">
                                         <h5 class="fw-semibold">Pengalaman Kerja Pelamar</h5>
                                         <div class="my-2 min-vh-25 max-vh-50 overflow-auto">
                                             <table class="table table-hover table-borderless">

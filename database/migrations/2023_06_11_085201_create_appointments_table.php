@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('topik');
             $table->string('jenis_konseling');
             $table->string('tempat_konseling');
+            $table->string('google_meet');
             $table->string('status');
             $table->longText('feedback')->nullable();
             $table->timestamps();

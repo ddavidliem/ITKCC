@@ -1,4 +1,4 @@
-<div class="modal fade" id="editAppointment" tabindex="-1" aria-hidden="true">
+<div class="modal fade appointment" id="editAppointment" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -30,12 +30,15 @@
                     </div>
                     <div class="my-2">
                         <label for="tempat_konseling" class="form-label fw-semibold">Tempat Konseling</label>
-                        <select id="" class="form-select" name="tempat_konseling" id="tempat_konseling"
-                            required>
+                        <select class="form-select tempat_konseling" name="tempat_konseling" required>
                             @foreach (['Online' => 'Online', 'Offline' => 'Offline'] as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="my-2">
+                        <label for="" class="form-label fw-semibold">Link Google Meet</label>
+                        <input type="text" class="form-control" id="google_meet" name="google_meet" required>
                     </div>
                     <div class="my-2">
                         <label for="tanggal_konseling" class="form-label fw-semibold">Tanggal Konsultasi</label>

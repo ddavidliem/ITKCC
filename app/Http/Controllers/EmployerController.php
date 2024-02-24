@@ -37,13 +37,13 @@ class EmployerController extends Controller
         $id = Auth('employer')->user()->id;
         $employer = Employer::findOrfail($id);
         $rules = [
-            'nama_lengkap' => 'required',
-            'jabatan' => 'required',
-            'nomor_telepon' => 'required',
-            'alamat_email' => 'required',
+            'nama_lengkap' => 'required|string|min:4|max:100',
+            'jabatan' => 'required|string|min:4|max:100',
+            'nomor_telepon' => 'required|numeric|digits:14',
+            'alamat_email' => 'required|email',
         ];
         if ($request->input('alamat_email') !== $employer->alamat_email) {
-            $rules['alamat_email'] = 'required|unique:employers,alamat_email';
+            $rules['alamat_email'] = 'required|email|unique:employers,alamat_email';
         }
         $validate = Validator::make($request->all(), $rules);
         if ($validate->fails()) {
@@ -95,15 +95,15 @@ class EmployerController extends Controller
         $id = Auth('employer')->user()->id;
         $employer = Employer::findOrfail($id);
         $validate = Validator::make($request->all(), [
-            'nama_perusahaan' => 'required',
-            'bidang_perusahaan' => 'required',
-            'website' => 'required',
+            'nama_perusahaan' => 'required|string|min:4|max:100',
+            'bidang_perusahaan' => 'required|string',
+            'website' => 'required|url',
             'tahun_berdiri' => 'required',
-            'kantor_pusat' => 'required',
-            'kota' => 'required',
-            'alamat' => 'required',
-            'provinsi' => 'required',
-            'kode_pos' => 'required',
+            'kantor_pusat' => 'required|string|min:4|max:255',
+            'kota' => 'required|string|min:4|max:100',
+            'alamat' => 'required|string|min:4|max:100',
+            'provinsi' => 'required|string|min:4|max:100',
+            'kode_pos' => 'required|numeric',
         ]);
         if ($validate->fails()) {
             return back()->with('warning', 'Gagal Mengubah Profile Perusahaan');
@@ -126,7 +126,7 @@ class EmployerController extends Controller
         $id = Auth('employer')->user()->id;
         $employer = Employer::findOrfail($id);
         $validate = Validator::make($request->all(), [
-            'logo_perusahaan' => 'required|mimes:png|max:2048|dimensions:max_width=500,max_height=500',
+            'logo_perusahaan' => 'required|file|mimes:png|max:2048',
         ]);
         if ($validate->fails()) {
             return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar dan Gambar Yang Sesuai');
@@ -157,13 +157,13 @@ class EmployerController extends Controller
             return back()->with('warning', 'Tolong Lengkapi Logo Perusahaan');
         }
         $validate = Validator::make($request->all(), [
-            'nama_pekerjaan' => 'required',
-            'jenis_pekerjaan' => 'required',
-            'tipe_pekerjaan' => 'required',
-            'deskripsi_pekerjaan' => 'required',
-            'lokasi_pekerjaan' => 'required',
-            'poster' => 'nullable|mimes:png',
-            'deadline' => 'required',
+            'nama_pekerjaan' => 'required|string|min:10|max:255',
+            'jenis_pekerjaan' => 'required|string',
+            'tipe_pekerjaan' => 'required|string',
+            'deskripsi_pekerjaan' => 'required|string:min:50|max:1000',
+            'lokasi_pekerjaan' => 'required|string|min:10|max:100',
+            'poster' => 'nullable|file|mimes:png,jpeg|max:1024',
+            'deadline' => 'required|date|after_or_equal:today',
         ]);
         if ($validate->fails()) {
             return back()->with('warning', 'Mohon Mengisi Ulang Form Menambah Loker Dengan Benar');
@@ -221,14 +221,13 @@ class EmployerController extends Controller
         }
 
         $validate = Validator::make($request->all(), [
-            'nama_pekerjaan' => 'required',
-            'jenis_pekerjaan' => 'required',
-            'tipe_pekerjaan' => 'required',
-            'status_pekerjaan' => 'nullable',
-            'deskripsi_pekerjaan' => 'required',
-            'lokasi_pekerjaan' => 'required',
-            'poster' => 'nullable|mimes:png|image',
-            'deadline' => 'required',
+            'nama_pekerjaan' => 'required|string|min:10|max:255',
+            'jenis_pekerjaan' => 'required|string',
+            'tipe_pekerjaan' => 'required|string',
+            'deskripsi_pekerjaan' => 'required|string:min:50|max:1000',
+            'lokasi_pekerjaan' => 'required|string|min:10|max:100',
+            'poster' => 'nullable|file|mimes:png,jpeg|max:1024',
+            'deadline' => 'required|date|after_or_equal=today',
         ]);
         if ($validate->fails()) {
             return back()->with('warning', 'Gagal Mengubah Data Loker');

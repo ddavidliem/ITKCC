@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
             'pendidikan_tertinggi' => 'SMA',
             'nim' => '10181014',
             'program_studi' => 'Sistem Informasi',
-            'email_verification' => null,
+            'email_verification' => now(),
             'created_at' => now(),
         ]);
     }
