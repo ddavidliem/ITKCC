@@ -153,7 +153,9 @@
                                 .category;
                             editForm.querySelector('#editTitle').value = response.title;
                             editForm.querySelector('#editBody').value = response.body;
-
+                            if (response.status === true) {
+                                editForm.querySelector('#editStatus').checked = true;
+                            }
                             if (response.category === 'Carousel') {
                                 editForm.querySelector('#editBody').disabled = true;
                             }

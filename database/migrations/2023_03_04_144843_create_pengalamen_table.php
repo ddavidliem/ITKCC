@@ -15,13 +15,12 @@ return new class extends Migration
     {
         Schema::create('pengalamen', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title')->required();
-            $table->string('jenis_pekerjaan')->required();
-            $table->string('organisasi')->required();
-            $table->string('lokasi_pekerjaan');
-            $table->string('tanggal_mulai')->required();
-            $table->string('tanggal_selesai')->nullable();
-            $table->longText('deskripsi')->nullable();
+            $table->string('title')->length(128)->required();
+            $table->string('organisasi')->length(128)->required();
+            $table->string('lokasi_pekerjaan')->length(256)->required();
+            $table->string('tanggal_mulai')->length(32)->required();
+            $table->string('tanggal_selesai')->length(32)->nullable();
+            $table->longText('deskripsi')->length(512)->nullable();
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

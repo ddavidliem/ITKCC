@@ -19,14 +19,17 @@ class TopicSeeder extends Seeder
         DB::Table('topics')->insert([
             'id' => Str::uuid()->toString(),
             'topik' => 'Menulis CV dan Surat Lamaran',
+            'status' => 'enable',
         ]);
         DB::Table('topics')->insert([
             'id' => Str::uuid()->toString(),
             'topik' => 'Persiapan Wawancara Kerja',
+            'status' => 'enable',
         ]);
         DB::Table('topics')->insert([
             'id' => Str::uuid()->toString(),
             'topik' => 'Persiapan Masuk Dunia Kerja',
+            'status' => 'enable',
         ]);
     }
 }

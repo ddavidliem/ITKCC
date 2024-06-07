@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('prodis', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('program_studi');
-            $table->string('jurusan');
+            $table->string('program_studi')->length(32)->required();
+            $table->string('jurusan')->length(64)->required();
+            $table->string('fakultas')->length(64)->default('ITK')->required();
             $table->timestamps();
         });
     }

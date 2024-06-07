@@ -20,12 +20,16 @@ class Approval extends Model
         'kota',
         'kode_pos',
         'website',
+        'bidang_perusahaan',
+        'tahun_berdiri',
+        'kantor_pusat',
         'nama_lengkap',
         'jabatan',
         'nomor_telepon',
         'alamat_email',
         'formulir',
         'status',
+        'feedback',
     ];
 
     protected $hidden = [

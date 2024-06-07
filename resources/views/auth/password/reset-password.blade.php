@@ -3,22 +3,34 @@
 @section('content')
     <div class="container p-4">
         <div class="p-4 bg-white rounded min-vh-50">
-            <form action="{{ Route('auth.reset.password') }}" method="post" class="needs-validation" novalidate>
+            <form action="{{ route('auth.reset.password.submit') }}" method="POST" class="needs-validation" novalidate>
                 @csrf
                 <div class="my-2">
                     <label for="" class="fw-semibold form-label">Password Baru</label>
-                    <input type="password" name="new_password" class="form-control" required>
+                    <input type="password" name="new_password"
+                        class="form-control @error('new_password') is-invalid @enderror" required>
+                    @error('new_password')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
                 <div class="my-2">
                     <label for="" class="fw-semibold form-label">Konfirmasi Password</label>
-                    <input type="password" name="confirm_password" class="form-control" required>
+                    <input type="password" name="confirm_password"
+                        class="form-control @error('confirm_password') is-invalid @enderror" required>
                     <div class="form-text">
                         Mohon Memasukkan Password Yang Sama Dengan Benar
                     </div>
+                    @error('confirm_password')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
                 <input type="hidden" name="token" value="{{ $token }}" readonly>
                 <div class="my-3 d-flex justify-content-end">
-                    <button class="btn btn-outline-dark">Reset Password</button>
+                    <button class="btn btn-outline-dark" type="submit">Reset Password</button>
                 </div>
             </form>
         </div>

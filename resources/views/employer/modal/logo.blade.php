@@ -12,10 +12,16 @@
                     @method('put')
                     <div class="my-2">
                         <label for="profile_img" class="form-label fw-semibold">Logo Perusahaan</label>
-                        <input type="file" class="form-control" name="logo_perusahaan" required>
+                        <input type="file" class="form-control @error('logo_perusahaan') is-invalid @enderror"
+                            name="logo_perusahaan" required>
                         <div class="form-text">
                             Gambar Logo Perusahaan Maks. 2MB, Format PNG.
                         </div>
+                        @error('logo_perusahaan')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button type="submit" class="btn btn-outline-dark">Upload</button>

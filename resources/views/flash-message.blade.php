@@ -33,3 +33,14 @@
         <h4>Empty Notification</h4>
     </div>
 @endif
+@if ($message = Session::get('fail'))
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notifikasi</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ $message }}
+        </div>
+    </div>
+@endif

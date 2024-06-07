@@ -69,6 +69,7 @@
                         <tr class=" position-sticky top-0">
                             <th>Program Studi</th>
                             <th>Jurusan</th>
+                            <th>Fakultas</th>
                             <th>Option</th>
                         </tr>
                     </thead>
@@ -77,6 +78,7 @@
                             <tr>
                                 <td>{{ $item->program_studi }}</td>
                                 <td>{{ $item->jurusan }}</td>
+                                <td>{{ $item->fakultas }}</td>
                                 <td class="d-flex">
                                     <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editProdi"
                                         data-id="{{ Route('admin.prodi.detail', ['id' => $item->id]) }}"
@@ -108,16 +110,18 @@
                             <th>Nomor Telepon</th>
                             <th>Alamat Email</th>
                             <th>Program Studi</th>
-                            <th>Option</th>
+                            <th>Status</th>
+                            <th>Menu</th>
                         </tr>
                     </thead>
                     <tbody class="max-vh-100 overflow-auto">
                         @foreach ($user['all'] as $item)
-                            <tr>
+                            <tr class="{{ $item->status === 'suspended' ? 'table-danger' : '' }}">
                                 <td>{{ $item->nama_lengkap }}</td>
                                 <td>{{ $item->nomor_telepon }}</td>
                                 <td>{{ $item->alamat_email }}</td>
                                 <td>{{ $item->program_studi }}</td>
+                                <td>{{ $item->status }}</td>
                                 <td><a href="{{ Route('admin.user.detail', ['id' => $item->id]) }}"
                                         class="text-decoration-none text-dark fw-semibold">Detail</a></td>
                             </tr>
@@ -213,7 +217,7 @@
             const editBtn = document.querySelectorAll('#editProdiBtn');
             const editForm = document.getElementById('editProdiForm');
             const deleteBtn = document.querySelectorAll('#deleteProdiBtn');
-            const deleteForm = document.getElementById('editProdiForm')
+            const deleteForm = document.getElementById('deleteProdiForm')
             Array.from(editBtn).forEach(btn => {
                 btn.addEventListener('click', function() {
                     editForm.setAttribute('action', btn.getAttribute('data-url'));
@@ -225,6 +229,8 @@
                                 .program_studi;
                             editForm.querySelector('#jurusan-input').value = response
                                 .jurusan;
+                            editForm.querySelector('#fakultas-input').value = response
+                                .fakultas;
                         }
                     });
                 });

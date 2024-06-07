@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('contents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('category')->require();
-            $table->boolean('status')->require();
-            $table->string('image')->nullable();
-            $table->string('title')->require();
-            $table->longText('body')->nullable();
+            $table->string('category')->length(16)->require();
+            $table->boolean('status')->length(8)->require();
+            $table->string('image')->length(64)->nullable();
+            $table->string('title')->length(64)->require();
+            $table->longText('body')->length(1024)->nullable();
             $table->timestamps();
         });
     }

@@ -33,7 +33,7 @@ class ResetPassword extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Notifikasi Reset Password',
+            subject: 'Notifikasi: Perubahan Password',
         );
     }
 
@@ -45,7 +45,7 @@ class ResetPassword extends Mailable
     public function content()
     {
         return new Content(
-            view: 'auth.password.reset-link',
+            view: 'auth.mail.reset-password',
             with: [
                 'token' => $this->token,
                 'user' => $this->user,

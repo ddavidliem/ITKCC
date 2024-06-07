@@ -40,6 +40,7 @@ class UserSeeder extends Seeder
             'nim' => '10181014',
             'program_studi' => 'Sistem Informasi',
             'email_verification' => now(),
+            'status' => 'active',
             'created_at' => now(),
         ]);
     }

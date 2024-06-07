@@ -106,7 +106,8 @@
                                             <button class="btn btn-outline-dark status-button mx-2" data-bs-toggle="modal"
                                                 data-bs-target="#approvalModal"
                                                 data-url="{{ Route('admin.approval.update', ['id' => $item->id]) }}"
-                                                data-content="{{ $item->nama_perusahaan }}">Status</button>
+                                                data-content="{{ $item->nama_perusahaan }}"
+                                                @if ($item->status == 'accepted') disabled @endif>Status</button>
                                             <button class="btn btn-outline-danger delete-button" data-bs-toggle="modal"
                                                 data-bs-target="#deleteApprovalModal"
                                                 data-url="{{ Route('admin.approval.delete', ['id' => $item->id]) }}"
@@ -149,7 +150,16 @@
                                                 </div>
                                                 <div class="my-1">
                                                     <label for="" class="form-label">Provinsi</label>
-                                                    <h6 class="fw-semibold">{{ $item->provinsi }}</h6>
+                                                    <h6 class="fw-semibold text-capitalize">{{ $item->provinsi }}</h6>
+                                                </div>
+                                                <div class="my-1">
+                                                    <label for="" class="form-label">Bidang perusahaan</label>
+                                                    <h6 class="fw-semibold text-capitalize">{{ $item->bidang_perusahaan }}
+                                                    </h6>
+                                                </div>
+                                                <div class="my-1">
+                                                    <label for="" class="form-label">Kantor Pusat</label>
+                                                    <h6 class="fw-semibold text-capitalize">{{ $item->kantor_pusat }}</h6>
                                                 </div>
                                             </div>
                                             <div class="col-5 mx-2">
@@ -164,6 +174,10 @@
                                                 <div class="my-1">
                                                     <label for="" class="form-label">Website</label>
                                                     <h6 class="fw-semibold">{{ $item->website }}</h6>
+                                                </div>
+                                                <div class="my-1">
+                                                    <label for="" class="form-label">Tahun Berdiri</label>
+                                                    <h6 class="fw-semibold">{{ $item->tahun_berdiri }}</h6>
                                                 </div>
                                             </div>
                                         </div>
@@ -228,7 +242,7 @@
             });
 
             const deleteBtn = document.querySelectorAll('.delete-button');
-            const deleteForm = document.getElementById('statusForm');
+            const deleteForm = document.getElementById('deleteForm');
             const approvalDelete = document.getElementById('approvalDelete')
             Array.from(deleteBtn).forEach(dltBtn => {
                 dltBtn.addEventListener('click', function() {

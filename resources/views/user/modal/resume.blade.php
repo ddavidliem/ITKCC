@@ -23,10 +23,25 @@
                     </div>
                 </form>
                 <div class="my-2">
-                    <iframe src="{{ asset('resume/' . $user->resume) }}" frameborder="0" class="my-4" width="100%"
-                        height="700px"></iframe>
+                    @if ($user->resume)
+                        <iframe src="{{ asset('resume/' . $user->resume) }}" frameborder="0" class="my-4"
+                            width="100%" height="700px"></iframe>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@if (session('modal') === 'uploadResume')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

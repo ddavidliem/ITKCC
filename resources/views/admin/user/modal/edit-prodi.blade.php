@@ -11,11 +11,33 @@
                     @method('Put')
                     <div class="my-2">
                         <label for="" class="form-label fw-semibold">Program Studi</label>
-                        <input type="text" class="form-control" name="program_studi" id="prodi-input" required>
+                        <input type="text" class="form-control @error('program_studi_edit') is-invalid @enderror"
+                            name="program_studi_edit" id="prodi-input" required>
+                        @error('program_studi_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-2">
                         <label for="" class="form-label fw-semibold">Jurusan</label>
-                        <input type="text" class="form-control" name="jurusan" id="jurusan-input" required>
+                        <input type="text" class="form-control @error('jurusan_edit') is-invalid @enderror"
+                            name="jurusan_edit" id="jurusan-input" required>
+                        @error('jurusan_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="my-2">
+                        <label for="" class="form-label fw-semibold">Fakultas</label>
+                        <input type="text" class="form-control @error('fakultas_edit') is-invalid @enderror"
+                            name="fakultas_edit" id="fakultas-input">
+                        @error('fakultas_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button type="submit" class="btn btn-outline-dark">Update</button>

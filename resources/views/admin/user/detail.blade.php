@@ -102,6 +102,17 @@
                     </div>
                 </div>
             </div>
+            @if ($user->status == 'suspended')
+                <div class="my-4 alert alert-danger p-2" role="alert">
+                    <h5 class="fw-semibold">Akun Pencari Kerja Telah Di Suspend</h5>
+                    <div class="my-2">
+                        <h6 class=" text-danger fw-semibold">Alasan Suspend</h6>
+                        <p>{{ $user->suspend_note }}</p>
+                        <br>
+                        <p>Akun Pencari Kerja ini Tidak Dapat Melakukan Login Lagi</p>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="min-vh-50 my-4 bg-white rounded p-4">
@@ -281,7 +292,7 @@
                         @foreach ($user->appointment as $item)
                             <tr>
                                 <td>{{ $item->topik }}</td>
-                                <td>{{ $item->jenis_konseling }}</td>
+                                <td>{{ $item->jenis_konseling }} ({{ $item->jumlah_peserta }})</td>
                                 <td>{{ $item->date_time }}</td>
                                 <td>{{ $item->tempat_konseling }}</td>
                                 <td>{{ $item->status }}</td>
@@ -358,19 +369,31 @@
                         type: "GET",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
+                            console.log(response);
                             $('#topik option').each(function() {
                                 $(this).prop('selected', $(this).val() ===
                                     response.topik)
                             });
-                            $('#jenis_konseling option').each(function() {
+                            $('#jenis_konseling_edit option').each(function() {
                                 $(this).prop('selected', $(this).val() ===
                                     response.jenis_konseling);
                             });
-                            $('#tempat_konseling option').each(function() {
+                            if (response.jenis_konseling == 'kelompok') {
+                                $('#jumlah_peserta_field_edit').removeClass(
+                                    'd-none');
+                                $('#select_jumlah_edit').val(response.jumlah_peserta);
+                            }
+                            $('#tempat_konseling_edit option').each(function() {
                                 $(this).prop('selected', $(this).val() ===
                                     response.tempat_konseling);
                             });
-                            $('#google_meet').val(response.google_meet);
+                            if (response.tempat_konseling == 'Offline') {
+                                $('#google_meet_edit').prop('disabled', true);
+                            } else {
+                                $('#google_meet_edit').prop('disabled', false);
+                                $('#google_meet_edit').val(response.google_meet);
+                            }
+
                             var appointmentTime = new Date(response.date_time);
                             $('#tanggal_konseling').val(appointmentTime.toISOString()
                                 .split('T')[0]);
@@ -385,13 +408,46 @@
                 });
             });
 
+            const editAppointment = document.querySelectorAll('.edit-appointment');
+            editAppointment.forEach(function(modal) {
+                modal.addEventListener('change', function() {
+                    const target = event.target;
+
+                    if (target.classList.contains('tempat_konseling_edit')) {
+                        const edit = modal.querySelector('#google_meet_edit');
+
+                        if (target.value === 'Online') {
+                            edit.setAttribute('required', true);
+                            edit.disabled = false;
+                        } else {
+                            edit.removeAttribute('required');
+                            edit.disabled = true;
+                        }
+                    }
+
+                    if (target.classList.contains('jenis_konseling_edit')) {
+                        const editField = modal.querySelector('#jumlah_peserta_field_edit');
+                        const editJumlah = modal.querySelector('#select_jumlah_edit');
+
+                        if (target.value === 'kelompok') {
+                            editField.classList.remove('d-none');
+                            editJumlah.setAttribute('required', true);
+                        } else {
+                            editField.classList.add('d-none');
+                            editJumlah.removeAttribute('required');
+                        }
+                    }
+
+                });
+            });
+
             const newAppointment = document.querySelectorAll('.appointment');
             newAppointment.forEach(function(modal) {
                 modal.addEventListener('change', function() {
                     const select = event.target;
 
                     if (select.classList.contains('tempat_konseling')) {
-                        const input = modal.querySelector('#google_meet');
+                        const input = modal.querySelector('#google_meet_new');
 
                         if (select.value === 'Online') {
                             input.setAttribute('required', true);
@@ -401,6 +457,20 @@
                             input.disabled = true;
                         }
                     }
+
+                    if (select.classList.contains('jenis_konseling_new')) {
+                        const field = modal.querySelector('#jumlah_peserta_field_new')
+                        const jumlah = modal.querySelector('#select_jumlah_new');
+
+                        if (select.value === 'kelompok') {
+                            field.classList.remove('d-none');
+                            jumlah.setAttribute('required', true);
+                        } else {
+                            field.classList.add('d-none');
+                            jumlah.removeAttribute('required');
+                        }
+                    }
+
                 });
             });
 
@@ -413,28 +483,30 @@
                         type: "GET",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
-                            $('#title').val(response.title);
-                            $('#organisasi').val(response.organisasi);
+                            $('#edit_title_sertifikat').val(response.title);
+                            $('#edit_organisasi_sertifikat').val(response.organisasi);
                             $('#id_sertifikat').val(response.id_sertifikat);
                             $('#url_sertifikat').val(response.url_sertifikat);
                             var tanggal_terbit = response.tanggal_terbit.split(' ');
-                            $('#bulan_terbit option').each(function() {
+                            $('#edit_bulan_terbit_sertifikat option').each(function() {
                                 $(this).prop('selected', $(this).val() ===
                                     tanggal_terbit[0]);
                             });
-                            $('#tahun_terbit option').each(function() {
+                            $('#edit_tahun_terbit_sertifikat option').each(function() {
                                 $(this).prop('selected', $(this).val() ===
                                     tanggal_terbit[1]);
                             });
                             var tanggal_berakhir = response.tanggal_berakhir.split(' ');
-                            $('#bulan_berakhir option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_berakhir[0]);
-                            });
-                            $('#tahun_berakhir option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_berakhir[1]);
-                            });
+                            $('#edit_bulan_berakhir_sertifikat option').each(
+                                function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_berakhir[0]);
+                                });
+                            $('#edit_tahun_berakhir_sertifikat option').each(
+                                function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_berakhir[1]);
+                                });
                         }
                     });
                 });
@@ -448,6 +520,7 @@
                 })
             });
 
+
             const editPengalamanBtn = document.querySelectorAll('#editPengalamanBtn');
             const editPengalamanForm = document.getElementById('editPengalamanForm');
             Array.from(editPengalamanBtn).forEach(btn => {
@@ -457,7 +530,6 @@
                         type: "GET",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
-                            console.log(response);
                             $('#title_pengalaman').val(response.title);
                             $('#organisasi_pengalaman').val(response.organisasi);
                             $('#lokasi_pengalaman').val(response.lokasi_pekerjaan);
@@ -475,18 +547,54 @@
                                 $(this).prop('selected', $(this).val() ===
                                     tanggal_mulai[1]);
                             });
-                            var tanggal_selesai = response.tanggal_selesai.split(' ');
-                            $('#bulan_selesai option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_selesai[0]);
-                            });
-                            $('#tahun_selesai option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_selesai[1]);
-                            });
+                            if (response.tanggal_selesai == 'present') {
+                                $('#present_box').prop('checked', true);
+                            } else {
+                                var tanggal_selesai = response.tanggal_selesai.split(
+                                    ' ');
+                                $('#bulan_selesai option').each(function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_selesai[0]);
+                                });
+                                $('#tahun_selesai option').each(function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_selesai[1]);
+                                });
+                            }
 
                         }
                     });
+
+                    const editPengalamanClass = document.querySelectorAll('.form-edit-pengalaman');
+                    editPengalamanClass.forEach(function(form) {
+                        form.addEventListener('change', function(event) {
+                            const checkbox = event.target;
+                            if (checkbox.classList.contains('modal-checkbox')) {
+                                const modal = checkbox.closest('.modal');
+                                const selectInput = modal.querySelectorAll(
+                                    '.end-date');
+
+                                if (checkbox.checked) {
+                                    Array.from(selectInput).forEach(selectInput => {
+                                        selectInput.removeAttribute(
+                                            'required');
+                                        selectInput.disabled = true;
+                                        selectInput.value = selectInput
+                                            .querySelector(
+                                                'option:first-child')
+                                            .value;
+                                    })
+                                } else {
+                                    Array.from(selectInput).forEach(selectInput => {
+                                        selectInput.setAttribute('required',
+                                            'required');
+                                        selectInput.disabled = false;
+                                    })
+                                }
+                            }
+                        })
+                    })
+
                 });
             });
 

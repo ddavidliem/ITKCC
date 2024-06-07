@@ -14,6 +14,11 @@
                         <label for="profile_img" class="form-label fw-semibold">Foto Profile</label>
                         <input type="file" class="form-control" id="profile_img" aria-describedby="profile_img"
                             aria-label="Upload" name="profile_img" required>
+                        @error('profile_img')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button type="submit" class="btn btn-outline-dark">Upload</button>
@@ -23,3 +28,16 @@
         </div>
     </div>
 </div>
+
+@if (session('modal') === 'updateProfileImg')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

@@ -10,34 +10,48 @@
                 @csrf
                 <div class="modal-body min-vh-50 scroll-modal p-4">
                     <div class="">
-                        <label for="title" class="form-label fw-semibold">Title</label>
-                        <input type="text" class="form-control" id="title" name="title"
-                            placeholder="Title Pekerjaan" required autofocus>
-                    </div>
-                    <div class="my-3">
-                        <label for="jenis_pekerjaan" class="form-label fw-semibold">Jenis
-                            Pekerjaan</label>
-                        <select name="jenis_pekerjaan" id="jenis_pekerjaan" class="form-select" required>
-                            <option value="" selected disabled>Pilih Jenis Pekerjaan</option>
-                            <option value="Full Time">Full TIme</option>
-                            <option value="Part Time">Part TIme</option>
-                            <option value="Freelance">Freelance</option>
-                            <option value="Contract">Contract</option>
-                            <option value="Internship">Internship</option>
-                            <option value="Apprenticeship">Apprenticeship</option>
-                        </select>
+                        <label for="title" class="form-label fw-semibold">Nama Pekerjaan</label>
+                        <input type="text" class="form-control @error('title_pengalaman_kerja') is-invalid @enderror"
+                            id="title" name="title_pengalaman_kerja" placeholder="Title Pekerjaan" required
+                            @error('title_pengalaman_kerja')
+                                value="{{ old('title_pengalaman_kerja') }}"
+                            @enderror
+                            autofocus>
+                        @error('title_pengalaman_kerja')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-3">
                         <label for="organisasi" class="form-label fw-semibold">Organisasi</label>
-                        <input type="text" class="form-control" id="organisasi" name="organisasi"
-                            placeholder="organisasi" required>
+                        <input type="text"
+                            class="form-control @error('organisasi_pengalaman_kerja') is-invalid @enderror"
+                            id="organisasi" name="organisasi_pengalaman_kerja"
+                            placeholder="Nama Perusahaan Tempat Bekerja" required>
+                        @error('organisasi_pengalaman_kerja')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-3">
                         <label for="lokasi_pekerjaan" class="form-label fw-semibold">Lokasi Pekerjaan</label>
-                        <input type="text" class="form-control" id="lokasi_pekerjaan" name="lokasi_pekerjaan"
-                            placeholder="Balikpapan Selatan, Kalimantan Timur, Indonesia" required>
+                        <input type="text"
+                            class="form-control @error('lokasi_pekerjaan_pengalaman_kerja') is-invalid @enderror"
+                            id="lokasi_pekerjaan" name="lokasi_pekerjaan_pengalaman_kerja"
+                            placeholder="Balikpapan Selatan, Kalimantan Timur, Indonesia"
+                            @error('lokasi_pekerjaan_pengalaman_kerja')
+                                value="{{ old('lokasi_pekerjaan_pengalaman_kerja') }}"
+                            @enderror
+                            required>
+                        @error('lokasi_pekerjaan_pengalaman_kerja')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-2 p-2 row d-flex justify-content-evenly">
@@ -45,7 +59,9 @@
                         <div class="col-lg-6 my-2">
                             <label for="bulan_mulai" class="form-label fw-semibold">Bulan</label>
                             <div class="col-10">
-                                <select name="bulan_mulai" id="" class="form-select" required>
+                                <select name="bulan_mulai_pengalaman_kerja" id=""
+                                    class="form-select @error('bulan_mulai_pengalaman_kerja') is-invalid @enderror"
+                                    required>
                                     <option value="" selected disabled>Bulan Mulai</option>
                                     <option value="1">Januari</option>
                                     <option value="2">Februari</option>
@@ -61,11 +77,18 @@
                                     <option value="12">Desember</option>
                                 </select>
                             </div>
+                            @error('bulan_mulai_pengalaman_kerja')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
                         <div class="col-lg-6 my-2">
                             <label for="tahun_mulai" class="form-label fw-semibold">Tahun Mulai</label>
                             <div class="col-10">
-                                <select name="tahun_mulai" class="form-select" required>
+                                <select name="tahun_mulai_pengalaman_kerja"
+                                    class="form-select @error('tahun_mulai_pengalaman_kerja') is-invalid @enderror"
+                                    required>
                                     <option value="" selected disabled>Tahun Mulai</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}
@@ -73,6 +96,11 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @error('tahun_mulai_pengalaman_kerja')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
                         <div class="">
@@ -88,7 +116,8 @@
                         <div class="col-lg-6 my-2">
                             <label for="bulan" class="form-label fw-semibold">Bulan</label>
                             <div class="col-10">
-                                <select name="bulan_selesai" id="" class="form-select end-date">
+                                <select name="bulan_selesai_pengalaman_kerja" id=""
+                                    class="form-select end-date @error('bulan_selesai_pengalaman_kerja') is-invalid @enderror">
                                     <option value="" selected disabled>Bulan Selesai</option>
                                     <option value="1">Januari</option>
                                     <option value="2">Februari</option>
@@ -104,11 +133,17 @@
                                     <option value="12">Desember</option>
                                 </select>
                             </div>
+                            @error('bulan_selesai_pengalaman_kerja')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
                         <div class="col-lg-6 my-2">
                             <label for="tahun_selesai" class="form-label fw-semibold">Tahun</label>
                             <div class="col-10">
-                                <select name="tahun_selesai" class="form-select end-date">
+                                <select name="tahun_selesai_pengalaman_kerja"
+                                    class="form-select end-date @error('tahun_selesai_pengalaman_kerja') is-invalid @enderror">
                                     <option value="" selected disabled>Tahun Selesai</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}
@@ -116,12 +151,23 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @error('tahun_selesai_pengalaman_kerja')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
                     </div>
 
                     <div class="my-3">
                         <label for="deskripsi" class="form-label fw-semibold">Deskripsi Pekerjaan</label>
-                        <textarea name="deskripsi_pengalaman" id="deskripsi_pengalaman" cols="30" rows="5" class="form-control"></textarea>
+                        <textarea name="deskripsi_pengalaman_kerja" id="deskripsi_pengalaman" cols="30" rows="5"
+                            class="form-control @error('deskripsi_pengalaman_kerja') is-invalid @enderror">{{ old('deskripsi_pengalaman_kerja') }}</textarea>
+                        @error('deskripsi_pengalaman_kerja')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-1 d-flex justify-content-end">
@@ -136,3 +182,16 @@
     </div>
 
 </div>
+
+@if (session('modal') === 'newPengalaman')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

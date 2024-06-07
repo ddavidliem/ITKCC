@@ -36,7 +36,7 @@ class UserFactory extends Factory
 
         return [
             'id' => $uuid,
-            'username' => $this->faker->userName,
+            'username' => substr($this->faker->unique()->userName, 0, 16),
             'password' => Hash::make('qwerty123'),
             'profile' => 'default-profile.png',
             'resume' => 'default-resume.pdf',
@@ -47,8 +47,8 @@ class UserFactory extends Factory
             'jenis_kelamin' => $gender,
             'alamat' => $this->faker->address,
             'kota' => $this->faker->city,
-            'kode_pos' => $this->faker->postcode,
-            'nomor_telepon' => $this->faker->phoneNumber,
+            'kode_pos' => substr($this->faker->postcode, 0, 5),
+            'nomor_telepon' => substr($this->faker->phoneNumber, 0, 14),
             'kewarganegaraan' => 'WNI',
             'status_perkawinan' => $status,
             'agama' => $this->faker->randomElement(['Islam', 'Kristen Protestan', 'Katolik', 'Hindu', 'Buddha']),
@@ -56,6 +56,7 @@ class UserFactory extends Factory
             'nim' => $this->faker->numerify('########'),
             'program_studi' => $this->faker->randomElement(['Sistem Informasi', 'Informatika', 'Matematika', 'Ilmu Aktuaria']),
             'email_verification' => $randomDate,
+            'status' => 'active',
             'created_at' => $randomDate,
         ];
     }
@@ -87,11 +88,9 @@ class UserFactory extends Factory
         $filepath = base_path('database/factories/pengalaman.json');
         $pengalamanData = json_decode(file_get_contents($filepath), true);
         $randomData = $this->getRandomSubset($pengalamanData['pengalaman']);
-        $jenis_pekerjaan = $this->faker->randomElement(['Full Time', 'Part Time', 'Freelance', 'Contract', 'Internship', 'Apprenticeship']);
 
         foreach ($randomData as $data) {
             $data['user_id'] = $user->id;
-            $data['jenis_pekerjaan'] = $jenis_pekerjaan;
             Pengalaman::create($data);
         }
     }
@@ -138,6 +137,7 @@ class UserFactory extends Factory
             $data['jenis_konseling'] = $this->faker->randomElement(['individu', 'kelompok']);
             $data['tempat_konseling'] = $this->faker->randomElement(['online', 'offline']);
             $data['google_meet'] = "test google_meet";
+            $data['jumlah_peserta'] = $this->faker->numberBetween(1, 5);
             $data['status'] = $this->faker->randomElement(['finished', 'declined', 'reschedule', 'accepted', 'pending']);
             $data['feedback'] = "Appointment Feedback 123";
             $data['created_at'] = $randomDate;

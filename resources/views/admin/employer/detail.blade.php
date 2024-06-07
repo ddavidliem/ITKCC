@@ -86,6 +86,20 @@
                     <p>{{ $employer->deskripsi_perusahaan }}</p>
                 </div>
             </div>
+
+            @if ($employer->status == 'suspended')
+                <div class="my-4 alert alert-danger p-2" role="alert">
+                    <h5 class="fw-semibold">Akun Perusahaan Telah Di Suspend</h5>
+                    <div class="my-2">
+                        <h6 class=" text-danger fw-semibold">Alasan Suspend</h6>
+                        <p>{{ $employer->suspend_note }}</p>
+                        <br>
+                        <p>Akun Perusahaan ini Tidak Dapat Melakukan Login dan Seluruh Lowongan Pekerjaan Perusahaan Telah
+                            Di Tutup. Beserta Lamaran Kerja pada Lowongan kerja Terkait telah ditolak.</p>
+                    </div>
+                </div>
+            @endif
+
             <div class="my-4">
                 <div class="d-flex my-4">
                     <div class="col-7">
@@ -128,13 +142,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($employer['loker'] as $item)
-                                <tr>
+                            @foreach ($employerDetail['loker'] as $item)
+                                <tr class="@if ($item->trashed()) table-warning @endif">
                                     <td class="text-capitalize">{{ $item->nama_pekerjaan }}</td>
                                     <td class="text-capitalize">{{ $item->jenis_pekerjaan }}</td>
                                     <td class="text-capitalize">{{ $item->tipe_pekerjaan }}</td>
                                     <td class="text-capitalize">{{ $item->lokasi_pekerjaan }}</td>
-                                    <td class="text-capitalize">{{ $item->status }}</td>
+                                    <td class="text-capitalize">
+                                        @if ($item->trashed())
+                                            Deleted by Employer
+                                        @else
+                                            {{ $item->status }}
+                                        @endif
+                                    </td>
                                     <td><a href="{{ Route('admin.loker.detail', ['id' => $item->id]) }}"
                                             class="text-decoration-none text-dark fw-semibold">Detail</a>
                                     </td>

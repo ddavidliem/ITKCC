@@ -13,7 +13,7 @@
                             <h6>Konfirmasi Untuk Menghapus Konten <span id="deleteTarget"></span></h6>
                         </div>
                         <div class="my-4 d-flex justify-content-end">
-                            <button type="submit" class="btn btn-outline-dark">Delete Content</button>
+                            <button type="submit" class="btn btn-outline-dark">Konfirmasi</button>
                         </div>
                     </form>
                 </div>

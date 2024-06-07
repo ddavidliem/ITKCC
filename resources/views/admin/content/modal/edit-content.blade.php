@@ -1,4 +1,4 @@
-<div class="modal  fade" id="editContent" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="editContent" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg ">
         <div class="modal-content">
             <div class="modal-header">
@@ -11,20 +11,44 @@
                     @method('PUT')
                     <div class="my-3">
                         <label for="" class="form-label fw-semibold">Kategori</label>
-                        <input type="text" name="category" class="form-control" id="edit_category" readonly>
+                        <input type="text" name="category"
+                            class="form-control @error('edit_category') is-invalid @enderror" id="edit_category"
+                            readonly>
+                        @error('edit_category')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="editTitle" class="form-label fw-semibold">Title</label>
-                        <input type="text" class="form-control" id="editTitle" name="editTitle">
+                        <input type="text" class="form-control @error('editTitle') is-invalid @enderror"
+                            id="editTitle" name="editTitle">
+                        @error('editTitle')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="editBody" class="form-label fw-semibold">Body</label>
-                        <textarea name="editBody" id="editBody" class="form-control"></textarea>
+                        <textarea name="editBody" id="editBody" class="form-control @error('editBody') is-invalid @enderror"></textarea>
+                        @error('editBody')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
-                        <label for="editImage" class="form-label fw-semibold">Image</label>
-                        <input type="file" name="edit_image" class="form-control edit-image-content">
-                        <div class="form-text" id="imageHelp">Upload Gambar Terbaru</div>
+                        <label for="edit_image" class="form-label fw-semibold">Image</label>
+                        <input type="file" name="edit_image"
+                            class="form-control edit-image-content @error('edit_image') is-invalid @enderror">
+                        <div class="form-text">Upload Gambar Terbaru</div>
+                        @error('edit_image')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <input type="checkbox" class="form-check-input modal-checkbox" name="deleteImage">
@@ -32,7 +56,7 @@
                         <div class="form-text">Centang Untuk Menghapus Gambar Konten</div>
                     </div>
                     <div class="my-3">
-                        <input type="checkbox" class="form-check-input" name="editStatus" {{-- {{ $content->status == true ? 'checked' : '' }} --}}>
+                        <input type="checkbox" class="form-check-input" name="editStatus" id="editStatus">
                         <label for="editStatus" class="form-label fw-semibold">Tampilkan</label>
                         <div class="form-text">Centang untuk menampilkan konten</div>
                     </div>
@@ -45,3 +69,16 @@
         </div>
     </div>
 </div>
+
+@if (session('modal') === 'editContent')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

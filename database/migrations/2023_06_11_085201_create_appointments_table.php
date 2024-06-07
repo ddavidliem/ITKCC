@@ -15,14 +15,16 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->dateTime('date_time');
-            $table->uuid('user_id');
-            $table->string('topik');
-            $table->string('jenis_konseling');
-            $table->string('tempat_konseling');
-            $table->string('google_meet');
-            $table->string('status');
-            $table->longText('feedback')->nullable();
+            $table->dateTime('date_time')->length(64)->required();
+            $table->uuid('user_id')->required();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->string('topik')->length(64)->required();
+            $table->string('jenis_konseling')->length(32)->required();
+            $table->string('tempat_konseling')->length(32)->required();
+            $table->integer('jumlah_peserta')->length(16)->nullable()->default(null);
+            $table->string('google_meet')->length(64)->nullable();
+            $table->string('status')->length(16)->required;
+            $table->longText('feedback')->length(256)->nullable();
             $table->timestamps();
         });
     }

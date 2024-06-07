@@ -40,7 +40,9 @@ class Employer extends Authenticatable
         'nomor_telepon',
         'alamat_email',
         'email_verification',
-        'google_id'
+        'google_id',
+        'status',
+        'suspend_note',
     ];
 
     /**

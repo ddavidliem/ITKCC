@@ -17,7 +17,7 @@ class HomeController extends Controller
     {
         $carousel = Content::where('category', '=', 'Carousel')->get();
         $lokers = Loker::where('status', 'Open')
-            ->where('Deadline', '<=', now())
+            ->where('Deadline', '>=', now())
             ->latest()
             ->take(9)
             ->get();

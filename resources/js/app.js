@@ -1,6 +1,8 @@
-
+import jQuery from 'jquery';
+window.$ = window.jQuery = jQuery;
+import './bootstrap';
+import modal from 'bootstrap/js/dist/modal';
 import { Chart } from 'chart.js/auto';
-window.Chart = Chart;
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 document.addEventListener('DOMContentLoaded', function () {
@@ -8,25 +10,15 @@ document.addEventListener('DOMContentLoaded', function () {
         dateFormat: 'Y-m-d',
     });
 });
-
-import jQuery, { data } from 'jquery';
-window.$ = jQuery;
-
 import { Calendar } from '@fullcalendar/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import Bootstrap5Plugin from '@fullcalendar/bootstrap5';
+import fullCalendarStyle from '@fullcalendar/bootstrap5';
 
-window.bootstrap = Bootstrap5Plugin;
+
+window.Chart = Chart;
+window.fullCalendarStyle = fullCalendarStyle;
 window.list = listPlugin;
 window.timegrid = timeGridPlugin;
 window.Calendar = Calendar;
-
-
-import './bootstrap';
-
-
-
-
-
-
+window.modal = modal;

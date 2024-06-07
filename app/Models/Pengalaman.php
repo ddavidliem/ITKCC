@@ -13,7 +13,6 @@ class Pengalaman extends Model
 
     protected $fillable = [
         'title',
-        'jenis_pekerjaan',
         'organisasi',
         'lokasi_pekerjaan',
         'tanggal_mulai',

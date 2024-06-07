@@ -34,7 +34,6 @@
                 </div>
                 <div class="col-4 px-2">
                     <div class="my-2">
-                        <h6 class="fw-semibold">Poster Lowongan Kerja</h6>
                         <div class="my-2">
                             <img src="{{ asset('poster/' . $loker->poster) }}" class="img-fluid" alt="">
                         </div>

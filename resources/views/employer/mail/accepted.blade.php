@@ -11,7 +11,7 @@
             <li>Nama Perusahaan: {{ $application->loker->employer->nama_perusahaan }}</li>
             <li>Tanggal Lamaran: {{ $application->created_at->format('d-m-Y') }}</li>
         </ul>
-        <p>Informasi lebih lanjut mengenai tahapan selanjutnya akan disampaikan dalam waktu dekat.</p>
+        <p>{{ $feedback }}</p>
         <p>Terima kasih atas minat dan partisipasi anda.
             <br>
             Salam,

@@ -35,7 +35,7 @@ class AppointmentNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Notifikasi Appointment Konseling Karir',
+            subject: 'Notifikasi: Appointment Konseling Karir',
         );
     }
 

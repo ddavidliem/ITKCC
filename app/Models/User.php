@@ -47,8 +47,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'disabilitas',
         'resume',
         'profile',
-        'status',
         'email_verification',
+        'status',
+        'suspend_note',
         'google_id',
     ];
 
@@ -91,10 +92,11 @@ class User extends Authenticatable implements MustVerifyEmail
     protected static function booted()
     {
         static::deleting(function ($user) {
-            $user->applications()->delete();
+            $user->applications()->forceDelete();
             $user->appointment()->delete();
             $user->sertifikat()->delete();
             $user->pengalaman()->delete();
+            $user->pendidikan()->delete();
         });
     }
 }

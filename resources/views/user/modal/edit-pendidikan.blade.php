@@ -11,23 +11,51 @@
                 <div class="modal-body min-vh-75 scroll-modal p-4">
                     <div class="mb-3">
                         <label for="" class="form-label fw-semibold">Nama Sekolah</label>
-                        <input type="text" class="form-control" id="nama_sekolah" name="nama_sekolah" required
+                        <input type="text" class="form-control @error('nama_sekolah_edit') is-invalid @enderror"
+                            id="nama_sekolah" name="nama_sekolah_edit"
+                            @error('nama_sekolah_edit')value="{{ old('nama_sekolah_edit') }}" @enderror required
                             autofocus>
+                        @error('nama_sekolah_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="" class="form-label fw-semibold">Bidang Studi</label>
-                        <input type="text" class="form-control" id="bidang_studi" required name="bidang_studi">
+                        <input type="text" class="form-control @error('bidang_studi_edit') is-invalid @enderror"
+                            id="bidang_studi" required name="bidang_studi_edit"
+                            @error('bidang_studi_edit')
+                                value="{{ old('bidang_studi_edit') }}"
+                            @enderror>
+                        @error('bidang_studi_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="" class="form-label fw-semibold">Tahun Lulus</label>
                         <div class="">
-                            <input type="text" id="tahun_lulus" name="tahun_lulus" class="form-control"
-                                min="1990" max="{{ date('Y') }}" required>
+                            <select name="tahun_lulus_edit"
+                                class="form-select @error('tahun_lulus_edit') is-invalid @enderror" id="tahun_lulus">
+                                @foreach ($years as $year)
+                                    <option value="{{ $year }}">{{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                        @error('tahun_lulus_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="" class="form-label fw-semibold">Tingkat Pendidikan</label>
-                        <select name="tingkat_pendidikan" class="form-select" id="tingkat_pendidikan" required>
+                        <select name="tingkat_pendidikan_edit"
+                            class="form-select @error('tingkat_pendidikan') is-invalid @enderror"
+                            id="tingkat_pendidikan" required>
                             <option value="Sekolah Menengah Atas">SMA</option>
                             <option value="Diploma-1">Diploma-1</option>
                             <option value="Diploma-2">Diploma-2</option>
@@ -36,15 +64,36 @@
                             <option value="Strata-2">Strata-2</option>
                             <option value="Strata-3">Strata-3</option>
                         </select>
+                        @error('tingkat_pendidikan')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="" class="form-label fw-semibold">Alamat Sekolah</label>
-                        <textarea class="form-control" name="alamat_sekolah" id="alamat_sekolah" cols="30" rows="5"></textarea>
+                        <textarea class="form-control @error('alamat_sekolah_edit') is-invalid @enderror" name="alamat_sekolah_edit"
+                            id="alamat_sekolah" cols="30" rows="5">
+                            @error('alamat_sekolah_edit')
+{{ old('alamat_sekolah_edit') }}
+@enderror
+                        </textarea>
+                        @error('alamat_sekolah_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-3">
                         <label for="" class="form-label fw-semibold">Keterangan</label>
-                        <textarea class="form-control" name="keterangan" id="keterangan" cols="30" rows="10"></textarea>
+                        <textarea class="form-control @error('keterangan_pendidikan_edit') is-invalid @enderror"
+                            name="keterangan_pendidikan_edit" id="keterangan" cols="30" rows="10"></textarea>
+                        @error('keterangan_pendidikan_edit')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-4 d-flex justify-content-end">
@@ -56,3 +105,16 @@
         </div>
     </div>
 </div>
+
+@if (session('modal') === 'editPendidikan')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

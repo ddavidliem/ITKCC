@@ -6,6 +6,7 @@ use App\Models\Employer;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\EmployerResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +32,7 @@ class DataController extends Controller
     {
         Validator::make($request->all(), [
             'users' => 'required|array',
-            'users.*.username' => 'required|string|max:12',
+            'users.*.username' => 'required|string|max:16',
             'users.*.password' => 'required',
             'users.*.alamat_email' => 'required|email|unique:users,alamat_email',
             'users.*.nama_lengkap' => 'required|string',
@@ -78,6 +79,7 @@ class DataController extends Controller
                 $user->program_studi = $userData['program_studi'];
                 $user->disabilitas = $userData['disabilitas'];
                 $user->email_verification = null;
+                $user->status = 'active';
                 $user->save();
 
                 $createdUsers[] = $user;

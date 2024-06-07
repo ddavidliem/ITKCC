@@ -8,7 +8,8 @@
                     <h5 class="fw-semibold">Detail Lowongan Pekerjaan</h5>
                 </div>
                 <div>
-                    <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editLoker">Edit Loker</button>
+                    <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editLoker"
+                        @if ($loker->status == 'suspended') disabled @endif>Edit Loker</button>
                     <button class="btn btn-outline-danger mx-2" data-bs-toggle="modal" data-bs-target="#deleteLoker">Delete
                         Loker</button>
                 </div>

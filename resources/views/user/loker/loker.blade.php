@@ -27,10 +27,12 @@
                                                 alt="" class="img-fluid px-1 align-self-center">
                                         </div>
                                         <div class="col-9 px-4">
-                                            <h5 class="fw-semibold">{{ $item->nama_pekerjaan }}</h5>
+                                            <h4 class="fw-semibold">{{ $item->nama_pekerjaan }}</h4>
                                             <ul class="list-unstyled">
-                                                <li class="text-capitalize fw-semibold">
-                                                    {{ $item->employer->nama_perusahaan }}
+                                                <li>
+                                                    <h5 class="text-capitalize fw-semibold">
+                                                        {{ $item->employer->nama_perusahaan }}
+                                                    </h5>
                                                 </li>
                                                 <li class="text-capitalize">{{ $item->lokasi_pekerjaan }} |
                                                     {{ $item->jenis_pekerjaan }} | {{ $item->tipe_pekerjaan }}</li>
@@ -40,7 +42,7 @@
                                                     <li class="text-capitalize text-danger">Closed For Recruitment</li>
                                                 @endif
                                                 </li>
-                                                <li>
+                                                <li class="form-text">
                                                     Jumlah Pelamar: {{ $item->applicants()->count() }}
                                                 </li>
                                             </ul>

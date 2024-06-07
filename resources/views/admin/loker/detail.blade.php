@@ -37,6 +37,17 @@
                             </li>
                         @endif
                     </ul>
+                    @if ($loker->trashed())
+                        <div class="alert alert-danger">
+                            <h6 class="fw-semibold text-danger">Perusahaan Telah Menghapus Lowongan Pekerjaan ini</h6>
+                        </div>
+                    @endif
+                    @if ($loker->status == 'Suspended')
+                        <div class="alert alert-danger">
+                            <h6 class="fw-semibold text-danger">Lowongan Pekerjaan Telah Di Non-aktifkan / Suspended</h6>
+                            <p class="my-2">{{ $loker->suspend_note }}</p>
+                        </div>
+                    @endif
                 </div>
                 <div class="col-4 p-2">
                     <h6 class="fw-semibold">Poster Lowongan Kerja</h6>
@@ -72,7 +83,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($loker->applicants()->with('user')->orderBy('created_at', 'DESC')->get() as $item)
+                            @foreach ($loker->applicants()->withTrashed()->with('user')->orderBy('created_at', 'DESC')->get() as $item)
                                 <tr>
                                     <td>
                                         <a href="javascript:void(0)" type="button" role="tab"
@@ -100,7 +111,7 @@
             <div class="col-8 px-2">
                 <div class="bg-white rounded min-vh-100 max-vh-100 overflow-auto p-4">
                     <div class="tab-content" id="tab-content">
-                        @foreach ($loker->applicants as $item)
+                        @foreach ($loker->applicants()->withTrashed()->get() as $item)
                             <div id="tab-{{ $item->id }}" class="p-2 tab-pane" role="tabpanel">
                                 <div class="bg-white p-44 min-vh-10 mb-3">
                                     <div class="d-flex mb-4">
@@ -108,10 +119,9 @@
                                         <div class="col-2 d-flex justify-content-end">
                                             <a href="{{ Route('admin.user.detail', ['id' => $item->user->id]) }}"
                                                 class="btn btn-outline-dark">Detail</a>
-                                            {{-- <button class="btn btn-outline-dark status-button mx-2" data-bs-toggle="modal"
-                                                data-bs-target="#responseModal" data-url="">Status</button> --}}
-                                            <button class="btn btn-outline-danger delete-button mx-2" data-bs-toggle="modal"
-                                                data-bs-target="#deleteApprovalModal"
+                                            <button class="btn btn-outline-danger delete-button mx-2"
+                                                id="deleteApplicationBtn" data-bs-toggle="modal"
+                                                data-bs-target="#deleteApplication"
                                                 data-url="{{ Route('admin.application.delete', ['id' => $item->id]) }}">Delete</button>
                                         </div>
                                     </div>
@@ -121,10 +131,10 @@
                                                 <img src="{{ asset('profile/' . $item->user->profile) }}" class="img-fluid"
                                                     alt="">
                                             </div>
-                                            <div class="px-3">
+                                            <div class="px-3 col-10">
                                                 <h5 class="text-capitalize fw-semibold mb-2">{{ $item->nama_lengkap }}</h5>
-                                                <div class="d-flex">
-                                                    <div class="col-6">
+                                                <div class="d-flex w-100 justify-content-evenly">
+                                                    <div class="col-5">
                                                         <div class="my-1">
                                                             <label for="" class="form-label fw-semibold">Alamat
                                                                 Email</label>
@@ -160,7 +170,7 @@
                                                             <h6 class="">{{ $item->pendidikan_tertinggi }}</h6>
                                                         </div>
                                                     </div>
-                                                    <div class="col-6">
+                                                    <div class="col-5">
                                                         <div class="my-1">
                                                             <label for="" class="form-label fw-semibold">Tempat
                                                                 dan
@@ -305,6 +315,7 @@
     @endif
     @include('admin.loker.modal.edit')
     @include('admin.loker.modal.delete')
+    @include('admin.loker.modal.delete-application')
 @endsection
 
 @push('script')
@@ -355,6 +366,14 @@
                     }
                 });
             }
+        });
+
+        const deleteApplicationBtn = document.querySelectorAll('#deleteApplicationBtn');
+        const deleteApplicationForm = document.getElementById('deleteApplicationForm');
+        Array.from(deleteApplicationBtn).forEach(btn => {
+            btn.addEventListener('click', function() {
+                deleteApplicationForm.setAttribute('action', btn.getAttribute('data-url'));
+            })
         });
     </script>
 @endpush

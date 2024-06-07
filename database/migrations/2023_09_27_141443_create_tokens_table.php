@@ -16,10 +16,10 @@ return new class extends Migration
     {
         Schema::create('tokens', function (Blueprint $table) {
             $table->foreignUuid('user_id')->onDelete('cascade');
-            $table->string('alamat_email');
-            $table->string('category');
-            $table->string('token');
-            $table->string('type');
+            $table->string('alamat_email')->length(128)->required();
+            $table->string('category')->length(64)->required();
+            $table->string('token')->length(256)->required();
+            $table->string('type')->length(64)->required();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });

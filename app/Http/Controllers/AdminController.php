@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule;
 use App\Models\Appointment;
 use App\Models\Application;
 use App\Models\Approval;
@@ -172,7 +173,7 @@ class AdminController extends Controller
         $period = $this->period($startDate, $endDate);
         $approvalDataChart = $this->getData($period, Approval::class);
         $newApprovalChart = $this->countData($period, Approval::class);
-        $all = Approval::get();
+        $all = Approval::orderBy('created_at', 'DESC')->get();
         $approval = [
             'total' => Approval::count(),
             'pending' => Approval::where('status', 'on process')->count(),
@@ -191,7 +192,7 @@ class AdminController extends Controller
         }
         $approval->delete();
 
-        return back()->with('success', 'Approval Akun Perusahaan Telah Di Hapus');
+        return back()->with('success', 'Approval Akun Perusahaan Berhasil di Hapus');
     }
 
     public function approvalUpdate(Request $request, $id)
@@ -200,32 +201,49 @@ class AdminController extends Controller
         if (!$approval) {
             return back()->with('warning', 'Nomor Approval Tidak Ditemukan');
         }
-        $validate = Validator::make($request->all(), [
+
+        $rule = [
             'approval_status' => 'required|in:accepted,declined',
-        ]);
+        ];
+
+        if ($request->input('approval_status') == 'declined') {
+            $rule['approval_feedback'] = 'required|string|max:1024|min:8';
+        }
+
+        $validate = Validator::make($request->all(), $rule);
+
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Status Approval');
+            return back()->withErrors($validate)->withInput()->with('modal', 'approvalModal');
         }
 
         $approval->update(['status' => $request->input('approval_status')]);
-        if ($approval->update === 'accepted') {
+        if ($approval->status == 'accepted') {
             $employer = new Employer;
+            $employer->username = $approval->username;
+            $employer->password = $approval->password;
             $employer->nama_perusahaan = $approval->nama_perusahaan;
             $employer->alamat = $approval->alamat;
             $employer->provinsi = $approval->provinsi;
             $employer->kota = $approval->kota;
             $employer->kode_pos = $approval->kode_pos;
             $employer->website = $approval->website;
+            $employer->bidang_perusahaan = $approval->bidang_perusahaan;
+            $employer->tahun_berdiri = $approval->tahun_berdiri;
+            $employer->kantor_pusat = $approval->kantor_pusat;
             $employer->nama_lengkap = $approval->nama_lengkap;
             $employer->jabatan = $approval->jabatan;
             $employer->nomor_telepon = $approval->nomor_telepon;
             $employer->alamat_email = $approval->alamat_email;
+            $employer->status = 'active';
             $employer->email_verification = null;
             $employer->save();
         }
 
-        $template = 'approval';
-        Mail::to($approval->alamat_email)->send(new ApprovalNotification($approval, $template));
+        $template = ($approval->status === 'accepted') ? 'admin.approval.mail.approval-accepted' : 'admin.approval.mail.approval-declined';
+        $subject = 'Notifikasi: Persetujuan Pembuatan Akun Perusahaan';
+        $feedback = $request->input('approval_feedback');
+
+        Mail::to($approval->alamat_email)->send(new ApprovalNotification($subject, $approval, $template, $feedback));
         return back()->with('success', 'Berhasil Mengubah Status Approval');
     }
 
@@ -250,7 +268,7 @@ class AdminController extends Controller
     public function employerDetail($id)
     {
         $employer = Employer::findOrfail($id);
-        $loker = $employer->loker()->orderBy('created_at', 'DESC')->get();
+        $loker = $employer->loker()->orderBy('created_at', 'DESC')->withTrashed()->get();
         $endDate = Carbon::now()->endOfMonth();
         $startDate = Carbon::now()->subMonths(5)->startOfMonth();
         $period = $this->period($startDate, $endDate);
@@ -313,41 +331,34 @@ class AdminController extends Controller
         }
 
         $rule = [
-            'nama_perusahaan' => 'required|string|min:5|max:100',
-            'alamat' => 'required|string|min:5|min:10|max:255',
-            'kota' => 'required|string|min:5|max:30',
-            'provinsi' => 'required|string|min:5|max:30',
-            'kantor_pusat' => 'required|string|min:5|max:100',
-            'website' => 'required|url|max:255',
-            'bidang_perusahaan' => 'required|string|max:255',
-            'tahun_berdiri' => 'required|integer|min:1900|max:' . date('Y'),
-            'kode_pos' => 'required|numeric|digits:10',
-            'nama_employer' => 'required|string|min:5|max:100',
-            'nomor_telepon' => 'required|numeric|digits:14',
-            'jabatan' => 'required|string|min:5|max:100',
+            'nama_perusahaan' => 'required|string|min:4|max:128',
+            'alamat_perusahaan' => 'required|string|min:8|max:256',
+            'kota' => 'required|string|min:4|max:64',
+            'provinsi' => 'required|string|min:4|max:64',
+            'kantor_pusat' => 'required|string|min:4|max:256',
+            'website' => 'required|url|min:8|max:128',
+            'bidang_perusahaan' => 'required|string|min:8|max:128',
+            'tahun_berdiri' => 'required|digits:4|numeric|min:1900|max:' . date('Y'),
+            'kode_pos' => 'required|numeric|digits_between:4,6',
+            'nama_employer' => 'required|string|min:4|max:128',
+            'nomor_telepon' => 'required|digits_between:10,14',
+            'jabatan' => 'required|string|min:8|max:128',
+            'status' => 'required|in:active,suspended',
         ];
 
         if ($request->input('alamat_email') != $employer->alamat_email) {
             $rule['alamat_email'] = 'required|unique:employers,alamat_email';
         }
 
+        if ($request->input('status') == 'suspended') {
+            $rule['suspend_note'] = 'required|string|max:1064|min:8';
+        }
+
         $validate = Validator::make($request->all(), $rule);
 
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Akun Perusahaan, Mohon Mengisi Ulang Form Dengan Benar');
+            return back()->withErrors($validate)->with('modal', 'editEmployer');
         }
-        $employer->nama_perusahaan = $request->input('nama_perusahaan');
-        $employer->alamat = $request->input('alamat');
-        $employer->kota = $request->input('kota');
-        $employer->provinsi = $request->input('provinsi');
-        $employer->kantor_pusat = $request->input('kantor_pusat');
-        $employer->website = $request->input('website');
-        $employer->bidang_perusahaan = $request->input('bidang_perusahaan');
-        $employer->tahun_berdiri = $request->input('tahun_berdiri');
-        $employer->kode_pos = $request->input('kode_pos');
-        $employer->nama_lengkap = $request->input('nama_employer');
-        $employer->nomor_telepon = $request->input('nomor_telepon');
-        $employer->jabatan = $request->input('jabatan');
 
         if ($request->input('alamat_email') != $employer->alamat_email) {
             $newEmail = $request->input('alamat_email');
@@ -359,9 +370,7 @@ class AdminController extends Controller
                 ->where('type', 'email_verification')
                 ->first();
 
-            if ($tokenRecord) {
-                $token = $tokenRecord->token;
-            } else {
+            if (!$tokenRecord) {
                 $tokenExists = true;
                 $token = null;
                 while ($tokenExists) {
@@ -380,10 +389,43 @@ class AdminController extends Controller
                     'type' => 'email_verification',
                     'expires_at' => now()->addMinutes(15),
                 ]);
+            } else {
+                $token = $tokenRecord->token;
             }
 
             Mail::to($newEmail)->send(new EmailVerification($employer, $token));
         }
+
+        if ($request->input('status') == 'suspended') {
+            $employer->status = $request->input('status');
+            $employer->suspend_note = $request->input('suspend_note');
+
+            $lokers = $employer->loker;
+
+            if ($lokers->isNotEmpty()) {
+                foreach ($lokers as $loker) {
+                    $loker->update(['status' => 'closed']);
+
+                    $loker->applicants()->where('status', 'pending')->update(['status' => 'declined']);
+                }
+            }
+        } elseif ($request->input('status') == 'active') {
+            $employer->suspend_note = "";
+        }
+
+        $employer->nama_perusahaan = $request->input('nama_perusahaan');
+        $employer->alamat = $request->input('alamat_perusahaan');
+        $employer->kota = $request->input('kota');
+        $employer->provinsi = $request->input('provinsi');
+        $employer->kantor_pusat = $request->input('kantor_pusat');
+        $employer->website = $request->input('website');
+        $employer->bidang_perusahaan = $request->input('bidang_perusahaan');
+        $employer->tahun_berdiri = $request->input('tahun_berdiri');
+        $employer->kode_pos = $request->input('kode_pos');
+        $employer->nama_lengkap = $request->input('nama_employer');
+        $employer->nomor_telepon = $request->input('nomor_telepon');
+        $employer->jabatan = $request->input('jabatan');
+        $employer->status = $request->input('status');
         $employer->update();
         return back()->with('success', 'Berhasil Mengubah Data Akun Perusahaan');
     }
@@ -395,7 +437,7 @@ class AdminController extends Controller
             return back()->with('warning', 'Akun Perusahaan Tidak Ditemukan');
         }
         $employer->delete();
-        return back()->with('success', 'Berhasil Menghapus Akun Perusahaan Beserta Lowongan Kerja, Application');
+        return redirect()->route('admin.employer')->with('success', 'Berhasil Menghapus Data Perusahaan');
     }
 
     public function lokerIndex()
@@ -406,7 +448,7 @@ class AdminController extends Controller
 
         $loker = [
             'total' => Loker::count(),
-            'all' => Loker::orderBy('created_at', 'DESC')->get(),
+            'all' => Loker::orderBy('created_at', 'DESC')->withTrashed()->get(),
             'new' => Loker::whereBetween('created_at', [$currentDate->StartofMonth()->toDateString(), $currentDate->EndofMonth()->toDateString()])->count(),
             'open' => Loker::where('status', 'open')->count(),
             'closed' => Loker::where('status', 'closed')->count(),
@@ -441,10 +483,10 @@ class AdminController extends Controller
 
     public function lokerDetail($id)
     {
-        $loker = Loker::with('applicants.user.pengalaman', 'applicants.user.sertifikat', 'employer')->findOrfail($id);
+        $loker = Loker::withTrashed()->with('applicants.user.pengalaman', 'applicants.user.sertifikat', 'employer')->findOrfail($id);
         $totalApplicant = $loker->applicants->count();
         $statusApplicant = $loker->applicants->groupBy('status')->map->count();
-        $applications = $loker->applicants()->orderBy('created_at', 'DESC')->with('user')->get();
+        $applications = $loker->applicants()->orderBy('created_at', 'DESC')->withTrashed()->with('user')->get();
 
         $status = [
             'labels' => $applications->pluck('status')->toArray(),
@@ -465,28 +507,33 @@ class AdminController extends Controller
             return back()->with('warning', 'Loker Tidak Ditemukan');
         }
 
-        $validate = Validator::make($request->all(), [
-            'nama_pekerjaan' => 'required|string|min:10|max:255',
-            'jenis_pekerjaan' => 'required|string',
-            'tipe_pekerjaan' => 'required|string',
-            'status_pekerjaan' => 'nullable',
-            'deskripsi_pekerjaan' => 'required|string|min:50|max:1000',
-            'lokasi_pekerjaan' => 'required|string|min:10|max:255',
+        $rule = [
+            'nama_pekerjaan' => 'required|string|min:8|max:128',
+            'jenis_pekerjaan' => 'required|string|min:2|max:64',
+            'tipe_pekerjaan' => 'required|string|min:2|max:64',
+            'status_pekerjaan' => 'required|in:Open,Closed,Suspended',
+            'deskripsi_pekerjaan' => 'required|string|min:64|max:2048',
+            'lokasi_pekerjaan' => 'required|string|min:4|max:128',
             'poster' => 'nullable|file|mimes:png,jpeg|max:1024',
-            'deadline' => 'required|date|after_or_equal=today',
-        ]);
+            'deadline' => 'required|date|after_or_equal:today',
+        ];
+
+        $validate = Validator::make($request->all(), $rule);
+
+        if ($request->input('status_pekerjaan' == 'Suspended')) {
+            $rule['feedback_status_pekerjaan'] = 'required|string|max:1024';
+        }
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Loker');
+            return back()->withErrors($validate)->with('modal', 'editLoker');
         }
         $loker->nama_pekerjaan = $request->input('nama_pekerjaan');
         $loker->jenis_pekerjaan = $request->input('jenis_pekerjaan');
         $loker->tipe_pekerjaan = $request->input('tipe_pekerjaan');
         $loker->deskripsi_pekerjaan = $request->input('deskripsi_pekerjaan');
         $loker->lokasi_pekerjaan = $request->input('lokasi_pekerjaan');
-        if ($request->filled('status_pekerjaan')) {
-            $loker->status = 'Open';
-        } elseif (!$request->filled('status_pekerjaan')) {
-            $loker->status = 'Closed';
+        $loker->status = $request->input('status_pekerjaan');
+        if ($request->input('status_pekerjaan' == 'Suspended')) {
+            $loker->suspend_note = $request->input('feedback_status_pekerjaan');
         }
         if ($request->hasFile('poster')) {
             Storage::delete('/public/poster/' . $loker->poster);
@@ -499,9 +546,10 @@ class AdminController extends Controller
 
     public function lokerDelete($id)
     {
-        $loker = Loker::findOrfail($id);
+        $loker = Loker::findOrFail($id);
+        $employerId = $loker->employer->id;
         $loker->delete();
-        return back()->with('success', 'Berhasil Menghapus Lowongan Kerja dan Lamaran Lowongan Kerja');
+        return redirect()->route('admin.employer.detail', ['id' => $employerId])->with('success', 'Berhasil Menghapus Lowongan Pekerjaan');
     }
 
     public function applicationUpdate(Request $request, $id)
@@ -523,13 +571,13 @@ class AdminController extends Controller
         return back()->with('success', 'Berhasil Mengubah Status Lamaran');
     }
 
-    public function applicationDelete(Request $request, $id)
+    public function applicationDelete($id)
     {
         $application = Application::findOrfail($id);
         if (!$application) {
             return back()->with('warning', 'Lamaran Tidak Ditemukan');
         }
-        $application->delete();
+        $application->forceDelete();
         return back()->with('success', 'Berhasil Menghapus Lamaran');
     }
 
@@ -572,16 +620,15 @@ class AdminController extends Controller
         $maxYear = $year + 5;
         $years = range($minYear, $maxYear);
         $prodi = Prodi::get();
-        $topik = Topic::get();
+        $topik = Topic::where('status', 'enable')->get();
         $user = User::findOrfail($id);
         if (!$user) {
             return back()->with('warning', 'User Tidak Ditemukan');
         }
-        $prodi = Prodi::get();
-        $topik = Topic::get();
+        $appointment = Appointment::with('user')->orderBy('created_at', 'DESC')->get();
         $user->load('pengalaman', 'sertifikat', 'appointment', 'applications.loker.employer');
 
-        return view('admin.user.detail', compact('user', 'prodi', 'topik', 'years', 'prodi', 'topik'));
+        return view('admin.user.detail', compact('user', 'prodi', 'topik', 'years', 'prodi', 'topik', 'appointment'));
     }
 
     public function userUpdate(Request $request, $id)
@@ -591,30 +638,39 @@ class AdminController extends Controller
             return back()->with('warning', 'User Tidak Ditemukan');
         }
         $rule = [
-            'nama_lengkap' => 'required|string|min:4|max:255',
-            'nomor_telepon' => 'required|numeric|digits:14',
-            'tempat_lahir' => 'required|string|min:4|max:100',
+            'nama_lengkap' => 'required|string|min:4|max:128',
+            'nomor_telepon' => 'required|numeric|digits_between:10,14',
+            'tempat_lahir' => 'required|string|min:4|max:64',
             'tanggal_lahir' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'kewarganegaraan' => 'required|string',
             'jenis_kelamin' => 'required|string',
             'agama' => 'required|string',
-            'alamat' => 'required|string|min:10|max:255',
-            'kota' => 'required|string|min:10|max:100',
-            'kode_pos' => 'required|numeric',
+            'alamat' => 'required|string|min:10|max:256',
+            'kota' => 'required|string|min:4|max:64',
+            'kode_pos' => 'required|digits_between:4,6',
             'program_studi' => 'required|string',
             'nim' => 'required|numeric',
-            'ipk' => 'required|numeric|between:0,4',
+            'ipk' => 'max:4|min:1|required',
             'pendidikan_tertinggi' => 'required|string',
-            'status_perkawinan' => 'required|string'
+            'status_perkawinan' => 'required|string',
+            'user_status' => 'required|in:active,suspended'
         ];
 
         if ($request->input('alamat_email') != $user->alamat_email) {
             $rule['alamat_email'] = 'required|email|unique:users,alamat_email';
         }
 
+        if ($request->input('user_status') == 'suspended') {
+            $rule['user_suspend_note'] = 'required|string|max:1064|min:8';
+
+            $user->suspend_note = $request->input('user_suspend_note');
+        } elseif ($request->input('user_status') == 'active') {
+            $user->suspend_note = "";
+        }
+
         $validate = Validator::make($request->all(), $rule);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Pengguna, Mohon Menginput Data Pada Form Dengan Benar');
+            return back()->withErrors($validate)->with('modal', 'editUser');
         }
 
         $user->nama_lengkap = $request->input('nama_lengkap');
@@ -632,6 +688,7 @@ class AdminController extends Controller
         $user->ipk = $request->input('ipk');
         $user->pendidikan_tertinggi = $request->input('pendidikan_tertinggi');
         $user->status_perkawinan = $request->input('status_perkawinan');
+        $user->status = $request->input('user_status');
         if ($request->input('alamat_email') != $user->alamat_email) {
             $newEmail = $request->input('alamat_email');
             $user->email_verification = null;
@@ -677,7 +734,7 @@ class AdminController extends Controller
             return back()->with('warning', 'User Tidak Ditemukan');
         }
         $user->delete();
-        return back()->with('success', 'Berhasil Menghapus User');
+        return redirect()->route('admin.user')->with('success', 'Berhasil Menghapus Data User');
     }
 
     public function detailSertifikat($user, $id)
@@ -698,34 +755,34 @@ class AdminController extends Controller
             return back()->with('warning', 'Sertifikat User Tidak Ditemukan');
         }
         $validation = Validator::make($request->all(), [
-            'title_sertifikat' => 'required|string|min:10|max:255',
-            'organisasi' => 'required|string|min:5|max:255',
-            'bulan_terbit' => 'required',
-            'tahun_terbit' => 'required',
-            'bulan_berakhir' => 'required_with_all:tahun_berakhir',
-            'tahun_berakhir' => 'required_with_all:bulan_berakhir',
-            'id_sertifikat' => 'nullable|string',
-            'url_sertifikat' => 'nullable|url',
+            'title_sertifikat' => 'required|string|min:4|max:64',
+            'organisasi_sertifikat' => 'required|string|min:4|max:64',
+            'bulan_terbit_sertifikat' => 'required|digits_between:1,2|min:1|max:12',
+            'tahun_terbit_sertifikat' => 'required|digits:4',
+            'bulan_berakhir_sertifikat' => 'required_with_all:tahun_berakhir|digits_between:1,2|min:1|max:12',
+            'tahun_berakhir_sertifikat' => 'required_with_all:bulan_berakhir|digits:4|gte:tahun_terbit_sertifikat',
+            'id_sertifikat' => 'nullable|string|min:4|max:128',
+            'url_sertifikat' => 'nullable|url|min:4|max:128',
         ]);
 
         if ($validation->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form dengan Benar');
+            return back()->withErrors($validation)->with('modal', 'editSertifikat');
         }
         $sertifikat->title = $request->input('title_sertifikat');
-        $sertifikat->organisasi = $request->input('organisasi');
-        $released_date = '01-' . str_pad($request->input('bulan_terbit'), 2, '0', STR_PAD_LEFT) . '-' . $request->input('tahun_terbit');
+        $sertifikat->organisasi = $request->input('organisasi_sertifikat');
+        $released_date = '01-' . str_pad($request->input('bulan_terbit_sertifikat'), 2, '0', STR_PAD_LEFT) . '-' . $request->input('tahun_terbit_sertifikat');
         $format_released_date = DateTime::createFromFormat('d-m-Y', $released_date);
         $tanggal_terbit = $format_released_date->format('F Y');
         $sertifikat->tanggal_terbit = $tanggal_terbit;
-        if (!empty($request->input('bulan_berakhir')) && !empty($request->input('tahun_berakhir'))) {
-            $end_date = '01-' . str_pad($request->input('bulan_berakhir'), 2, '0', STR_PAD_LEFT) . '-' . $request->input('berakhir');
+        if (!empty($request->input('bulan_berakhir_sertifikat')) && !empty($request->input('tahun_berakhir_sertifikat'))) {
+            $end_date = '01-' . str_pad($request->input('bulan_berakhir_sertifikat'), 2, '0', STR_PAD_LEFT) . '-' . $request->input('tahun_berakhir_sertifikat');
             $format_end_date = DateTime::createFromFormat('d-m-Y', $end_date);
             $tanggal_berakhir = $format_end_date->format('F Y');
             $sertifikat->tanggal_berakhir = $tanggal_berakhir;
         }
         $sertifikat->id_sertifikat = $request->input('id_sertifikat');
         $sertifikat->url_sertifikat = $request->input('url_sertifikat');
-        $sertifikat->user_id = Auth::user()->id;
+        $sertifikat->user_id = $user->id;
         $sertifikat->update();
         return back()->with('success', 'Berhasil Mengubah Data Sertifikat');
     }
@@ -760,26 +817,24 @@ class AdminController extends Controller
         }
 
         $rules = [
-            'title' => 'required|string|min:5|max:255',
-            'jenis_pekerjaan' => 'required|string',
-            'organisasi' => 'require|string|min:5|max:255',
-            'lokasi_pekerjaan' => 'required|string|min:5|max:255',
-            'bulan_mulai' => 'required',
-            'tahun_mulai' => 'required',
-            'deskripsi_pengalaman' => 'nullable|min:10|max:255',
+            'title_pengalaman' => 'required|string|min:4|max:128',
+            'organisasi_pengalaman' => 'required|string|min:5|max:128',
+            'lokasi_pekerjaan_pengalaman' => 'required|string|min:5|max:256',
+            'bulan_mulai_pengalaman' => 'required|digits_between:1,2|min:1|max:12',
+            'tahun_mulai_pengalaman' => 'required|digits:4',
+            'deskripsi_pengalaman' => 'nullable|min:10|max:512',
         ];
         if ($request->has('present_box')) {
-            $rules['bulan_selesai'] = 'nullable';
-            $rules['tahun_selesai'] = 'nullable';
-        }
-        if ($request->filled('bulan_selesai') || $request->filled('tahun_selesai')) {
-            $rules['bulan_selesai'] = 'required';
-            $rules['tahun_selesai'] = 'required';
+            $rules['bulan_selesai_pengalaman'] = 'nullable|digits_between:1,2|min:1|max:12';
+            $rules['tahun_selesai_pengalaman'] = 'nullable|digits:4';
+        } else {
+            $rules['bulan_selesai_pengalaman'] = 'required|digits_between:1,2|min:1|max:12';
+            $rules['tahun_selesai_pengalaman'] = 'required|digits:4|gte:' . $request->input('tahun_mulai_pengalaman');
         }
 
         $validate = Validator::make($request->all(), $rules);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Menambah Pengalaman Dengan Benar');
+            return back()->withErrors($validate)->with('modal', 'editPengalaman');
         }
 
         $formatDate = function ($bulan, $tahun) {
@@ -787,16 +842,17 @@ class AdminController extends Controller
             $dateTime =  DateTime::createFromFormat('d-m-Y', $format_date);
             return $dateTime->format('F Y');
         };
-        $pengalaman->title = $request->input('title');
-        $pengalaman->jenis_pekerjaan = $request->input('jenis_pekerjaan');
-        $pengalaman->organisasi = $request->input('organisasi');
-        $pengalaman->lokasi_pekerjaan = $request->input('lokasi_pekerjaan');
-        $pengalaman->tanggal_mulai = $formatDate($request->input('bulan_mulai'), $request->input('tahun_mulai'));
-        if ($request->filled(['bulan_selesai', 'tahun_selesai'])) {
-            $pengalaman->tanggal_selesai = $formatDate($request->input('bulan_selesai'), $request->input('tahun_selesai'));
+        $pengalaman->title = $request->input('title_pengalaman');
+        $pengalaman->organisasi = $request->input('organisasi_pengalaman');
+        $pengalaman->lokasi_pekerjaan = $request->input('lokasi_pekerjaan_pengalaman');
+        $pengalaman->tanggal_mulai = $formatDate($request->input('bulan_mulai_pengalaman'), $request->input('tahun_mulai_pengalaman'));
+        if ($request->has('present_box')) {
+            $pengalaman->tanggal_selesai = 'present';
+        } else {
+            $pengalaman->tanggal_selesai = $formatDate($request->input('bulan_selesai_pengalaman'), $request->input('tahun_selesai_pengalaman'));
         }
         $pengalaman->deskripsi = $request->input('deskripsi_pengalaman');
-        $pengalaman->user_id = Auth::user()->id;
+        $pengalaman->user_id = $user->id;
         $pengalaman->update();
 
         return back()->with('success', 'Berhasil Mengubah Data Pengalaman Kerja');
@@ -805,12 +861,12 @@ class AdminController extends Controller
     public function deletePengalaman($user, $id)
     {
         $user = User::findOrfail($user);
-        $pengalaman = $user->sertifikat()->find($id);
+        $pengalaman = $user->pengalaman()->find($id);
         if (!$pengalaman) {
             return back()->with('warning', 'Gagal Menghapus Pengalaman');
         }
         $pengalaman->delete();
-        return back()->with('success', 'Berhasil menghapus Sertifikat');
+        return back()->with('success', 'Berhasil menghapus Pengalaman Kerja User');
     }
 
     public function detailPendidikan($user, $id)
@@ -831,17 +887,17 @@ class AdminController extends Controller
             return response()->json(['error' => 'Data Pendidikan Tidak Ditemukan']);
         }
         $rules = [
-            'nama_sekolah' => 'required|string|max:255',
-            'tingkat_pendidikan' => 'required|string|max:50',
-            'bidang_studi' => 'required|string|max:255',
-            'alamat_sekolah' => 'required|string|max:500',
-            'tahun_lulus' => 'required|integer|min:1990|max:' . date('Y'),
-            'keterangan' => 'nullable|string|max:500'
+            'nama_sekolah' => 'required|string|max:128',
+            'tingkat_pendidikan' => 'required|string|min:2|max:32',
+            'bidang_studi' => 'required|string|min:3|max:64',
+            'alamat_sekolah' => 'required|string|max:256',
+            'tahun_lulus' => 'required|integer|digits:4|min:1990|max:' . date('Y'),
+            'keterangan' => 'nullable|string|max:512'
         ];
 
         $validate = Validator::make($request->all(), $rules);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Mengubah Data Pendidikan');
+            return back()->withErrors($validate)->with('modal', 'editPendidikan');
         }
 
         $pendidikan->nama_sekolah = $request->input('nama_sekolah');
@@ -869,17 +925,19 @@ class AdminController extends Controller
     public function prodiNew(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'program_studi' => 'required',
-            'jurusan' => 'required',
+            'program_studi_new' => 'required|string|min:4|max:64',
+            'jurusan_new' => 'required|string|min:4|max:64',
+            'fakultas_new' => 'nullable|string|min:3|max:64',
         ]);
 
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Menambahkan Program Studi');
+            return back()->withErrors($validate)->withInput()->with('modal', 'newProdi');
         }
 
         $prodi = new Prodi;
-        $prodi->program_studi = $request->input('program_studi');
-        $prodi->jurusan = $request->input('jurusan');
+        $prodi->program_studi = $request->input('program_studi_new');
+        $prodi->jurusan = $request->input('jurusan_new');
+        $prodi->fakultas = $request->input('fakultas_new');
         $prodi->save();
 
         return back()->with('success', 'Berhasil Menambahkan Program Studi');
@@ -902,21 +960,23 @@ class AdminController extends Controller
         }
 
         $validate = Validator::make($request->all(), [
-            'program_studi' => 'required',
-            'jurusan' => 'required',
+            'program_studi_edit' => 'required|string|min:3|max:64',
+            'jurusan_edit' => 'required|string|min:3',
+            'fakultas_edit' => 'nullable|string|min:3',
         ]);
 
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Program Studi');
+            return back()->withErrors($validate)->with('modal', 'editProdi');
         }
 
         User::where('program_studi', $prodi->program_studi)->update([
-            'program_studi' => $request->input('program_studi'),
+            'program_studi' => $request->input('program_studi_edit'),
         ]);
 
         $prodi->update([
-            'program_studi' => $request->input('program_studi'),
-            'jurusan' => $request->input('jurusan'),
+            'program_studi' => $request->input('program_studi_edit'),
+            'jurusan' => $request->input('jurusan_edit'),
+            'fakultas' => $request->input('fakultas_edit'),
         ]);
 
         return back()->with('success', 'Berhasil Mengubah Data Program Studi');
@@ -978,39 +1038,47 @@ class AdminController extends Controller
     {
         $appointment = Appointment::findOrfail($id);
         if (!$appointment) {
-            return back()->with('warning', 'Appointment Tidak Ditemukan');
+            return back()->with('warning', 'Data Appointment Tidak Ditemukan');
         }
+        $topik = Topic::pluck('topik')->toArray();
+        $topikString = implode(',', $topik);
         $rule = [
-            'topik' => 'required',
-            'jenis_konseling' => 'required',
-            'tempat_konseling' => 'required',
-            'tanggal_konseling' => 'required',
-            'jam_konseling' => 'required',
+            'topik_konseling_edit' => 'required|string|in:' . $topikString,
+            'jenis_konseling_edit' => 'required|string|in:individu,kelompok',
+            'tempat_konseling_edit' => 'required|string|in:Online,Offline',
+            'tanggal_konseling_edit' => 'required|date|after_or_equal:today',
+            'jam_konseling_edit' => 'required',
         ];
 
-        if ($request->input('tempat_konseling') === 'Online') {
-            $rule['google_meet'] = 'required';
+        if ($request->input('jenis_konseling_edit' === 'kelompok')) {
+            $rule['jumlah_peserta_konseling_edit'] = 'required';
+        }
+
+        if ($request->input('tempat_konseling_edit') === 'Online') {
+            $rule['google_meet_edit'] = 'required';
         }
         $validate = Validator::make($request->all(), $rule);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Appointment');
+            return back()->withErrors($validate)->with('modal', 'editAppointment');
         }
-        $date = $request->input('tanggal_konseling');
-        $time = $request->input('jam_konseling');
+        $date = $request->input('tanggal_konseling_edit');
+        $time = $request->input('jam_konseling_edit');
         $merge = new DateTime($date . ' ' . $time);
-        if (Appointment::where('date_time', $merge)->exists()) {
-            return back()->with('warning', 'Jadwal Konseling Telah Terisi, Mohon Mengganti Hari Atau Tanggal Jam Konseling');
+        $formatDateTime = $merge->format('Y-m-d H:i:s');
+        if (Appointment::where('date_time', $formatDateTime)->exists() && $formatDateTime != $appointment->date_time) {
+            return back()->with('filled', 'Jadwal Konseling Telah Terisi, Mohon Mengganti Hari atau Jam Konseling')->withInput()->with('modal', 'editAppointment');
         }
         $appointment->update([
-            'topik' => $request->input('topik'),
-            'jenis_konseling' => $request->input('jenis_konseling'),
-            'tempat_konseling' => $request->input('tempat_konseling'),
+            'topik' => $request->input('topik_konseling_edit'),
+            'jenis_konseling' => $request->input('jenis_konseling_edit'),
+            'jumlah_peserta' => $request->filled('jumlah_peserta_konseling_edit') ? $request->input('jumlah_peserta_konseling_edit') : null,
+            'tempat_konseling' => $request->input('tempat_konseling_edit'),
             'date_time' => $merge->format('Y-m-d H:i:s'),
-            'google_meet' => $request->filled('google_meet') ? $request->input('google_meet') : null,
+            'google_meet' => $request->filled('google_meet_edit') ? $request->input('google_meet_edit') : null,
         ]);
         $userEmail = $appointment->user->alamat_email;
         Mail::to($userEmail)->send(new AppointmentNotification($appointment));
-        return back()->with('success', 'Detail Appointment Berhasil Diubah');
+        return back()->with('success', 'Detail Appointment Berhasil Diubah dan Berhasil Mengirim Email Notifikasi Kepada Peserta Konseling');
     }
 
     public function appointmentDelete($id)
@@ -1026,14 +1094,16 @@ class AdminController extends Controller
     public function topicNew(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'topik' => 'required',
+            'topik_konseling' => 'required|string|min:8|max:64',
+            'status_topik_konseling' => 'required|in:enable,disable',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Menambahkan Topik Konseling, Mohon Mengisi Ulang Form Dengan Benar');
+            return back()->withErrors($validate)->withInput()->with('modal', 'addTopic');
         }
 
         $topic = new Topic;
-        $topic->topik = $request->input('topik');
+        $topic->topik = $request->input('topik_konseling');
+        $topic->status = $request->input('status_topik_konseling');
         $topic->save();
 
         return back()->with('success', 'Berhasil Menambahkan Topik Konseling Karir');
@@ -1047,15 +1117,21 @@ class AdminController extends Controller
         }
 
         $validate = Validator::make($request->all(), [
-            'edit-topik' => 'required',
+            'edit_topik' => 'required|string|min:8|max:64',
+            'edit_status_topik' => 'required|in:enable,disable'
         ]);
 
-        if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Topik, Mohon Mengisi Form Dengan Benar');
+        if ($request->input('edit_status_topik') == 'disable') {
+            Appointment::where('topik', $topic->topik)->where('status', 'on process')->update(['status' => 'declined']);
         }
 
-        Appointment::where('topik', $topic->topik)->update(['topik' => $request->input('edit-topik')]);
-        $topic->topik = $request->input('edit-topik');
+        if ($validate->fails()) {
+            return back()->withErrors($validate)->with('modal', 'editTopic');
+        }
+
+        Appointment::where('topik', $topic->topik)->update(['topik' => $request->input('edit_topik')]);
+        $topic->topik = $request->input('edit_topik');
+        $topic->status = $request->input('edit_status_topik');
         $topic->update();
 
         return back()->with('success', 'Berhasil Mengubah Topik Konseling');
@@ -1081,12 +1157,16 @@ class AdminController extends Controller
         }
 
         $rule = [
-            'topik' => 'required',
-            'jenis_konseling' => 'required',
-            'tempat_konseling' => 'required',
-            'tanggal_konseling' => 'required',
+            'topik_konseling' => 'required|string',
+            'jenis_konseling' => 'required|string',
+            'tempat_konseling' => 'required|string',
+            'tanggal_konseling' => 'required|date',
             'jam_konseling' => 'required',
         ];
+
+        if ($request->input('jenis_konseling') === 'kelompok') {
+            $rule['jumlah_peserta_konseling'] = 'required|numeric|min:1|max:5';
+        }
 
         if ($request->input('tempat_konseling') === "Online") {
             $rule['google_meet'] = 'required';
@@ -1094,21 +1174,21 @@ class AdminController extends Controller
 
         $validate = Validator::make($request->all(), $rule);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Untuk Membuat Appointment Dengan Benar');
+            dd($validate);
+            return back()->withErrors($validate)->withInput()->with('modal', 'newAppointment');
         }
         $date = $request->input('tanggal_konseling');
         $time = $request->input('jam_konseling');
         $merge = new DateTime($date . ' ' . $time);
         $appointment = new Appointment;
-        $appointment->topik = $request->input('topik');
+        $appointment->topik = $request->input('topik_konseling');
         $appointment->jenis_konseling = $request->input('jenis_konseling');
+        $appointment->jumlah_peserta = $request->filled('jumlah_peserta_konseling') ? $request->input('jumlah_peserta_konseling') : null;
         $appointment->tempat_konseling = $request->input('tempat_konseling');
         $appointment->date_time = $merge->format('Y-m-d H:i:s');
         $appointment->user_id = $user->id;
         $appointment->status = 'accepted';
-        if ($request->filled('google_meet')) {
-            $appointment->google_meet = $request->input('google_meet');
-        }
+        $appointment->google_meet = $request->filled('google_meet') ? $request->input('google_meet') : null;
         $appointment->save();
 
         Mail::to($user->alamat_email)->send(new AppointmentNotification($appointment));
@@ -1153,15 +1233,15 @@ class AdminController extends Controller
         ];
 
         if ($request->input('category') === 'Carousel') {
-            $rules['img_content'] = 'required|file|mimes:png,jpeg|max:2048';
+            $rules['img_content'] = 'required|file|mimes:png,jpeg,jpg|max:2048';
         } elseif ($request->input('category') === 'Berita') {
-            $rules['img_content'] = 'nullable|file|mimes:png,jpeg|max:2048';
+            $rules['img_content'] = 'nullable|file|mimes:png,jpeg,jpg|max:2048';
             $rules['body_content'] = 'required|string|min:25';
         }
         $validate = Validator::make($request->all(), $rules);
 
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Kembali Form');
+            return back()->withErrors($validate)->withInput()->with('modal', 'newContent');
         }
 
         $content = new Content;
@@ -1212,14 +1292,14 @@ class AdminController extends Controller
         $validate = Validator::make($request->all(), $rule);
 
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form');
+            return back()->withErrors($validate)->with('modal', 'editContent');
         }
 
         $newImage = $content->id . '.png';
         $content->title = $request->input('editTitle');
         $content->body = $request->input('editBody');
         $content->status = $request->input('editStatus') ? 1 : 0;
-        if ($request->hasFile('editImage')) {
+        if ($request->hasFile('edit_image')) {
             Storage::delete('/public/content/' . $image);
             $request->file('edit_image')->storeAs('content', $newImage);
         }
@@ -1242,83 +1322,6 @@ class AdminController extends Controller
         } else {
             return back()->with('warning', 'Konten Tidak Ditemukan');
         }
-    }
-
-    public function carouselNew(Request $request)
-    {
-        $validate = Validator::make($request->all(), [
-            'carouselTitle' => 'required',
-            'carouselCaption' => 'nullable',
-            'carouselImage' => 'required|mimes:png',
-        ]);
-
-        if ($validate->fails()) {
-            return back()->with('warning', 'Mohon mengisi ulang form dengan benar');
-        }
-
-        $carousel = new Content;
-        $carousel->title = $request->input('carouselTitle');
-        $carousel->body = $request->input('carouselCaption');
-        $carousel->status = true;
-        $carousel->category = 'Carousel';
-        $carousel->save();
-
-        if ($request->hasFile('carouselImage')) {
-            $carouselImage = $request->file('carouselImage');
-            $carouselName = $carousel->id . '.png';
-            $carouselImage->storeAs('content', $carouselName);
-            $carousel->image = $carouselName;
-            $carousel->save();
-        }
-        return redirect('/contents/carousel')->with('success', 'Berhasil Menambah Carousel');
-    }
-
-    public function carouselUpdate(Request $request, $id)
-    {
-        $carousel = Content::findOrfail($id);
-
-        $validate = Validator::make($request->all(), [
-            'carouselTitle' => 'required',
-            'carouselCaption' => 'nullable',
-            'carouselStatus' => 'nullable',
-            'carouselImage' => 'required|mimes:png',
-        ]);
-
-        if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form');
-        }
-
-        $activeCarousel = Content::where('status', '=', 'Active')->exists();
-        if ($activeCarousel) {
-            return back()->with('warning', 'Carousel Diperlukan Pada Homepage');
-        }
-
-        $newCarousel = $carousel->image;
-        $carousel->title = $request->input('carouselTitle');
-        $carousel->body = $request->input('carouselCaption');
-        $carousel->Status = $request->input('carouselStatus');
-
-        if ($request->hasFile('carouselImage')) {
-            Storage::delete('/public/content/' . $carousel->image);
-            $request->file('carouselImage')->storeAs('content', $newCarousel);
-        }
-
-        return back()->with('success', 'Berhasil Mengubah Carousel');
-    }
-
-    public function carouselDelete($id)
-    {
-        $carousel = Content::findOrfail($id);
-        $activeCarousel = Content::where('status', '=', 'Active')->exists();
-        if ($activeCarousel) {
-            return back()->with('warning', 'Carousel Diperlukan Pada Homepage');
-        }
-        if ($carousel) {
-            Storage::delete('/public/content/' . $carousel->image);
-            $carousel->delete();
-            return redirect('/contents/carousel')->with('success', 'Berhasil Menghapus Carousel');
-        }
-        return back()->with('warning', 'Carousel Tidak Ditemukan');
     }
 
     public function resetPassword(Request $request)

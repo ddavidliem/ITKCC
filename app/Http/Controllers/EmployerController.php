@@ -37,17 +37,17 @@ class EmployerController extends Controller
         $id = Auth('employer')->user()->id;
         $employer = Employer::findOrfail($id);
         $rules = [
-            'nama_lengkap' => 'required|string|min:4|max:100',
-            'jabatan' => 'required|string|min:4|max:100',
-            'nomor_telepon' => 'required|numeric|digits:14',
-            'alamat_email' => 'required|email',
+            'nama_lengkap' => 'required|string|min:4|max:128',
+            'jabatan' => 'required|string|min:4|max:128',
+            'nomor_telepon' => 'required|digits_between:10,14',
+            'alamat_email' => 'required|email|min:4|max:128',
         ];
         if ($request->input('alamat_email') !== $employer->alamat_email) {
-            $rules['alamat_email'] = 'required|email|unique:employers,alamat_email';
+            $rules['alamat_email'] = 'required|email|unique:employers,alamat_email|regex:/@gmail\.com$/i';
         }
         $validate = Validator::make($request->all(), $rules);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Untuk Mengubah Data Employer');
+            return back()->withErrors($validate)->withInput()->with('modal', 'editEmployer');
         }
         $employer->nama_lengkap = $request->input('nama_lengkap');
         $employer->jabatan = $request->input('jabatan');
@@ -58,32 +58,22 @@ class EmployerController extends Controller
             $employer->email_verification = null;
             $employer->alamat_email = $newEmail;
 
-            $tokenRecord = DB::table('tokens')
-                ->where('user_id', $employer->id)
-                ->where('category', 'user')
-                ->where('type', 'email_verification')->first();
+            DB::table('tokens')->where('user_id', $employer->id)
+                ->where('category', 'employer')
+                ->where('type', 'email_verification')
+                ->delete();
 
-            if ($tokenRecord) {
-                $token = $tokenRecord->token;
-            } else {
-                $tokenExists  = true;
-                $token = null;
-                while ($tokenExists) {
-                    $token = Str::random(64);
-                    $existingToken = DB::table('tokens')->where('token', $token)->first();
-                    if (!$existingToken) {
-                        $tokenExists = false;
-                    }
-                }
+            $token = Str::random(64);
 
-                DB::table('tokens')->insert([
-                    'user_id' => $employer->id,
-                    'category' => 'employer',
-                    'token' => $token,
-                    'type' => 'email_verification',
-                    'expires_at' => now()->addMinutes(15),
-                ]);
-            }
+            DB::table('tokens')->insert([
+                'user_id' => $employer->id,
+                'alamat_email' => $newEmail,
+                'category' => 'employer',
+                'token' => $token,
+                'type' => 'email_verification',
+                'expires_at' => now()->addMinutes(15),
+            ]);
+
             Mail::to($newEmail)->send(new EmailVerification($employer, $token));
         }
         $employer->update();
@@ -95,18 +85,18 @@ class EmployerController extends Controller
         $id = Auth('employer')->user()->id;
         $employer = Employer::findOrfail($id);
         $validate = Validator::make($request->all(), [
-            'nama_perusahaan' => 'required|string|min:4|max:100',
-            'bidang_perusahaan' => 'required|string',
-            'website' => 'required|url',
-            'tahun_berdiri' => 'required',
-            'kantor_pusat' => 'required|string|min:4|max:255',
-            'kota' => 'required|string|min:4|max:100',
-            'alamat' => 'required|string|min:4|max:100',
-            'provinsi' => 'required|string|min:4|max:100',
-            'kode_pos' => 'required|numeric',
+            'nama_perusahaan' => 'required|string|min:4|max:128',
+            'bidang_perusahaan' => 'required|string|min:4|max:128',
+            'website' => 'required|url|min:4|max:128',
+            'tahun_berdiri' => 'required|digits:4|numeric|min:1900|max:' . Date('Y'),
+            'kantor_pusat' => 'required|string|min:4|max:256',
+            'kota' => 'required|string|min:4|max:64',
+            'alamat' => 'required|string|min:4|max:256',
+            'provinsi' => 'required|string|min:4|max:64',
+            'kode_pos' => 'required|digits_between:4,6',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Profile Perusahaan');
+            return back()->withErrors($validate)->with('modal', 'editCompany');
         }
         $employer->nama_perusahaan = $request->input('nama_perusahaan');
         $employer->bidang_perusahaan = $request->input('bidang_perusahaan');
@@ -129,7 +119,7 @@ class EmployerController extends Controller
             'logo_perusahaan' => 'required|file|mimes:png|max:2048',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar dan Gambar Yang Sesuai');
+            return back()->withErrors($validate)->with('modal', 'editLogo');
         }
         if ($employer->logo_perusahaan) {
             Storage::delete('/public/logo' . $employer->logo_perusahaan);
@@ -145,7 +135,9 @@ class EmployerController extends Controller
     {
         $id = Auth('employer')->user()->id;
         $employer = Employer::findOrfail($id);
-        $employer->load('loker.applicants');
+        $employer->load(['loker' => function ($query) {
+            $query->where('status', '!=', 'Suspended')->orderBy('created_at', 'DESC');
+        }, 'loker.applicants']);
         return view('employer.index', compact('employer'));
     }
 
@@ -157,16 +149,16 @@ class EmployerController extends Controller
             return back()->with('warning', 'Tolong Lengkapi Logo Perusahaan');
         }
         $validate = Validator::make($request->all(), [
-            'nama_pekerjaan' => 'required|string|min:10|max:255',
-            'jenis_pekerjaan' => 'required|string',
-            'tipe_pekerjaan' => 'required|string',
-            'deskripsi_pekerjaan' => 'required|string:min:50|max:1000',
-            'lokasi_pekerjaan' => 'required|string|min:10|max:100',
-            'poster' => 'nullable|file|mimes:png,jpeg|max:1024',
+            'nama_pekerjaan' => 'required|string|min:8|max:128',
+            'jenis_pekerjaan' => 'required|string|min:2|max:64',
+            'tipe_pekerjaan' => 'required|string|min:2|max:64',
+            'deskripsi_pekerjaan' => 'required|string:min:64|max:2048',
+            'lokasi_pekerjaan' => 'required|string|min:4|max:128',
+            'poster' => 'nullable|file|mimes:png,jpeg|max:2048',
             'deadline' => 'required|date|after_or_equal:today',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Menambah Loker Dengan Benar');
+            return back()->withErrors($validate)->withInput()->with('modal', 'newLoker');
         }
 
         $loker = new Loker;
@@ -196,6 +188,9 @@ class EmployerController extends Controller
         if (!$loker) {
             return back()->with('warning', 'Loker Tidak Ditemukan');
         }
+        if ($loker->status == 'Suspended') {
+            return back()->with('warning', 'Loker Tidak Ditemukan');
+        }
         $applications = $loker->applicants()->orderBy('created_at', 'DESC')->with('user')->get();
 
         $status = [
@@ -219,24 +214,28 @@ class EmployerController extends Controller
         if (!$loker) {
             return back()->with('warning', 'Loker Tidak Ditemukan');
         }
+        if ($loker->status == 'suspended') {
+            return back()->with('warning', 'Tidak Dapat Mengubah Loker');
+        }
 
         $validate = Validator::make($request->all(), [
-            'nama_pekerjaan' => 'required|string|min:10|max:255',
+            'nama_pekerjaan' => 'required|string|min:8|max:128',
             'jenis_pekerjaan' => 'required|string',
             'tipe_pekerjaan' => 'required|string',
-            'deskripsi_pekerjaan' => 'required|string:min:50|max:1000',
-            'lokasi_pekerjaan' => 'required|string|min:10|max:100',
-            'poster' => 'nullable|file|mimes:png,jpeg|max:1024',
-            'deadline' => 'required|date|after_or_equal=today',
+            'deskripsi_pekerjaan' => 'required|string:min:50|max:1024',
+            'lokasi_pekerjaan' => 'required|string|min:10|max:512',
+            'poster' => 'nullable|file|mimes:png,jpeg|max:2048',
+            'deadline' => 'required|date|after_or_equal:today',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Data Loker');
+            return back()->withErrors($validate)->withInput()->with('modal', 'editLoker');
         }
         $loker->nama_pekerjaan = $request->input('nama_pekerjaan');
         $loker->jenis_pekerjaan = $request->input('jenis_pekerjaan');
         $loker->tipe_pekerjaan = $request->input('tipe_pekerjaan');
         $loker->deskripsi_pekerjaan = $request->input('deskripsi_pekerjaan');
         $loker->lokasi_pekerjaan = $request->input('lokasi_pekerjaan');
+        $loker->deadline = $request->input('deadline');
         if ($request->filled('status_pekerjaan')) {
             $loker->status = 'Open';
         } elseif (!$request->filled('status_pekerjaan')) {
@@ -264,7 +263,7 @@ class EmployerController extends Controller
             Storage::delete('/public/poster/' . $loker->poster);
         }
         $loker->delete();
-        return redirect('/Employer/Dashboard')->with('success', 'Berhasil Menghapus Loker');
+        return redirect()->route('employer.index')->with('success', 'Berhasil Menghapus Data Lowongan Kerjad dan Menghapus Seluruh Lamaran Kerja');
     }
 
     public function updateApplication(Request $request, $lokerId, $applicantId)
@@ -280,17 +279,18 @@ class EmployerController extends Controller
         }
         $validation = Validator::make($request->all(), [
             'application_status' => 'required',
-            'application_feedback' => 'nullable',
+            'application_feedback' => 'nullable|string|max:1024',
         ]);
         if ($validation->fails()) {
-            return back()->with('warning', 'Gagal Mengubah Status Lamaran');
+            return back()->withErrors($validation)->with('modal', 'statusApplication');
         }
         $application->status = $request->input('application_status');
         $application->feedback = $request->input('application_feedback');
         $application->save();
 
         $template = ($application->status === 'accepted') ? 'employer.mail.accepted' : 'employer.mail.declined';
-        Mail::to($application->user->alamat_email)->send(new ApplicationNotification($application, $template));
+        $feedback = $application->feedback;
+        Mail::to($application->user->alamat_email)->send(new ApplicationNotification($application, $template, $feedback));
         return back()->with('success', 'Berhasil Mengubah Status Lamaran ' . $application->nama_lengkap);
     }
 }

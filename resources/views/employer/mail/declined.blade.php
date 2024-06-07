@@ -10,6 +10,8 @@
             <li>Nama Perusahaan: {{ $application->loker->employer->nama_perusahaan }}</li>
             <li>Tanggal Lamaran: {{ $application->created_at->format('d-m-Y') }}</li>
         </ul>
+        <p>{{ $feedback }}</p>
+        <br>
         <p>
             Meskipun tidak berhasil pada tahap ini, kami mengucapkan terimakasih atas minat dan partisipasi anda,
             kami menghargai waktu dan usaha anda tempatkan untuk melamar di perusahaan kami.

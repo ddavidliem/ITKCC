@@ -27,6 +27,11 @@ class Admin extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+    public static function isAdmin($username)
+    {
+        return self::where('username', $username)->exists();
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();

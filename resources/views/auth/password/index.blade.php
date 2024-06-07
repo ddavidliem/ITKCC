@@ -9,15 +9,30 @@
                     @csrf
                     <div class="my-2">
                         <label for="" class="form-label fw-semibold">Kategori</label>
-                        <select name="kategori" class="form-select" id="" required>
+                        <select name="kategori" class="form-select @error('kategori') is-invalid @enderror" id=""
+                            required>
                             <option value="" disabled selected>Pilih Kategori</option>
                             <option value="user">User (Pencari Kerja/Mahasiswa)</option>
                             <option value="employer">Employer (Perusahaan)</option>
                         </select>
+                        @error('kategori')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-2">
                         <label for="" class="fw-semibold form-label">Email</label>
-                        <input type="email" class="form-control" name="alamat_email" required>
+                        <input type="email" class="form-control @error('alamat_email') is-invalid @enderror"
+                            name="alamat_email" required>
+                        <div class="form-text">
+                            Masukkan Alamat Email yang terdaftar dan terverifikasi.
+                        </div>
+                        @error('alamat_email')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <div class="captcha">
@@ -28,8 +43,16 @@
                         </div>
                     </div>
                     <div class="my-3">
-                        <input id="captcha" type="text" class="form-control" placeholder="Enter Captcha" name="captcha"
-                            required>
+                        <input id="captcha" type="text" class="form-control @error('captcha') is-invalid @enderror"
+                            placeholder="Enter Captcha" name="captcha" required>
+                        <div class="form-text">
+                            Masukkan Captcha
+                        </div>
+                        @error('captcha')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button class="btn btn-outline-dark">Submit</button>

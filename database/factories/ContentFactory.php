@@ -21,8 +21,8 @@ class ContentFactory extends Factory
             'category' => "Berita",
             'status' => $this->faker->boolean(),
             'image' => 'default-news.jpg',
-            'title' => $this->faker->sentence(),
-            'body' => $this->faker->paragraph(150),
+            'title' => substr($this->faker->sentence(), 0, 64),
+            'body' => $this->faker->paragraph(4),
             'created_at' => $this->faker->dateTimeBetween('-3 months', 'now'),
         ];
     }

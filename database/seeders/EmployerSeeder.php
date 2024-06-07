@@ -37,6 +37,7 @@ class EmployerSeeder extends Seeder
             'alamat_email' => 'bdavidliem@gmail.com',
             'logo_perusahaan' => 'logo-copy.png',
             'email_verification' => now(),
+            'status' => 'active',
             'created_at' => now(),
         ]);
     }

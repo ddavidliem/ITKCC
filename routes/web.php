@@ -44,7 +44,7 @@ Route::controller(AuthController::class)->middleware('guest')->group(function ()
     Route::get('/forgot-password', 'forgotPasswordIndex')->name('auth.reset.password.form');
     Route::post('/reset-password-link', 'resetPasswordMail')->name('auth.reset.password.link');
     Route::get('/reset-password/form/{token}', 'resetPasswordForm')->name('auth.reset.password.token')->middleware('verifytoken');
-    Route::post('/reset-password', 'resetPassword')->name('auth.reset.password');
+    Route::post('/update-new-password/submit', 'resetPassword')->name('auth.reset.password.submit');
 
     Route::get('/register-employer-form', 'EmployerRegForm')->name('auth.register.employer');
     Route::post('/employer-submit-approval', 'EmployerApproval')->name('auth.register.employer.approval');
@@ -158,7 +158,7 @@ Route::controller(AdminController::class)->middleware('admin')->prefix('admin')-
         Route::prefix('topik')->group(function () {
             Route::put('/{id}/edit', 'topicUpdate')->name('admin.appointment.topik.update');
             Route::delete('/{id}/delete', 'topicDelete')->name('admin.appointment.topik.delete');
-            Route::post('/new', 'topicNew')->name('admin.appointment.topik.new');
+            Route::post('/new/topic', 'topicNew')->name('admin.appointment.topik.new');
         });
     });
 

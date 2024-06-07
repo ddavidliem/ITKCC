@@ -28,13 +28,13 @@ class EmployerFactory extends Factory
 
         return [
             "id" => $uuid,
-            "username" => $this->faker->userName,
+            "username" => substr($this->faker->userName, 0, 16),
             "password" => Hash::make('qwerty123'),
             "nama_perusahaan" => $this->faker->company(),
             "alamat" => $this->faker->address(),
             "provinsi" => $this->faker->state(),
             "kota" => $this->faker->city(),
-            "kode_pos" => $this->faker->postcode(),
+            "kode_pos" => substr($this->faker->postcode(), 0, 6),
             "website" => $this->faker->url(),
             "logo_perusahaan" => "default-logo.png",
             "bidang_perusahaan" => $this->faker->word(),
@@ -43,10 +43,11 @@ class EmployerFactory extends Factory
             "deskripsi_perusahaan" => $this->faker->paragraph(),
             "nama_lengkap" => $this->faker->name(),
             "jabatan" => $this->faker->jobTitle(),
-            "nomor_telepon" => $this->faker->phoneNumber(),
+            "nomor_telepon" => substr($this->faker->phoneNumber(), 0, 14),
             "alamat_email" => $this->faker->email(),
             "email_verification" =>  $this->faker->randomElement([now(), null]),
             "google_id" => $this->faker->uuid(),
+            "status" => 'active',
             "created_at" => $randomDate,
         ];
     }

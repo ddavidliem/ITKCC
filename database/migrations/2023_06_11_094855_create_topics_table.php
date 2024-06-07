@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('topics', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('topik');
+            $table->string('topik')->length(64)->require();
+            $table->string('status')->length(16)->require();
             $table->timestamps();
         });
     }

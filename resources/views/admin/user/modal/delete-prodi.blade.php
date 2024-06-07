@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-labelledby="close"> </button>
             </div>
             <div class="modal-body p-4">
-                <form method="POST" id="editProdiForm" class="form-validate" novalidate>
+                <form method="POST" id="deleteProdiForm" class="form-validate" novalidate>
                     @csrf
                     @method('Delete')
                     <div class="my-2">

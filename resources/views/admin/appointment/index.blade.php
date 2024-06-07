@@ -60,6 +60,7 @@
                                 <tr class="position-sticky top-0">
                                     <th class="fw-semibold">Daftar Topik Appointment Konseling Karir</th>
                                     <th class="fw-semibold text-center">Jumlah</th>
+                                    <th class="fw-semibold text-center">Status</th>
                                     <th class="fw-semibold text-center">Menu</th>
                                 </tr>
                             </thead>
@@ -68,11 +69,14 @@
                                     <tr>
                                         <td>{{ $item->topik }}</td>
                                         <td class="text-center">{{ $item->appointments_count }}</td>
+                                        <td class="text-center">{{ $item->status == 'enable' ? 'Aktif' : 'Tidak Aktif' }}
+                                        </td>
                                         <td class="d-flex justify-content-center">
                                             <button class="btn btn-outline-dark edit-btn"
                                                 data-url="{{ Route('admin.appointment.topik.update', ['id' => $item->id]) }}"
                                                 data-bs-target="#editTopic" data-bs-toggle="modal"
-                                                data-content="{{ $item->topik }}">Edit</button>
+                                                data-content="{{ $item->topik }}"
+                                                data-content-status="{{ $item->status }}">Edit</button>
                                             <button class="mx-2 btn btn-outline-danger delete-btn"
                                                 data-url="{{ Route('admin.appointment.topik.delete', ['id' => $item->id]) }}"
                                                 data-bs-target="#deleteTopic" data-bs-toggle="modal"
@@ -245,11 +249,13 @@
         document.addEventListener("DOMContentLoaded", function() {
             const editBtn = document.querySelectorAll('.edit-btn');
             const editForm = document.getElementById('editTopicForm');
-            const editTarget = document.getElementById('edit-target');
+            const editTarget = document.getElementById('edit-topik');
+            const editStatus = document.getElementById('edit-status-topik')
             Array.from(editBtn).forEach(editBtn => {
                 editBtn.addEventListener('click', function() {
                     editForm.setAttribute('action', editBtn.getAttribute('data-url'));
                     editTarget.value = editBtn.getAttribute('data-content');
+                    editStatus.value = editBtn.getAttribute('data-content-status');
                 });
             });
 
@@ -310,7 +316,7 @@
                 start: event.date_time,
             }));
             const calendar = new Calendar(document.getElementById('calendar'), {
-                plugins: [timegrid, list, bootstrap],
+                plugins: [timegrid, list, fullCalendarStyle],
                 initialView: 'timeGridWeek',
                 headerToolbar: {
                     left: 'prev,next,today',
@@ -365,6 +371,7 @@
                     }
                 });
             }
+
         });
     </script>
 @endpush

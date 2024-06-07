@@ -10,11 +10,33 @@
                     @csrf
                     <div class="my-2">
                         <label for="" class="fw-semibold form-label">Program Studi</label>
-                        <input type="text" class="form-control" name="program_studi" required>
+                        <input type="text" class="form-control @error('program_studi_new') is-invalid @enderror"
+                            name="program_studi_new" value="{{ old('program_studi') }}" required>
+                        @error('program_studi_new')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-2">
                         <label for="" class="fw-semibold form-label">Jurusan</label>
-                        <input type="text" class="form-control" name="jurusan" required>
+                        <input type="text" class="form-control @error('jurusan_new') is-invalid @enderror"
+                            name="jurusan_new" value="{{ old('jurusan_new') }}"required>
+                        @error('jurusan_new')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="my-2">
+                        <label for="" class="fw-semibold form-label">Fakultas</label>
+                        <input type="text" class="form-control @error('fakultas_new') is-invalid @enderror"
+                            name="fakultas_new">
+                        @error('fakultas_new')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button type="submit" class="btn btn-outline-dark">Tambah</button>

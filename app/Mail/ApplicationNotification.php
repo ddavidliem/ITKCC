@@ -15,16 +15,18 @@ class ApplicationNotification extends Mailable
 
     public $application;
     public $template;
+    public $feedback;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($application, $template)
+    public function __construct($application, $template, $feedback)
     {
         $this->application = $application;
         $this->template = $template;
+        $this->feedback = $feedback;
     }
 
     /**
@@ -35,7 +37,7 @@ class ApplicationNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Notifikasi Lamaran Lowongan Kerja',
+            subject: 'Notifikasi: Lamaran Lowongan Kerja',
         );
     }
 
@@ -50,6 +52,7 @@ class ApplicationNotification extends Mailable
             view: $this->template,
             with: [
                 'application' => $this->application,
+                'feedback' => $this->feedback,
             ],
         );
     }

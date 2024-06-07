@@ -14,5 +14,6 @@ class Prodi extends Model
     protected $fillable = [
         'program_studi',
         'jurusan',
+        'fakultas',
     ];
 }

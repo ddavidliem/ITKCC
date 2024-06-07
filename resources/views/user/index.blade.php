@@ -211,10 +211,11 @@
                             <tr>
                                 <td class="p-4 d-flex justify-content-between">
                                     <div class="col-10">
-                                        <h5 class="fw-semibold">{{ $item->title }}</h5>
+                                        <h4 class="fw-semibold text-capitalize">{{ $item->title }}</h4>
                                         <ul class="list-unstyled">
-                                            <li><span class="fw-semibold text-capitalize">{{ $item->organisasi }}</span> |
-                                                {{ $item->jenis_pekerjaan }}</li>
+                                            <li>
+                                                <h5 class="text-capitalize fw-semibold">{{ $item->organisasi }}</h5>
+                                            </li>
                                             <li class="text-capitalize fw-semibold">{{ $item->lokasi_pekerjaan }}</li>
                                             <li class="text-capitalize fw-semibold">{{ $item->tanggal_mulai }}
                                                 @if ($item->tanggal_selesai)
@@ -240,7 +241,7 @@
                                             data-id="{{ Route('user.pengalaman.detail', ['id' => $item->id]) }}"
                                             data-url="{{ Route('user.pengalaman.update', ['id' => $item->id]) }}">Edit</button>
                                         <button class="btn btn-outline-danger mx-2" data-bs-toggle="modal"
-                                            data-bs-target="#deletePengalaman"
+                                            data-bs-target="#deletePengalaman" id="deletePengalamanBtn"
                                             data-url="{{ Route('user.pengalaman.delete', ['id' => $item->id]) }}">Delete</button>
                                     </div>
                                 </td>
@@ -291,8 +292,9 @@
                                     </div>
                                     <div class="col-2">
                                         @if ($item->status === 'reschedule')
-                                            <button class="btn btn-outline-dark" id="updateAppointmentBtn"
+                                            <button class="btn btn-outline-dark" id="editAppointmentBtn"
                                                 data-bs-toggle="modal" data-bs-target="#updateAppointment"
+                                                data-id="{{ Route('user.appointment.detail', ['id' => $item->id]) }}"
                                                 data-url="{{ Route('user.appointment.update', ['id' => $item->id]) }}">Reschedule</button>
                                         @endif
                                     </div>
@@ -399,7 +401,6 @@
             newAppointment.forEach(function(modal) {
                 modal.addEventListener('change', function() {
                     const select = event.target;
-
                     if (select.classList.contains('tempat_konseling')) {
                         const input = modal.querySelector('#google_meet');
 
@@ -409,6 +410,19 @@
                         } else {
                             input.removeAttribute('required');
                             input.disabled = true;
+                        }
+                    }
+
+                    if (select.classList.contains('jenis_konseling')) {
+                        const jumlahPeserta = modal.querySelector('#jumlah_peserta_field');
+                        const selectJumlah = modal.querySelector('#select_jumlah');
+
+                        if (select.value === 'kelompok') {
+                            jumlahPeserta.classList.remove('d-none');
+                            selectJumlah.setAttribute('required', true);
+                        } else {
+                            jumlahPeserta.classList.add('d-none');
+                            selectJumlah.removeAttribute('required');
                         }
                     }
                 });
@@ -424,28 +438,33 @@
                         type: "Get",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
-                            $('#title').val(response.title);
-                            $('#organisasi').val(response.organisasi);
-                            $('#id_sertifikat').val(response.id_sertifikat);
-                            $('#url_sertifikat').val(response.url_sertifikat);
+                            $('#user_title_sertifikat_edit').val(response.title);
+                            $('#user_organisasi_sertifikat_edit').val(response
+                                .organisasi);
                             var tanggal_terbit = response.tanggal_terbit.split(' ');
-                            $('#bulan_terbit option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_terbit[0]);
-                            });
-                            $('#tahun_terbit option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_terbit[1]);
-                            });
+                            $('#user_bulan_terbit_sertifikat_edit option').each(
+                                function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_terbit[0]);
+                                });
+                            $('#user_tahun_terbit_sertifikat_edit option').each(
+                                function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_terbit[1]);
+                                });
                             var tanggal_berakhir = response.tanggal_berakhir.split(' ');
-                            $('#bulan_berakhir option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_berakhir[0]);
-                            });
-                            $('#tahun_berakhir option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    tanggal_berakhir[1]);
-                            });
+                            $('#user_bulan_berakhir_sertifikat_edit option').each(
+                                function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_berakhir[0]);
+                                });
+                            $('#user_tahun_berakhir_sertifikat_edit option').each(
+                                function() {
+                                    $(this).prop('selected', $(this).val() ===
+                                        tanggal_berakhir[1]);
+                                });
+                            $('#user_id_sertifikat_edit').val(response.id_sertifikat);
+                            $('#user_url_sertifikat_edit').val(response.url_sertifikat);
                         }
                     });
                 });
@@ -469,6 +488,7 @@
                         type: "GET",
                         url: this.getAttribute('data-id'),
                         success: function(response) {
+                            console.log(response);
                             $('#nama_sekolah').val(response.nama_sekolah);
                             $('#bidang_studi').val(response.bidang_studi);
                             $('#alamat_sekolah').val(response.alamat_sekolah);
@@ -503,10 +523,6 @@
                             $('#title_pengalaman').val(response.title);
                             $('#lokasi_pengalaman').val(response.lokasi_pekerjaan);
                             $('#deskripsi').val(response.deskripsi);
-                            $('#jenis_pekerjaan option').each(function() {
-                                $(this).prop('selected', $(this).val() ===
-                                    jenis_pekerjaan);
-                            });
                             $('#organisasi_pengalaman').val(response.organisasi);
                             var tanggal_mulai = response.tanggal_mulai.split(' ');
                             $('#bulan_mulai_pengalaman option').each(function() {
@@ -545,7 +561,30 @@
             Array.from(
                 updateAppointmentBtn).forEach(btn => {
                 btn.addEventListener('click', function() {
+                    $.ajax({
+                        type: "Get",
+                        url: this.getAttribute('data-id'),
+                        success: function(response) {
+                            console.log(response);
+                            $('#tempat_konseling_edit').val(response.tempat_konseling);
+                            if (response.tempat_konseling == 'Offline') {
+                                $('#google_meet_edit').prop('required', true);
+                                $('#google_meet_edit').prop('disabled', true);
+                                $('#google_meet_edit').val(response.google_meet);
+                            }
+
+                            $('#tanggal_konseling_edit').val(response.date_time.split(
+                                ' ')[0]);
+
+                            const dateTime = new Date(response.date_time);
+                            const formattedTime = ('0' + dateTime.getHours()).slice(-
+                                2) + ':' + ('0' + dateTime.getMinutes()).slice(-2);
+
+                            $('#jam_konseling_edit').val(formattedTime);
+                        }
+                    });
                     updateAppointmentForm.setAttribute('action', btn.getAttribute('data-url'));
+
                 });
             });
 

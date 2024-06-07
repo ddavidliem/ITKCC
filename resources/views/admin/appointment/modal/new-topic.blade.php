@@ -9,9 +9,26 @@
                 <form action="{{ Route('admin.appointment.topik.new') }}" method="POST" class="needs-validation"
                     novalidate>
                     @csrf
-                    <div class="my-3">
+                    <div class="my-2">
                         <label for="" class="form-label fw-semibold">Topik Konseling</label>
-                        <input type="text" class="form-control" name="topik" required>
+                        <input type="text" class="form-control @error('topik') is-invalid @enderror"
+                            name="topik_konseling" @error('topik') value="{{ old('topik') }}" @enderror required>
+                        @error('topik')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="my-2">
+                        <label for="" class="form-label fw-semibold">Status Topik Konseling</label>
+                        <select name="status_topik_konseling" id="" class="form-select" required>
+                            <option value="" disabled selected>Pilih Status Topik Konseling</option>
+                            <option value="enable">Aktif</option>
+                            <option value="disable">Tidak Aktif</option>
+                        </select>
+                        <div class="form-text">
+                            Pilih Status Topik Konseling
+                        </div>
                     </div>
                     <div class="my-4">
                         <div class="d-flex justify-content-end">
@@ -23,3 +40,16 @@
         </div>
     </div>
 </div>
+
+@if (session('modal') === 'addTopic')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

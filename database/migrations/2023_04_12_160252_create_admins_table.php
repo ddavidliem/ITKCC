@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('username')->require();
-            $table->string('password')->hash();
-            $table->string('alamat_email')->require();
+            $table->string('username')->length(16)->require();
+            $table->string('password')->length(64)->hash();
+            $table->string('alamat_email')->length(128)->require();
             $table->timestamps();
         });
     }

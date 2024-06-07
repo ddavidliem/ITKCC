@@ -48,17 +48,23 @@
                                 <th class="fw-semibold">Nama Perusahaan</th>
                                 <th class="fw-semibold">Kota</th>
                                 <th class="fw-semibold">Bidang Perusahaan</th>
-                                <th class="fw-semibold">Tahun Berdiri</th>
+                                <th class="fw-semibold">Nama Representatif</th>
+                                <th class="fw-semibold">Nomor Telepon</th>
+                                <th class="fw-semibold">Status</th>
                                 <th class="fw-semibold">Detail</th>
                             </tr>
                         </thead>
                         <tbody class="">
                             @foreach ($employer['all'] as $item)
-                                <tr>
+                                <tr class="{{ $item->status === 'suspended' ? 'table-danger' : '' }}">
                                     <td class="text-capitalize ">{{ $item->nama_perusahaan }}</td>
                                     <td class="text-capitalize ">{{ $item->kota }}</td>
                                     <td class="text-capitalize ">{{ $item->bidang_perusahaan }}</td>
-                                    <td class="text-capitalize ">{{ $item->tahun_berdiri }}</td>
+                                    <td class="text-capitalize ">{{ $item->nama_lengkap }}</td>
+                                    <td class="text-capitalize ">{{ $item->nomor_telepon }}</td>
+                                    <td
+                                        class="text-capitalize {{ $item->status === 'suspended' ? 'fw-semibold text-danger' : '' }}">
+                                        {{ $item->status }}</td>
                                     <td class=""><a href="{{ Route('admin.employer.detail', ['id' => $item->id]) }}"
                                             class="text-dark text-decoration-none fw-semibold">Detail</a></td>
                                 </tr>

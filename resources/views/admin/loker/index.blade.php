@@ -75,16 +75,25 @@
                                 <th class="fw-semibold">Nama Perusahaan</th>
                                 <th class="fw-semibold">Jenis Pekerjaan</th>
                                 <th class="fw-semibold">Tipe Pekerjaan</th>
+                                <th class="fw-semibold">Status</th>
                                 <th class="fw-semibold">Detail</th>
                             </tr>
                         </thead>
                         <tbody class="">
                             @foreach ($loker['all'] as $item)
-                                <tr>
+                                <tr
+                                    class="@if ($item->trashed()) table-warning @endif @if ($item->status == 'Suspended') table-danger @endif">
                                     <td class="text-capitalize ">{{ $item->nama_pekerjaan }}</td>
                                     <td class="text-capitalize ">{{ $item->employer->nama_perusahaan }}</td>
                                     <td class="text-capitalize ">{{ $item->jenis_pekerjaan }}</td>
                                     <td class="text-capitalize ">{{ $item->tipe_pekerjaan }}</td>
+                                    <td class="text-capitalize ">
+                                        @if ($item->trashed())
+                                            Deleted By Employer
+                                        @else
+                                            {{ $item->status }}
+                                        @endif
+                                    </td>
                                     <td class=""><a href="{{ Route('admin.loker.detail', ['id' => $item->id]) }}"
                                             class="text-dark text-decoration-none fw-semibold">Detail</a></td>
                                 </tr>

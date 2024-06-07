@@ -95,37 +95,31 @@ class AuthController extends Controller
     {
 
         $validate = Validator::make($request->all(), [
-            'username' => 'required|string|min:5|max:14|unique:users,username',
-            'password' => 'required|confirmed:password_confirmation|min:8|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]+$/',
+            'username' => 'required|string|min:5|max:64|unique:users,username',
+            'password' => 'required|confirmed|min:8|max:32',
             'password_confirmation' => 'required|same:password',
-            'nama_lengkap' => 'required|string|min:3|max:100',
-            'alamat_email' => 'required|unique:users,alamat_email|email',
-            'tempat_lahir' => 'required|string|min:4|max:100',
+            'nama_lengkap' => 'required|string|min:3|max:128',
+            'alamat_email' => 'required|unique:users,alamat_email|email|regex:/@gmail\.com$/i|min:8|max:128',
+            'tempat_lahir' => 'required|string|min:4|max:64',
             'tanggal_lahir' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
-            'jenis_kelamin' => 'required|string',
-            'alamat' => 'required|string|min:8|max:255',
-            'kota' => 'required|string|min:4|max:100',
-            'kode_pos' => 'required|numeric',
-            'nomor_telepon' => 'required|numeric|digits:14|unique:users,nomor_telepon',
-            'kewarganegaraan' => 'required|string',
-            'status_perkawinan' => 'required|string',
-            'agama' => 'required|string',
-            'pendidikan' => 'required|string',
-            'nim' => 'nullable|numeric',
+            'jenis_kelamin' => 'required|string|in:pria,wanita',
+            'alamat' => 'required|string|min:8|max:512',
+            'kota' => 'required|string|min:4|max:64',
+            'kode_pos' => 'required|digits_between:4,6',
+            'nomor_telepon' => 'required|numeric|digits_between:8,14|unique:users,nomor_telepon',
+            'kewarganegaraan' => 'required|string|max:8',
+            'status_perkawinan' => 'required|string|min:4|max:32',
+            'agama' => 'required|string|min:4|max:24',
+            'pendidikan' => 'required|string|max:24',
+            'nim' => 'nullable|digits_between:8,12',
             'ipk' => 'nullable|numeric|between:0,4',
-            'program_studi' => 'required|string',
-            'disabilitas' => 'nullable|string',
+            'program_studi' => 'required|string|min:4|max:32',
+            'disabilitas' => 'nullable|string|min:4|max:64',
             'captcha' => 'required|captcha',
         ]);
 
         if ($validate->fails()) {
-            if ($request->input('username') && User::where('username', $request->input('username'))->exists()) {
-                return back()->with('warning', 'Username telah digunakan, Gunakan Username Lain');
-            }
-            if ($request->input('alamat_email') && User::where('alamat_email', $request->input('alamat_email'))->exists()) {
-                return back()->with('warning', 'Alamat Email Telah Digunakan, Gunakan Email Lain, Atau Lakukan Verifikasi Email');
-            }
-            return back()->with('warning', 'Terjadi Kesalahan Pada Pengisian Formulir Pastikan Password dan Captcha Di Masukkan dengan Benar')->withInput();
+            return back()->withErrors($validate)->withInput();
         }
 
         $user = new User;
@@ -149,6 +143,7 @@ class AuthController extends Controller
         $user->program_studi = $request->input('program_studi');
         $user->disabilitas = $request->input('disabilitas');
         $user->email_verification = null;
+        $user->status = 'active';
         $user->save();
 
         $tokenExists = true;
@@ -165,11 +160,12 @@ class AuthController extends Controller
             'category' => 'user',
             'token' => $token,
             'type' => 'email_verification',
+            'alamat_email' => $request->input('alamat_email'),
             'expires_at' => now()->addMinutes(15),
         ]);
 
         Mail::to($user->alamat_email)->send(new EmailVerification($user, $token));
-        return redirect('/')->with('success', 'Akun Berhasil Dibuat. Mohon Lakukan Verifikasi Email');
+        return redirect('/')->with('success', 'Akun Berhasil Dibuat. Mohon Periksa Kotak Email Untuk Melakukan Verifikasi Email');
     }
 
     public function emailVerify($token)
@@ -192,13 +188,13 @@ class AuthController extends Controller
     public function resendVerificationMail(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'kategori' => 'required|in:user,employer',
-            'alamat_email' => 'required|email',
+            'kategori' => 'required|in:user,employer|max:16',
+            'alamat_email' => 'required|email|regex:/@gmail\.com$/i|min:8|max:128',
             'captcha' => 'required|captcha',
         ]);
 
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar');
+            return back()->withErrors($validate);
         }
 
         $model = $request->input('kategori') === 'user' ? User::class : Employer::class;
@@ -208,33 +204,26 @@ class AuthController extends Controller
             return back()->with('warning', 'Email Tidak Terdaftar Atau Sudah Terverifikasi');
         }
 
-        $tokenRecord = DB::table('tokens')->where('user_id', $user->id)
+        if ($user->status == 'suspended') {
+            return back()->with('warning', 'Tidak Dapat Melakukan Verifikasi Email');
+        }
+
+        DB::table('tokens')->where('user_id', $user->id)
             ->where('category', $request->input('kategori'))
             ->where('type', 'email_verification')
-            ->first();
+            ->delete();
 
-        if ($tokenRecord) {
-            $token = $tokenRecord->token;
-        } else {
-            $tokenExists = true;
-            $token = null;
-            while ($tokenExists) {
-                $token = Str::random(64);
-                $existingToken = DB::table('tokens')->where('token', $token)->first();
-                if (!$existingToken) {
-                    $tokenExists = false;
-                }
-            }
+        $token = Str::random(64);
+        $expiresAt = now()->addMinutes(15);
 
-            DB::table('tokens')->insert([
-                'user_id' => $user->id,
-                'alamat_email' => $user->alamat_email,
-                'category' => $request->input('kategori'),
-                'token' => $token,
-                'type' => 'email_verification',
-                'expires_at' => now()->addMinutes(15),
-            ]);
-        }
+        DB::table('tokens')->insert([
+            'user_id' => $user->id,
+            'alamat_email' => $user->alamat_email,
+            'category' => $request->input('kategori'),
+            'token' => $token,
+            'type' => 'email_verification',
+            'expires_at' => $expiresAt,
+        ]);
 
         Mail::to($user->alamat_email)->send(new EmailVerification($user, $token));
         return back()->with('success', 'Link Verifikasi Telah Dikirim');
@@ -260,6 +249,9 @@ class AuthController extends Controller
         if ($user->email_verification === null) {
             return back()->with('warning', 'Email Belum Terverifikasi');
         }
+        if ($user->status == 'suspended') {
+            return back()->with('warning', 'Tidak Dapat Melakukan Login');
+        }
         if (Auth::guard('user')->attempt([$logintype => $request->username, 'password' => $request->password])) {
             return redirect()->intended(route('user.index'));
         } else {
@@ -281,10 +273,13 @@ class AuthController extends Controller
         $logintype = filter_var($request->username, FILTER_VALIDATE_EMAIL) ? 'alamat_email' : 'username';
         $employer = Employer::where($logintype, $request->username)->first();
         if (!$employer) {
-            return back()->with('username dan password salah');
+            return back()->with('warning', 'Username Tidak Ditemukan, Username dan Password Tidak Sama');
         }
         if ($employer->email_verification === null) {
             return back()->with('warning', 'Email Belum Terverifikasi');
+        }
+        if ($employer->status == 'suspended') {
+            return back()->with('warning', 'Tidak Bisa Melakukan Login, Mohon Menghubungi Tim Pusat Karir ITK');
         }
         if (Auth::guard('employer')->attempt([$logintype => $request->username, 'password' => $request->password])) {
             return redirect()->intended(route('employer.index'));
@@ -300,39 +295,32 @@ class AuthController extends Controller
 
     public function EmployerApproval(Request $request)
     {
+
         $validate = Validator::make($request->all(), [
-            'username' => 'required|string|min:4|max:14|unique:employers,username',
-            'password' => 'required|min:8|',
-            'password_confirmation' => 'required|same:password',
-            'nama_perusahaan' => 'required|unique:employers,nama_perusahaan',
-            'alamat' => 'required|string|min:10|max:255',
-            'provinsi' => 'required|string|min:10|max:100',
-            'kota' => 'required|string|min:10|max:100',
-            'kode_pos' => 'required|numeric',
-            'website' => 'nullable|url',
-            'nama_lengkap' => 'required|string|min:4|max:100',
-            'jabatan' => 'required|string',
-            'nomor_telepon' => [
-                'required',
-                Rule::unique('approvals', 'nomor_telepon')->where(function ($query) {
-                    $query->where('status', 'approved');
-                }),
-            ],
-            'alamat_email' => [
-                'required',
-                Rule::unique('approvals', 'alamat_email')->where(function ($query) {
-                    $query->where('status', 'approved');
-                }),
-            ],
-            'formulir' => 'required|file|mimes:pdf|max:1024',
+            'username' => 'required|string|min:5|max:64|unique:employers,username',
+            'password' => 'required|min:8|max:32',
+            'password_confirmation' => 'required|same:password|min:8|max:64',
+            'nama_perusahaan' => 'required|unique:employers,nama_perusahaan|min:4|max:128',
+            'alamat' => 'required|string|min:8|max:512',
+            'provinsi' => 'required|string|min:4|max:64',
+            'kota' => 'required|string|min:4|max:64',
+            'kode_pos' => 'required|integer|digits_between:4,6',
+            'website' => 'nullable|url|min:4|max:128',
+            'bidang_perusahaan' => 'required|string|min:4|max:128',
+            'tahun_berdiri' => 'required|integer|digits:4|min:1900|max:' . date('Y'),
+            'kantor_pusat' => 'required|string|min:8|max:256',
+            'nama_lengkap' => 'required|string|min:4|max:128',
+            'jabatan' => 'required|string|min:4|max:128',
+            'nomor_telepon' => 'required|digits_between:12,32|unique:approvals,nomor_telepon,NULL,id,status,approved',
+            'alamat_email' => 'required|string|email|min:4|max:128|unique:approvals,alamat_email,NULL,id,status,approved|regex:/@gmail\.com$/i',
+            'formulir' => 'required|file|mimes:pdf|max:2048',
             'captcha' => 'required|captcha',
         ]);
 
-        if ($validate->fails()) {
-            dd($validate);
-            return back()->with('warning', 'Mohon Mengisi Ulang Form Dengan Benar')->withErrors($validate)->withInput();
-        }
 
+        if ($validate->fails()) {
+            return back()->withErrors($validate)->withInput();
+        }
 
         $approval = new Approval();
         $approval->username = $request->input('username');
@@ -343,6 +331,9 @@ class AuthController extends Controller
         $approval->kota = $request->input('kota');
         $approval->kode_pos = $request->input('kode_pos');
         $approval->website = $request->input('website');
+        $approval->bidang_perusahaan = $request->input('bidang_perusahaan');
+        $approval->tahun_berdiri = $request->input('tahun_berdiri');
+        $approval->kantor_pusat = $request->input('kantor_pusat');
         $approval->nama_lengkap = $request->input('nama_lengkap');
         $approval->jabatan = $request->input('jabatan');
         $approval->nomor_telepon = $request->input('nomor_telepon');
@@ -354,16 +345,13 @@ class AuthController extends Controller
         $approval->save();
         $request->file('formulir')->storeAs('formulir', $formulir_name);
 
-        $template = 'approval';
-        Mail::to($approval->alamat_email)->send(new ApprovalNotification($approval, $template));
-        return redirect('/')->with('success', 'Permohonan Telah Dibuat, Periksa Kotak Email Untuk Melihat Detail Permohonan');
+        $subject = 'Notifikasi: Pembuatan Akun Perusahaan';
+        $template = 'auth.mail.approval-new';
+        $feedback = "";
+        Mail::to($approval->alamat_email)->send(new ApprovalNotification($subject, $approval, $template, $feedback));
+        return redirect('/')->with('success', 'Permohonan Telah Dibuat, Periksa Kotak Email / Spam Untuk Melihat Detail Permohonan');
     }
 
-    public function templateDownload()
-    {
-        $template = public_path('/test/path');
-        return response()->download($template, 'Formulir-Pendaftaran');
-    }
 
     public function forgotPasswordIndex()
     {
@@ -374,16 +362,19 @@ class AuthController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'kategori' => 'required|in:user,employer',
-            'alamat_email' => 'required|email',
+            'alamat_email' => 'required|email|min:8|max:128|regex:/@gmail\.com$/i',
             'captcha' => 'required|captcha',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Masukkan Ulang Form');
+            return back()->withErrors($validate);
         }
         $model = $request->input('kategori') === 'user' ? User::class : Employer::class;
         $user = $model::where('alamat_email', $request->input('alamat_email'))->whereNotNull('email_verification')->first();
         if (!$user) {
             return back()->with('warning', 'Email Tidak Ditemukan Atau Belum Terverifikasi');
+        }
+        if ($user->status == 'suspended') {
+            return back()->with('warning', 'Akun ini Tidak Dapat Mengubah Password');
         }
         $token = Str::uuid()->toString();
         while (DB::table('tokens')->where('token', $token)->exists()) {
@@ -433,18 +424,19 @@ class AuthController extends Controller
             return back()->with('warning', 'Token Sudah Tidak Berlaku');
         }
         $validate = Validator::make($request->all(), [
-            'new_password' => 'required',
+            'new_password' => 'required|min:8',
             'confirm_password' => 'required|same:new_password',
         ]);
         if ($validate->fails()) {
-            return back()->with('warning', 'Mohon Memasukkan Ulang Password Dengan Benar');
+            return back()->withErrors($validate);
         }
-        $user = User::findOrfail($token->user_id);
+        $model = $token->category === 'user' ? User::class : Employer::class;
+        $user = $model::findOrfail($token->user_id);
         $user->password = Hash::make($request->input('new_password'));
         $user->save();
 
         DB::table('tokens')->where('token', $token->token)->delete();
-        return redirect('/')->with('success', 'Password Berhasi Direset. Silahkan melakukan login dengan password baru');
+        return redirect('/')->with('success', 'Password Berhasil Direset. Silahkan melakukan login dengan password baru');
     }
 
     public function adminLoginForm()

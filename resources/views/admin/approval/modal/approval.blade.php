@@ -21,6 +21,10 @@
                             <option value="declined">Decline</option>
                         </select>
                     </div>
+                    <div class="my-2">
+                        <label for="approval_feedback" class="form-label fw-semibold">Feedback</label>
+                        <textarea name="approval_feedback" class="form-control" id="approval_feedback" cols="30" rows="10">{{ old('feedback') }}</textarea>
+                    </div>
                     <div class="my-3 d-flex justify-content-end">
                         <button type="submit" class="btn btn-outline-dark">Update</button>
                     </div>
@@ -31,3 +35,16 @@
     </div>
 
 </div>
+
+@if (session('modal') === 'approvalModal')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

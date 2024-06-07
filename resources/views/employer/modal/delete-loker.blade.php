@@ -7,8 +7,8 @@
             </div>
             <div class="modal-body p-4">
 
-                <form action="/update-loker/{{ $loker->id }}" class="form-validate" method="POST"
-                    enctype="multipart/form-data" novalidate>
+                <form action="{{ Route('employer.loker.delete', ['id' => $loker->id]) }}" class="form-validate"
+                    method="POST" novalidate>
                     @csrf
                     @method('delete')
                     <div class="my-4">

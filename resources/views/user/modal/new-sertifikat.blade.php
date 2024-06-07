@@ -9,21 +9,32 @@
                 @csrf
                 <div class="modal-body min-vh-75 scroll-modal p-4">
                     <div class="mb-3">
-                        <label for="" class="form-label fw-semibold">Title</label>
-                        <input type="text" class="form-control" name="title" placeholder="Title Sertifikat"
-                            required autofocus>
+                        <label for="" class="form-label fw-semibold">Title Sertifikat</label>
+                        <input type="text" class="form-control @error('title_sertifikat') is-invalid @enderror"
+                            name="title_sertifikat" placeholder="Title Sertifikat" required autofocus>
+                        @error('title')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3">
                         <label for="organisasi" class="form-label fw-semibold">Nama Organisasi</label>
-                        <input type="text" class="form-control" required placeholder="Nama Organisasi"
-                            name="organisasi">
+                        <input type="text" class="form-control @error('organisasi_sertifikat') is-invalid @enderror"
+                            required placeholder="Nama Organisasi" name="organisasi_sertifikat">
+                        @error('organisasi_sertifikat')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                     <div class="my-3 p-2 row d-flex justify-content-evenly">
                         <label for="" class="form-label fw-semibold">Tanggal Terbit Sertifikat</label>
                         <div class="col-lg-6 my-2">
                             <label for="bulan_terbit" class="form-label fw-semibold">Bulan</label>
                             <div class="col-10">
-                                <select name="bulan_terbit" id="" class="form-select" required>
+                                <select name="bulan_terbit_sertifikat" id=""
+                                    class="form-select @error('bulan_terbit_sertifikat') is-invalid @enderror" required>
                                     <option value="" selected disabled>Bulan Terbit</option>
                                     <option value="1">Januari</option>
                                     <option value="2">Februari</option>
@@ -39,11 +50,18 @@
                                     <option value="12">Desember</option>
                                 </select>
                             </div>
+                            @error('bulan_terbit_sertifikat')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
                         <div class="col-lg-6 my-2">
                             <label for="tahun_terbit" class="form-label fw-semibold">Tahun Terbit</label>
                             <div class="col-10">
-                                <select name="tahun_terbit" class="form-select year" required>
+                                <select name="tahun_terbit_sertifikat"
+                                    class="form-select year @error('tahun_terbit_sertifikat') is-invalid @enderror"
+                                    required>
                                     <option value="" selected disabled>Tahun Terbit</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}
@@ -51,6 +69,11 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @error('tahun_terbit_sertifikat')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
                     </div>
@@ -58,9 +81,10 @@
                     <div class="my-3 p-2 row d-flex justify-content-evenly">
                         <label for="" class="form-label fw-semibold">Tanggal Berakhir Sertifikat</label>
                         <div class="col-lg-6 my-2">
-                            <label for="bulan_berakhir" class="form-label fw-semibold">Bulan</label>
+                            <label for="bulan_berakhir" class="form-label fw-semibold ">Bulan</label>
                             <div class="col-10">
-                                <select name="bulan_berakhir" class="form-select">
+                                <select name="bulan_berakhir_sertifikat"
+                                    class="form-select @error('bulan_berakhir_sertifikat') is-invalid @enderror">
                                     <option value="" selected disabled>Bulan Terakhir</option>
                                     <option value="1">Januari</option>
                                     <option value="2">Februari</option>
@@ -76,11 +100,17 @@
                                     <option value="12">Desember</option>
                                 </select>
                             </div>
+                            @error('bulan_berakhir_sertifikat')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
                         <div class="col-lg-6 my-2">
                             <label for="tahun_berakhir" class="form-label fw-semibold">Tahun Berakhir</label>
                             <div class="col-10">
-                                <select name="tahun_berakhir" class="form-select year">
+                                <select name="tahun_berakhir_sertifikat"
+                                    class="form-select year @error('tahun_berakhir_sertifikat') is-invalid @enderror">
                                     <option value="" selected disabled>Tahun Berakhir</option>
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}">{{ $year }}
@@ -88,24 +118,41 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @error('tahun_berakhir_sertifikat')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
                     </div>
 
                     <div class="my-3">
                         <label for="id_sertifikat" class="form-label fw-semibold">ID Sertifikat</label>
-                        <input type="text" name="id_sertifikat" class="form-control">
+                        <input type="text" name="id_sertifikat"
+                            class="form-control @error('id_sertifikat') is-invalid @enderror">
                         <div class="form-text">
                             ID Sertifikat Dapat Dikosongkan
                         </div>
+                        @error('id_sertifikat')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-3">
                         <label for="url_sertifikat" class="form-label fw-semibold">URL Sertifikat</label>
-                        <input type="text" name="url_sertifikat" class="form-control">
+                        <input type="text" name="url_sertifikat"
+                            class="form-control @error('url_sertifikat') is-invalid @enderror">
                         <div class="form-text">
                             URL Sertifikat Dapat Dikosongkan
                         </div>
+                        @error('url_sertifikat')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="my-4 d-flex justify-content-end">
@@ -117,3 +164,16 @@
         </div>
     </div>
 </div>
+
+@if (session('modal') === 'newSertifikat')
+    @push('script')
+        <script type="module">
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalID = '{{ session('modal') }}';
+                var myModal = new bootstrap.Modal(document.getElementById(modalID));
+                myModal.show();
+                @php session()->forget('modal'); @endphp
+            });
+        </script>
+    @endpush
+@endif

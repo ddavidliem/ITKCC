@@ -61,6 +61,10 @@
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li><a href="/login/employer" class="dropdown-item">Login Employer</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a href="/login/admin/form" class="dropdown-item">Login Staff</a></li>
                                 </ul>
                             </li>
                         @endguest

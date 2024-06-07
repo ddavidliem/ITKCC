@@ -13,17 +13,21 @@ class ApprovalNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $subject;
     public $approval;
     public $template;
+    public $feedback;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($approval, $template)
+    public function __construct($subject, $approval, $template, $feedback)
     {
+        $this->subject = $subject;
         $this->approval = $approval;
         $this->template = $template;
+        $this->feedback = $feedback;
     }
 
     /**
@@ -34,7 +38,7 @@ class ApprovalNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Approval Notification',
+            subject: $this->subject,
         );
     }
 
@@ -46,9 +50,10 @@ class ApprovalNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'admin.approval.update-mail' . $this->template,
+            view: $this->template,
             with: [
                 'approval' => $this->approval,
+                'feedback' => $this->feedback,
             ],
         );
     }

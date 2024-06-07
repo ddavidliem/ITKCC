@@ -11,7 +11,7 @@
                     <button class="mx-3 btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editCompany">Edit
                         Company</button>
                     <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#editLogo">Logo
-                        Company @if (!$employer->logo_perusahaan)
+                        Perusahaan @if (!$employer->logo_perusahaan)
                             <span class="badge text-bg-dark">!</span>
                         @endif </button>
                 </div>
@@ -123,7 +123,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($employer->loker()->withCount('applicants')->orderBy('created_at', 'DESC')->get() as $item)
+                        @foreach ($employer->loker->where('status', '!=', 'Suspended') as $item)
                             <tr>
                                 <td class="p-4 d-flex justify-content-between">
                                     <div class="col-10">

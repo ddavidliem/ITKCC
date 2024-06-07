@@ -1,4 +1,4 @@
-<div class="min-vh-25 p-4 bg-white d-flex justify-content-center ">
+<div class="min-vh-15 p-2 bg-white d-flex justify-content-center ">
     <div class="col-2 p-1">
         <img src="{{ asset('logo/logo-itk.jpg') }}" class="img-fluid" alt="">
     </div>
@@ -7,13 +7,13 @@
             <li class="fw-semibold">Institut Teknologi Kalimantan</li>
             <li class="text-wrap d-flex ">
                 <div class="col-1">
-                    <img src="{{ asset('logo/marker.png') }}" class="img-fluid" alt="">
+                    <img src="{{ asset('content/marker.png') }}" class="img-fluid" alt="">
                 </div>
                 <div>Jl. Soekarno-Hatta Km. 15, Karang Joang, Balikpapan, Kalimantan Timur, 76127</div>
             </li>
             <li class="d-flex">
                 <div class="col-1">
-                    <img src="{{ asset('logo/phone.png') }}" class="img-fluid" alt="">
+                    <img src="{{ asset('content/phone.png') }}" class="img-fluid" alt="">
                 </div>
                 <div>
                     0542-8530800 | 08115390801
@@ -21,7 +21,7 @@
             </li>
             <li class="d-flex">
                 <div class="col-1">
-                    <img src="{{ asset('logo/mail.png') }}" class="img-fluid" alt="">
+                    <img src="{{ asset('content/mail.png') }}" class="img-fluid" alt="">
                 </div>
                 <div>humas@itk.ac.id</div>
             </li>
@@ -33,7 +33,7 @@
                 <li class="fw-semibold">Our Social Media</li>
                 <li class="d-flex">
                     <div class="col-1">
-                        <img src="{{ asset('logo/instagram.png') }}" class="img-fluid" alt="">
+                        <img src="{{ asset('content/instagram.png') }}" class="img-fluid" alt="">
                     </div>
                     <div>
                         <a href="https://www.instagram.com/itk_official?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
@@ -42,7 +42,7 @@
                 </li>
                 <li class="d-flex">
                     <div class="col-1">
-                        <img src="{{ asset('logo/instagram.png') }}" class="img-fluid" alt="">
+                        <img src="{{ asset('content/instagram.png') }}" class="img-fluid" alt="">
                     </div>
                     <div>
                         <a href="https://www.instagram.com/itkcareercenter?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
@@ -51,7 +51,7 @@
                 </li>
                 <li class="d-flex">
                     <div class="col-1">
-                        <img src="{{ asset('logo/web.png') }}" class="img-fluid" alt="">
+                        <img src="{{ asset('content/web.png') }}" class="img-fluid" alt="">
                     </div>
                     <div>
                         <a href="https://bio.itk.ac.id/@itk_official" class="text-decoration-none text-black">Biolink
